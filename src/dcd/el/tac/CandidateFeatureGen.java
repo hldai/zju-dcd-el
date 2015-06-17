@@ -1,0 +1,108 @@
+// author: DHL brnpoem@gmail.com
+
+package dcd.el.tac;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.LinkedList;
+
+import dcd.config.ConfigUtils;
+import dcd.config.IniFile;
+import dcd.el.ELConsts;
+import dcd.el.dict.AliasDict;
+import dcd.el.feature.FeatureLoader;
+import dcd.el.feature.FeaturePack;
+import dcd.el.feature.TfIdfExtractor;
+import dcd.el.feature.TfIdfFeature;
+import dcd.el.io.IOUtils;
+import dcd.el.objects.Document;
+import dcd.el.objects.Mention;
+
+public class CandidateFeatureGen {
+	public static void run(IniFile config) {
+		AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
+		IniFile.Section featSect = config.getSection("feature");
+		FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
+		TfIdfExtractor tfidfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
+
+		String job = config.getValue("main", "job");
+		IniFile.Section sect = config.getSection(job);
+		
+		if (sect == null)
+			return;
+		String queryFileName = sect.getValue("query_file"), srcDocPath = sect
+				.getValue("src_doc_path"), dstFileName = sect
+				.getValue("dst_file");
+
+		genCandidateFeature(dict, featureLoader, tfidfExtractor, queryFileName,
+				srcDocPath, dstFileName);
+	}
+
+	public static void genCandidateFeature(AliasDict dict,
+			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
+			String queryFile, String srcDocPath, String dstFileName) {
+		Document[] documents = QueryReader.toDocuments(queryFile);
+		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
+		int mentionCnt = 0, docCnt = 0;
+		try {
+			for (Document doc : documents) {
+				++docCnt;
+				System.out.println("processing " + docCnt + " " + doc.docId);
+				
+				IOUtils.writeStringVaryLen(dos, doc.docId);
+				dos.writeInt(doc.mentions.length);
+
+				doc.loadText(srcDocPath);
+				TfIdfFeature tfIdfFeature = tfIdfExtractor.getTfIdf(doc.text);
+				doc.text = null; // in case of memory shortage
+				for (Mention mention : doc.mentions) {
+					IOUtils.writeStringAsByteArr(dos, mention.queryId,
+							ELConsts.QUERY_ID_BYTE_LEN);
+					++mentionCnt;
+
+					LinkedList<String> mids = dict.getMids(mention.nameString);
+					if (mids == null) {
+						dos.writeInt(0);
+					} else {
+						dos.writeInt(mids.size());
+
+						FeaturePack[] featPacks = featureLoader
+								.loadFeaturePacks(mids);
+						int i = 0;
+						for (String mid : mids) {
+							IOUtils.writeStringAsByteArr(dos, mid,
+									ELConsts.MID_BYTE_LEN);
+
+							if (featPacks[i] == null) {
+								dos.writeFloat(0);
+								dos.writeDouble(0);
+								// System.out.println(i + "\tnull");
+							} else {
+								dos.writeFloat(featPacks[i].popularity.value);
+
+								if (tfIdfFeature == null)
+									System.out.println("tfIdfFeat");
+								if (featPacks[i].tfidf == null)
+									System.out.println("tfidf");
+								double sim = TfIdfFeature.similarity(
+										tfIdfFeature, featPacks[i].tfidf);
+								dos.writeDouble(sim);
+								// System.out.println(i + "\t" +
+								// featPacks[i].popularity.value + "\t" + sim);
+							}
+							++i;
+						}
+					}
+				}
+				
+//				if (docCnt == 1) break;
+			}
+
+			dos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
+	}
+}
