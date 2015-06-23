@@ -1,9 +1,11 @@
+// author: DHL brnpoem@gmail.com
+
 package dcd.el.objects;
 
 import java.util.Comparator;
 
 public class LinkingResult {
-	public static class ComparatorToQueryId implements Comparator<LinkingResult> {
+	public static class ComparatorOnQueryId implements Comparator<LinkingResult> {
 
 		@Override
 		public int compare(LinkingResult lrl, LinkingResult lrr) {
@@ -18,4 +20,5 @@ public class LinkingResult {
 	public String queryId = null;
 	public String kbid = null;
 	public EntityType type = EntityType.PER;
+	public double confidence = -1;
 }

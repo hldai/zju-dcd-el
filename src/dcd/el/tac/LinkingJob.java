@@ -52,7 +52,7 @@ public class LinkingJob {
 		IniFile.Section sect = config.getSection(job);
 		String candFeatFileName = sect.getValue("cand_feat_file"), goldFileName = sect
 				.getValue("gold_file"), resultFileName = sect
-				.getValue("result_file");
+				.getValue("result_file"), errorListFileName = sect.getValue("error_list_file");
 
 		DataInputStream dis = IOUtils
 				.getBufferedDataInputStream(candFeatFileName);
@@ -66,10 +66,10 @@ public class LinkingJob {
 			}
 		}
 
-		Collections.sort(resultList, new LinkingResult.ComparatorToQueryId());
+		Collections.sort(resultList, new LinkingResult.ComparatorOnQueryId());
 		writeLinkingResultsToFile(resultList, resultFileName);
 
-		Scorer.score(goldFileName, resultFileName);
+		Scorer.score(goldFileName, resultFileName, errorListFileName);
 	}
 
 	private static void processQueryFile(IniFile.Section querySect,
@@ -80,7 +80,7 @@ public class LinkingJob {
 				.getValue("gold_file");
 
 		processQueryFile(linker, queryFileName, srcDocPath, resultFileName);
-		Scorer.score(goldFileName, resultFileName);
+		Scorer.score(goldFileName, resultFileName, null);
 
 		// System.out.println("Time used for retrieving candidates: "
 		// + dict.getRetrieveTime() / 1000.0);
@@ -101,7 +101,7 @@ public class LinkingJob {
 			doc.text = null;
 		}
 		
-		Collections.sort(allResults, new LinkingResult.ComparatorToQueryId());
+		Collections.sort(allResults, new LinkingResult.ComparatorOnQueryId());
 		writeLinkingResultsToFile(allResults, resultFileName);
 	}
 
@@ -140,7 +140,7 @@ public class LinkingJob {
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		try {
 			for (LinkingResult result : results) {
-				writer.write(result.queryId + "\t" + result.kbid + "\n");
+				writer.write(result.queryId + "\t" + result.kbid + "\t" + result.confidence + "\n");
 			}
 			writer.close();
 		} catch (IOException e) {

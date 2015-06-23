@@ -1,3 +1,5 @@
+// author: DHL brnpoem@gmail.com
+
 package dcd.el.objects;
 
 import java.io.BufferedReader;

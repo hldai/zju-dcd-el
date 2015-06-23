@@ -1,3 +1,5 @@
+// author: DHL brnpoem@gmail.com
+
 package dcd.el.feature;
 
 import java.io.BufferedReader;
@@ -78,7 +80,6 @@ public class FeatureLoader {
 		return null;
 	}
 
-	// probably useless
 	public FeaturePack[] loadFeaturePacks(LinkedList<String> candidateMids) {
 		FeaturePack[] featPacks = new FeaturePack[candidateMids
 				.size()];

@@ -2,40 +2,32 @@
 
 package dcd.el;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-
 import dcd.config.IniFile;
-import dcd.el.io.IOUtils;
-import dcd.el.linker.NaiveLinker;
-import dcd.el.objects.Mention;
-import dcd.el.dict.AliasDictWithIndex;
-import dcd.el.feature.FeatureLoader;
 import dcd.el.tac.CandidateFeatureGen;
+import dcd.el.tac.CandidatesRetrieverStat;
 import dcd.el.tac.LinkingJob;
-import dcd.el.tac.MidToEidMapper;
+import dcd.el.utils.CommonUtils;
 
 public class LinkMain {
 	
 	public static void test() {
+		String text = "bob dylan's", word = "dylan";
+		if (CommonUtils.hasWord(text, word))
+			System.out.println("hit");
 	}
-	
-	public static void linkTestWithQueryFile(IniFile config) {
-		LinkingJob.run(config);
-	}
-	
+		
 	public static void runByConfig(IniFile config) {
 		IniFile.Section mainSect = config.getSection("main");
 		String job = mainSect.getValue("job");
 		System.out.println("job: " + job);
 		if (job.startsWith("link")) {
-			linkTestWithQueryFile(config);
+			LinkingJob.run(config);
 		} else if (job.startsWith("gen_local_feature")) {
 			CandidateFeatureGen.run(config);
 		} else if (job.equals("test")) {
 			test();
-		}
+		} else if (job.equals("candidate_retrieve_stat"))
+			CandidatesRetrieverStat.genStat(config);
 	}
 
 	public static void main(String[] args) {
@@ -43,6 +35,7 @@ public class LinkMain {
 
 		IniFile config = new IniFile("d:/data/el/config/tac_link.ini");
 		runByConfig(config);
+//		test();
 
 		long endTime = System.currentTimeMillis();
 		System.out.println((endTime - startTime) / 1000.0 + " seconds used.");

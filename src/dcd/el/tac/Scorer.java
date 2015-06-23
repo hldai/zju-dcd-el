@@ -3,14 +3,19 @@
 package dcd.el.tac;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 
 import dcd.el.io.IOUtils;
 
 public class Scorer {
-	public static void score(String goldFileName, String sytemResultFileName) {
+	public static void score(String goldFileName, String sytemResultFileName, String errorListFileName) {
 		BufferedReader goldReader = IOUtils.getUTF8BufReader(goldFileName), sysReader = IOUtils
 				.getUTF8BufReader(sytemResultFileName);
+		
+		BufferedWriter errListWriter = null;
+		if (errorListFileName != null)
+			errListWriter = IOUtils.getUTF8BufWriter(errorListFileName, false);
 
 		String sysLine = null, goldLine = null;
 		int cnt = 0, correctCnt = 0;
@@ -38,17 +43,26 @@ public class Scorer {
 				if (goldVals[1].startsWith("NIL")) {
 					if (sysVals[1].equals("NIL"))
 						++correctCnt;
+					else {
+						if (errListWriter != null)
+							errListWriter.write(goldVals[0] + "\t" + goldVals[1] + "\t" + sysVals[1] + "\t" + sysVals[2] + "\n");
+					}
 				} else {
 					++inKbCnt;
 					if (sysVals[1].equals(goldVals[1])) {
 						++inKbCorrectCnt;
 						++correctCnt;
+					} else {
+						if (errListWriter != null)
+							errListWriter.write(goldVals[0] + "\t" + goldVals[1] + "\t" + sysVals[1] + "\t" + sysVals[2] + "\n");
 					}
 				}
 			}
 
 			goldReader.close();
 			sysReader.close();
+			if (errListWriter != null)
+				errListWriter.close();
 
 //			System.out.println(cnt + "\t" + inKbCnt);
 			System.out.println("accuracy: " + (double) correctCnt / cnt);

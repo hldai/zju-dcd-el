@@ -6,11 +6,11 @@ public class CommonUtils {
 	// a line: 
 	// <subject>	<predicate>	<object>	.
 	// does not necessarily work for all kind of files 
-	public static String getFieldFromLine(String sline, int fieldIdx) {
+	public static String getFieldFromLine(String line, int fieldIdx) {
 		int begPos = 0, endPos = 0;
 		
 		for (int i = 0; i < fieldIdx; ++i) {
-			begPos = nextTabPos(sline, begPos);
+			begPos = nextTabPos(line, begPos);
 
 			if (begPos < 0)
 				return null;
@@ -18,14 +18,8 @@ public class CommonUtils {
 			++begPos;
 		}
 		
-		endPos = nextTabPos(sline, begPos);
-		
-//		if (endPos > sline.length() || begPos > sline.length()) {
-//			System.out.println(endPos + " " + begPos + " " + sline.length());
-//			System.out.println(sline);
-//		}
-		
-		return sline.substring(begPos, endPos);
+		endPos = nextTabPos(line, begPos);
+		return line.substring(begPos, endPos);
 	}
 	
 	public static int countLines(String str) {
@@ -40,6 +34,29 @@ public class CommonUtils {
 		}
 		
 		return cnt;
+	}
+	
+	// TODO more accurate
+	public static boolean hasWord(String text, String word) {
+		int fromIdx = 0, wordLen = word.length();
+		int idx = 0;
+		while (fromIdx < text.length() && (idx = text.indexOf(word, fromIdx)) >= 0) {
+			if (isWord(text, idx, idx + wordLen - 1))
+				return true;
+			fromIdx = idx + 1;
+		}
+		
+		return false;
+	}
+	
+	public static boolean isWord(String text, int idxLeft, int idxRight) {
+		boolean leftCool = idxLeft == 0 || charIsBreak(text.charAt(idxLeft - 1));
+		boolean rightCool = idxRight == text.length() - 1 || charIsBreak(text.charAt(idxRight + 1));
+		return leftCool && rightCool;
+	}
+	
+	public static boolean charIsBreak(char ch) {
+		return ch > 0 && ch <= 128 && !((ch <= 'z' && ch >= 'a') || (ch <= 'Z' && ch >= 'A'));
 	}
 
 //	public static void stringToByteArr(String s, byte[] bytes) {

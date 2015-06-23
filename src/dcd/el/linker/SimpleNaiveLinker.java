@@ -1,3 +1,5 @@
+// author: DHL brnpoem@gmail.com
+
 package dcd.el.linker;
 
 import dcd.el.ELConsts;
@@ -21,15 +23,16 @@ public class SimpleNaiveLinker {
 			result.queryId = mc.queryId;
 			
 			if (mc.numCandidates > 0) {
-				double curScore = -1, maxScore = -1000;
+				double curScore = -1, maxScore = -1e5;
 				for (int j = 0; j < mc.numCandidates; ++j) {
-					curScore = Math.log(mc.popularities[j]) + 5 * Math.log(mc.tfidfSimilarities[j]);
+					curScore = Math.log(mc.popularities[j]) + 10 * Math.log(mc.tfidfSimilarities[j]);
 //					System.out.println(mc.popularities[j] + "\t" + mc.tfidfSimilarities[j] + "\t" + curScore + "\t" + maxScore);
 					if (curScore > maxScore) {
 						result.kbid = mc.mids[j];
 						maxScore = curScore;
 					}
 				}
+				result.confidence = maxScore;
 			}
 			
 			results[i] = result;

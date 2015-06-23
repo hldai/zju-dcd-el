@@ -10,6 +10,7 @@ import dcd.config.ConfigUtils;
 import dcd.config.IniFile;
 import dcd.el.ELConsts;
 import dcd.el.dict.AliasDict;
+import dcd.el.dict.CandidatesRetriever;
 import dcd.el.feature.FeatureLoader;
 import dcd.el.feature.FeaturePack;
 import dcd.el.feature.TfIdfExtractor;
@@ -41,13 +42,16 @@ public class CandidateFeatureGen {
 	public static void genCandidateFeature(AliasDict dict,
 			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
 			String queryFile, String srcDocPath, String dstFileName) {
+		CandidatesRetriever candidatesRetriever = new CandidatesRetriever(dict);
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
 		int mentionCnt = 0, docCnt = 0;
 		try {
-			for (Document doc : documents) {
+			for (Document doc : documents) {				
 				++docCnt;
 				System.out.println("processing " + docCnt + " " + doc.docId);
+				
+				CandidatesRetriever.Candidates[] candidates = candidatesRetriever.getCandidatesInDocument(doc);
 				
 				IOUtils.writeStringVaryLen(dos, doc.docId);
 				dos.writeInt(doc.mentions.length);
@@ -55,12 +59,15 @@ public class CandidateFeatureGen {
 				doc.loadText(srcDocPath);
 				TfIdfFeature tfIdfFeature = tfIdfExtractor.getTfIdf(doc.text);
 				doc.text = null; // in case of memory shortage
-				for (Mention mention : doc.mentions) {
+				for (int i = 0; i < doc.mentions.length; ++i) {
+					Mention mention = doc.mentions[i];
+					
 					IOUtils.writeStringAsByteArr(dos, mention.queryId,
 							ELConsts.QUERY_ID_BYTE_LEN);
 					++mentionCnt;
 
-					LinkedList<String> mids = dict.getMids(mention.nameString);
+//					LinkedList<String> mids = dict.getMids(mention.nameString);
+					LinkedList<String> mids = candidates[i].mids;
 					if (mids == null) {
 						dos.writeInt(0);
 					} else {
@@ -68,29 +75,29 @@ public class CandidateFeatureGen {
 
 						FeaturePack[] featPacks = featureLoader
 								.loadFeaturePacks(mids);
-						int i = 0;
+						int ix = 0;
 						for (String mid : mids) {
 							IOUtils.writeStringAsByteArr(dos, mid,
 									ELConsts.MID_BYTE_LEN);
 
-							if (featPacks[i] == null) {
+							if (featPacks[ix] == null) {
 								dos.writeFloat(0);
 								dos.writeDouble(0);
 								// System.out.println(i + "\tnull");
 							} else {
-								dos.writeFloat(featPacks[i].popularity.value);
+								dos.writeFloat(featPacks[ix].popularity.value);
 
 								if (tfIdfFeature == null)
 									System.out.println("tfIdfFeat");
-								if (featPacks[i].tfidf == null)
+								if (featPacks[ix].tfidf == null)
 									System.out.println("tfidf");
 								double sim = TfIdfFeature.similarity(
-										tfIdfFeature, featPacks[i].tfidf);
+										tfIdfFeature, featPacks[ix].tfidf);
 								dos.writeDouble(sim);
 								// System.out.println(i + "\t" +
 								// featPacks[i].popularity.value + "\t" + sim);
 							}
-							++i;
+							++ix;
 						}
 					}
 				}
