@@ -15,7 +15,7 @@ public class LinkMain {
 		if (CommonUtils.hasWord(text, word))
 			System.out.println("hit");
 	}
-		
+
 	public static void runByConfig(IniFile config) {
 		IniFile.Section mainSect = config.getSection("main");
 		String job = mainSect.getValue("job");

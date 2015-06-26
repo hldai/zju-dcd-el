@@ -2,28 +2,30 @@
 
 package dcd.el.feature;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import dcd.el.ELConsts;
 import dcd.el.io.IOUtils;
+import dcd.el.objects.ByteArrayString;
 
 public class FeatureLoader {
-	private class FeaturePackSortHelper {
+	private class FeaturePackSortEntry {
 		public long filePointer = -1;
 		public FeaturePack featPack = null;
 	}
 
 	private class FilePointerComparator implements
-			Comparator<FeaturePackSortHelper> {
+			Comparator<FeaturePackSortEntry> {
 		@Override
-		public int compare(FeaturePackSortHelper hl, FeaturePackSortHelper hr) {
-			if (hl.filePointer < hr.filePointer)
+		public int compare(FeaturePackSortEntry el, FeaturePackSortEntry er) {
+			if (el.filePointer < er.filePointer)
 				return -1;
-			if (hl.filePointer == hr.filePointer)
+			if (el.filePointer == er.filePointer)
 				return 0;
 			return 1;
 		}
@@ -34,18 +36,16 @@ public class FeatureLoader {
 			featFileRaf = new RandomAccessFile(featFileName, "r");
 
 			System.out.println("Loading index...");
-			int numLines = IOUtils.getNumLinesFor(featIndexFileName);
-			mids = new String[numLines];
-			filePointers = new long[numLines];
-			BufferedReader reader = IOUtils.getUTF8BufReader(featIndexFileName);
-			String line = null;
-			for (int i = 0; i < numLines; ++i) {
-				line = reader.readLine();
-				String[] vals = line.split("\t");
-				mids[i] = vals[0];
-				filePointers[i] = Long.valueOf(vals[1]);
+			DataInputStream dis = IOUtils.getBufferedDataInputStream(featIndexFileName);
+			int len = dis.readInt();
+			mids = new ByteArrayString[len];
+			filePointers = new long[len];
+			for (int i = 0; i < len; ++i) {
+				mids[i] = new ByteArrayString();
+				mids[i].fromFileWithFixedLen(dis, ELConsts.MID_BYTE_LEN);
+				filePointers[i] = dis.readLong();
 			}
-			reader.close();
+			dis.close();
 			System.out.println("Done.");
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -79,39 +79,37 @@ public class FeatureLoader {
 
 		return null;
 	}
-
-	public FeaturePack[] loadFeaturePacks(LinkedList<String> candidateMids) {
-		FeaturePack[] featPacks = new FeaturePack[candidateMids
-				.size()];
-		FeaturePackSortHelper[] sortHelpers = new FeaturePackSortHelper[candidateMids
+	
+	public FeaturePack[] loadFeaturePacks(LinkedList<ByteArrayString> candidateMids) {
+		FeaturePack[] featPacks = new FeaturePack[candidateMids.size()];
+		FeaturePackSortEntry[] sortEntries = new FeaturePackSortEntry[candidateMids
 				.size()];
 
 		int notNullCnt = 0, cnt = 0;
-		for (String mid : candidateMids) {
+		for (ByteArrayString mid : candidateMids) {
 			int pos = Arrays.binarySearch(mids, mid);
 
 			if (pos < 0) {
 				featPacks[cnt] = null;
 			} else {
 				featPacks[cnt] = new FeaturePack();
-				sortHelpers[notNullCnt] = new FeaturePackSortHelper();
-				sortHelpers[notNullCnt].featPack = featPacks[cnt];
-				sortHelpers[notNullCnt].filePointer = filePointers[pos];
+				sortEntries[notNullCnt] = new FeaturePackSortEntry();
+				sortEntries[notNullCnt].featPack = featPacks[cnt];
+				sortEntries[notNullCnt].filePointer = filePointers[pos];
 				++notNullCnt;
 			}
 			++cnt;
 		}
 
-		Arrays.sort(sortHelpers, 0, notNullCnt, fpComparator);
+		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
 
 		try {
 			for (int i = 0; i < notNullCnt; ++i) {
-				FeaturePackSortHelper sortHelper = sortHelpers[i];
-				featFileRaf.seek(sortHelper.filePointer);
+				FeaturePackSortEntry sortEntry = sortEntries[i];
+				featFileRaf.seek(sortEntry.filePointer);
 				featFileRaf.readInt(); // ignore wid
-//				sortHelper.featPack.wid = featFileRaf.readInt();
-				sortHelper.featPack.popularity.fromFile(featFileRaf);
-				sortHelper.featPack.tfidf.fromFile(featFileRaf);
+				sortEntry.featPack.popularity.fromFile(featFileRaf);
+				sortEntry.featPack.tfidf.fromFile(featFileRaf);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -121,7 +119,7 @@ public class FeatureLoader {
 	}
 
 	RandomAccessFile featFileRaf = null;
-	String[] mids = null;
+	ByteArrayString[] mids = null;
 	long[] filePointers = null;
 
 	FilePointerComparator fpComparator = new FilePointerComparator();

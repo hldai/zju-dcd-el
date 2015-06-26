@@ -5,8 +5,11 @@ package dcd.el.objects;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 
+// string stored as a byte array
+// used to save memory
 public class ByteArrayString implements Comparable<ByteArrayString> {
 	public ByteArrayString() {
 
@@ -113,6 +116,15 @@ public class ByteArrayString implements Comparable<ByteArrayString> {
 		bytes = new byte[len];
 		try {
 			dis.read(bytes);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void fromFileWithFixedLen(RandomAccessFile raf, int len) {
+		bytes = new byte[len];
+		try {
+			raf.read(bytes);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

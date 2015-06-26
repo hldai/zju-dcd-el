@@ -56,7 +56,7 @@ public class LinkingJob {
 
 		DataInputStream dis = IOUtils
 				.getBufferedDataInputStream(candFeatFileName);
-		DocMentionCandidates dmc = new DocMentionCandidates();
+		DocFeaturesMentionCandidates dmc = new DocFeaturesMentionCandidates();
 		LinkedList<LinkingResult> resultList = new LinkedList<LinkingResult>();
 		while (dmc.fromFile(dis)) {
 			LinkingResult[] results = simpleNaiveLinker.link14(dmc);

@@ -2,12 +2,10 @@
 
 package dcd.el.linker;
 
-import java.util.LinkedList;
-
 import dcd.el.dict.AliasDict;
+import dcd.el.dict.CandidatesRetriever;
 import dcd.el.objects.Document;
 import dcd.el.objects.LinkingResult;
-import dcd.el.objects.Mention;
 import dcd.el.tac.MidToEidMapper;
 
 public abstract class LinkerWithAliasDict implements EntityLinker {
@@ -17,11 +15,13 @@ public abstract class LinkerWithAliasDict implements EntityLinker {
 	public abstract LinkingResult[] link14(Document doc);
 		
 	public LinkerWithAliasDict(AliasDict dict, MidToEidMapper mapper) {
-		this.aliasDict = dict;
+//		this.aliasDict = dict;
+		candidatesRetriever = new CandidatesRetriever(dict);
 		this.mteMapper = mapper;
 	}
 	
 	
-	protected AliasDict aliasDict = null;
+//	protected AliasDict aliasDict = null;
+	protected CandidatesRetriever candidatesRetriever = null;
 	protected MidToEidMapper mteMapper = null;
 }

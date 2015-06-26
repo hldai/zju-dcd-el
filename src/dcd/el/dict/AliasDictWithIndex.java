@@ -12,6 +12,7 @@ import java.util.LinkedList;
 
 import dcd.el.ELConsts;
 import dcd.el.io.IOUtils;
+import dcd.el.objects.ByteArrayString;
 import dcd.el.utils.CommonUtils;
 
 public class AliasDictWithIndex implements AliasDict {
@@ -51,7 +52,7 @@ public class AliasDictWithIndex implements AliasDict {
 		}
 	}
 	
-	public LinkedList<String> getMids(String alias) {
+	public LinkedList<ByteArrayString> getMids(String alias) {
 		long curTime = System.currentTimeMillis();
 		
 		alias = alias.toLowerCase();
@@ -80,7 +81,7 @@ public class AliasDictWithIndex implements AliasDict {
 			return null;
 		}
 		
-		LinkedList<String> results = getMidsFromMidFile(mb.begPos, mb.len);
+		LinkedList<ByteArrayString> results = getMidsFromMidFile(mb.begPos, mb.len);
 		retTime += System.currentTimeMillis() - curTime;
 		return results;
 	}
@@ -121,17 +122,14 @@ public class AliasDictWithIndex implements AliasDict {
 		return null;
 	}
 	
-	private LinkedList<String> getMidsFromMidFile(int begPos, int len) {
-		LinkedList<String> mids = new LinkedList<String>();
-		byte[] bytes = new byte[ELConsts.MID_BYTE_LEN];
+	private LinkedList<ByteArrayString> getMidsFromMidFile(int begPos, int len) {
+		LinkedList<ByteArrayString> mids = new LinkedList<ByteArrayString>();
 		try {
 			midRaf.seek(begPos * ELConsts.MID_BYTE_LEN);
-			String midFixLen = null;
 			for (int i = 0; i < len; ++i) {
-				midRaf.read(bytes);
-//				System.out.println(new String(bytes));
-				midFixLen = new String(bytes);
-				mids.add(midFixLen.trim());
+				ByteArrayString mid = new ByteArrayString();
+				mid.fromFileWithFixedLen(midRaf, ELConsts.MID_BYTE_LEN);
+				mids.add(mid);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

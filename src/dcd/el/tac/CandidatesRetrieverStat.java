@@ -14,6 +14,7 @@ import dcd.el.ELConsts;
 import dcd.el.dict.AliasDict;
 import dcd.el.dict.CandidatesRetriever;
 import dcd.el.io.IOUtils;
+import dcd.el.objects.ByteArrayString;
 import dcd.el.objects.Document;
 import dcd.el.objects.LinkingResult;
 import dcd.el.utils.CommonUtils;
@@ -41,6 +42,7 @@ public class CandidatesRetrieverStat {
 		int candidateCnt = 0;
 		LinkingResult tmpResult = new LinkingResult();
 		for (Document doc : documents) {
+			System.out.println(doc.docId);
 			queryCnt += doc.mentions.length;
 			CandidatesRetriever.Candidates[] candidates = candidatesRetriever
 					.getCandidatesInDocument(doc);
@@ -70,7 +72,7 @@ public class CandidatesRetrieverStat {
 					if (candidates[i].mids == null) {
 						continue;
 					}
-					for (String mid : candidates[i].mids) {
+					for (ByteArrayString mid : candidates[i].mids) {
 						String eid = mapper.getEid(mid);
 						if (eid != null && eid.equals(goldKbId)) {
 							++hitCnt;

@@ -7,6 +7,8 @@ import java.util.Random;
 
 import dcd.el.ELConsts;
 import dcd.el.dict.AliasDict;
+import dcd.el.dict.CandidatesRetriever;
+import dcd.el.objects.ByteArrayString;
 import dcd.el.objects.Document;
 import dcd.el.objects.LinkingResult;
 import dcd.el.tac.MidToEidMapper;
@@ -20,20 +22,21 @@ public class RandomLinker extends LinkerWithAliasDict {
 	@Override
 	public LinkingResult[] link(Document doc) {
 		LinkingResult[] results = new LinkingResult[doc.mentions.length];
+		CandidatesRetriever.Candidates[] candidates = candidatesRetriever
+				.getCandidatesInDocument(doc);
 
 		for (int i = 0; i < results.length; ++i) {
 			LinkingResult result = new LinkingResult();
 			result.queryId = doc.mentions[i].queryId;
 			result.kbid = ELConsts.NIL;
 
-			LinkedList<String> mids = aliasDict
-					.getMids(doc.mentions[i].nameString);
+			LinkedList<ByteArrayString> mids = candidates[i].mids;
 			if (mids != null) {
 				int idx = random.nextInt(mids.size());
 				int j = 0;
-				for (String mid : mids) {
+				for (ByteArrayString mid : mids) {
 					if (j == idx)
-						result.kbid = mid;
+						result.kbid = mid.toString().trim();
 					++j;
 				}
 			}
@@ -46,26 +49,14 @@ public class RandomLinker extends LinkerWithAliasDict {
 
 	@Override
 	public LinkingResult[] link14(Document doc) {
-		LinkingResult[] results = new LinkingResult[doc.mentions.length];
-
-		for (int i = 0; i < results.length; ++i) {
-			LinkingResult result = new LinkingResult();
-			result.queryId = doc.mentions[i].queryId;
-			result.kbid = ELConsts.NIL;
-			
-			LinkedList<String> mids = aliasDict.getMids(doc.mentions[i].nameString);
-			
-			// randomly choose an eid from the candidates
-			String[] eids = new String[mids.size()];
-			int cnt = 0;
-			for (String mid : mids) {
-				String eid = mteMapper.getEid(mid);
-				if (eid != null) {
-					eids[cnt++] = eid;
+		LinkingResult[] results = link(doc);
+		for (LinkingResult result : results) {
+			if (!result.kbid.equals(ELConsts.NIL)) {
+				result.kbid = mteMapper.getEid(result.kbid);
+				if (result.kbid == null) {
+					result.kbid = ELConsts.NIL;
 				}
 			}
-			if (cnt > 0)
-				result.kbid = eids[random.nextInt(cnt)];
 		}
 		
 		return results;

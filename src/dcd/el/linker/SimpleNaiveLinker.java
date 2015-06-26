@@ -4,8 +4,8 @@ package dcd.el.linker;
 
 import dcd.el.ELConsts;
 import dcd.el.objects.LinkingResult;
-import dcd.el.tac.DocMentionCandidates;
-import dcd.el.tac.MentionCandidates;
+import dcd.el.tac.DocFeaturesMentionCandidates;
+import dcd.el.tac.FeaturesMentionCandidates;
 import dcd.el.tac.MidToEidMapper;
 
 public class SimpleNaiveLinker {	
@@ -13,10 +13,10 @@ public class SimpleNaiveLinker {
 		this.mteMapper = mteMapper;
 	}
 
-	public LinkingResult[] link(DocMentionCandidates dmc) {
-		LinkingResult[] results = new LinkingResult[dmc.mentionsCandidates.length];
+	public LinkingResult[] link(DocFeaturesMentionCandidates dmc) {
+		LinkingResult[] results = new LinkingResult[dmc.featuresMentionCandidates.length];
 		for (int i = 0; i < results.length; ++i) {
-			MentionCandidates mc = dmc.mentionsCandidates[i];
+			FeaturesMentionCandidates mc = dmc.featuresMentionCandidates[i];
 			
 			LinkingResult result = new LinkingResult();
 			result.kbid = ELConsts.NIL;
@@ -41,7 +41,7 @@ public class SimpleNaiveLinker {
 		return results;
 	}
 	
-	public LinkingResult[] link14(DocMentionCandidates dmc) {
+	public LinkingResult[] link14(DocFeaturesMentionCandidates dmc) {
 		LinkingResult[] results = link(dmc);
 		for (LinkingResult result : results) {
 			if (!result.kbid.equals(ELConsts.NIL)) {

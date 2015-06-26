@@ -2,12 +2,13 @@ package dcd.el.dict;
 
 import java.util.LinkedList;
 
+import dcd.el.objects.ByteArrayString;
 import dcd.el.objects.Document;
 import dcd.el.utils.CommonUtils;
 
 public class CandidatesRetriever {
 	public static class Candidates {
-		public LinkedList<String> mids = null;
+		public LinkedList<ByteArrayString> mids = null;
 	}
 	
 	public CandidatesRetriever(AliasDict dict) {
@@ -33,17 +34,17 @@ public class CandidatesRetriever {
 		return candidates;
 	}
 	
-	private static void mergeMids(LinkedList<String> mainMidList, LinkedList<String> newList) {
+	private static void mergeMids(LinkedList<ByteArrayString> mainMidList, LinkedList<ByteArrayString> newList) {
 		if (newList == null)
 			return ;
 		
 		if (mainMidList == null)
-			mainMidList = new LinkedList<String>();
+			mainMidList = new LinkedList<ByteArrayString>();
 		
-		for (String newMid : newList) {
+		for (ByteArrayString newMid : newList) {
 			boolean flg = true;
-			for (String mid : mainMidList) {
-				if (mid.equals(newMid)) {
+			for (ByteArrayString mid : mainMidList) {
+				if (mid.compareTo(newMid) == 0) {
 					flg = false;
 					break;
 				}

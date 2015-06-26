@@ -10,6 +10,9 @@ import dcd.el.ELConsts;
 import dcd.el.io.IOUtils;
 import dcd.el.objects.ByteArrayString;
 
+// map mid to eid
+// mid: entity id of freebase
+// eid: entity id of the 2014 KB
 public class MidToEidMapper {
 	public MidToEidMapper(String midToEidFileName) {
 		System.out.println("Loading mid to eid file...");
@@ -40,6 +43,13 @@ public class MidToEidMapper {
 		if (pos < 0)
 			return null;
 		
+		return eids[pos].toString();
+	}
+	
+	public String getEid(ByteArrayString mid) {
+		int pos = Arrays.binarySearch(mids, mid);
+		if (pos < 0)
+			return null;
 		return eids[pos].toString();
 	}
 

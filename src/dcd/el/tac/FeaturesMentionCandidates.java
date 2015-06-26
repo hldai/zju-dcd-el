@@ -9,7 +9,8 @@ import java.io.IOException;
 import dcd.el.ELConsts;
 import dcd.el.io.IOUtils;
 
-public class MentionCandidates {
+// features of the candidates of a mention
+public class FeaturesMentionCandidates {
 	public void toFile(DataOutputStream dos) {
 		IOUtils.writeStringAsByteArr(dos, queryId, ELConsts.QUERY_ID_BYTE_LEN);
 		try {

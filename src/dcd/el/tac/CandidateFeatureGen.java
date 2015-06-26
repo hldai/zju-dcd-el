@@ -16,6 +16,7 @@ import dcd.el.feature.FeaturePack;
 import dcd.el.feature.TfIdfExtractor;
 import dcd.el.feature.TfIdfFeature;
 import dcd.el.io.IOUtils;
+import dcd.el.objects.ByteArrayString;
 import dcd.el.objects.Document;
 import dcd.el.objects.Mention;
 
@@ -24,6 +25,7 @@ public class CandidateFeatureGen {
 		AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
 		IniFile.Section featSect = config.getSection("feature");
 		FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
+//		return ;
 		TfIdfExtractor tfidfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
 
 		String job = config.getValue("main", "job");
@@ -66,24 +68,23 @@ public class CandidateFeatureGen {
 							ELConsts.QUERY_ID_BYTE_LEN);
 					++mentionCnt;
 
-//					LinkedList<String> mids = dict.getMids(mention.nameString);
-					LinkedList<String> mids = candidates[i].mids;
+					LinkedList<ByteArrayString> mids = candidates[i].mids;
 					if (mids == null) {
 						dos.writeInt(0);
 					} else {
 						dos.writeInt(mids.size());
+//						System.out.println(mids.size());
 
 						FeaturePack[] featPacks = featureLoader
 								.loadFeaturePacks(mids);
 						int ix = 0;
-						for (String mid : mids) {
-							IOUtils.writeStringAsByteArr(dos, mid,
-									ELConsts.MID_BYTE_LEN);
+						for (ByteArrayString mid : mids) {
+							mid.toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
 
 							if (featPacks[ix] == null) {
 								dos.writeFloat(0);
 								dos.writeDouble(0);
-								// System.out.println(i + "\tnull");
+//								 System.out.println(ix + "\tnull");
 							} else {
 								dos.writeFloat(featPacks[ix].popularity.value);
 

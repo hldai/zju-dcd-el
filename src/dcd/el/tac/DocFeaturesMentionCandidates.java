@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import dcd.el.io.IOUtils;
 
-// TODO change name
-public class DocMentionCandidates {
+// FeaturesMentionCandidates of all mentions in a document
+public class DocFeaturesMentionCandidates {
 	public boolean fromFile(DataInputStream dis) {
 		try {
 			if (dis.available() <= 0)
@@ -20,10 +20,10 @@ public class DocMentionCandidates {
 		try {
 			docId = IOUtils.readStringVaryLen(dis);
 			int numMentions = dis.readInt();
-			mentionsCandidates = new MentionCandidates[numMentions];
+			featuresMentionCandidates = new FeaturesMentionCandidates[numMentions];
 			for (int i = 0; i < numMentions; ++i) {
-				mentionsCandidates[i] = new MentionCandidates();
-				mentionsCandidates[i].fromFile(dis);
+				featuresMentionCandidates[i] = new FeaturesMentionCandidates();
+				featuresMentionCandidates[i].fromFile(dis);
 			}
 			
 			return true;
@@ -35,5 +35,5 @@ public class DocMentionCandidates {
 	}
 	
 	public String docId = null;
-	public MentionCandidates[] mentionsCandidates = null;
+	public FeaturesMentionCandidates[] featuresMentionCandidates = null;
 }
