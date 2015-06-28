@@ -8,16 +8,19 @@ import java.io.IOException;
 
 import dcd.el.ELConsts;
 import dcd.el.io.IOUtils;
+import dcd.el.objects.ByteArrayString;
 
-// features of the candidates of a mention
-public class FeaturesMentionCandidates {
+// the linking basis of a mention
+// the data needed to link a mention
+public class LinkingBasisMention {
 	public void toFile(DataOutputStream dos) {
 		IOUtils.writeStringAsByteArr(dos, queryId, ELConsts.QUERY_ID_BYTE_LEN);
 		try {
 			dos.writeInt(numCandidates);
 			
 			for (int i = 0; i < numCandidates; ++i) {
-				IOUtils.writeStringAsByteArr(dos, mids[i], ELConsts.MID_BYTE_LEN);
+//				IOUtils.writeStringAsByteArr(dos, mids[i], ELConsts.MID_BYTE_LEN);
+				mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
 				dos.writeFloat(popularities[i]);
 				dos.writeDouble(tfidfSimilarities[i]);
 			}
@@ -37,11 +40,13 @@ public class FeaturesMentionCandidates {
 		queryId = IOUtils.readStringInByteArr(dis, ELConsts.QUERY_ID_BYTE_LEN);
 		try {
 			numCandidates = dis.readInt();
-			mids = new String[numCandidates];
+			mids = new ByteArrayString[numCandidates];
 			popularities = new float[numCandidates];
 			tfidfSimilarities = new double[numCandidates];
 			for (int i = 0; i < numCandidates; ++i) {
-				mids[i] = IOUtils.readStringInByteArr(dis, ELConsts.MID_BYTE_LEN);
+//				mids[i] = IOUtils.readStringInByteArr(dis, ELConsts.MID_BYTE_LEN);
+				mids[i] = new ByteArrayString();
+				mids[i].fromFileWithFixedLen(dis, ELConsts.MID_BYTE_LEN);
 				popularities[i] = dis.readFloat();
 				tfidfSimilarities[i] = dis.readDouble();
 			}
@@ -55,7 +60,7 @@ public class FeaturesMentionCandidates {
 	public String queryId = null;
 	public int numCandidates = 0;
 	
-	public String[] mids = null;
+	public ByteArrayString[] mids = null;
 	public float[] popularities = null;
 	public double[] tfidfSimilarities = null;
 }

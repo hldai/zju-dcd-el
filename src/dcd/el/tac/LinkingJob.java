@@ -4,6 +4,7 @@ package dcd.el.tac;
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import dcd.el.io.IOUtils;
 import dcd.el.linker.LinkerWithAliasDict;
 import dcd.el.linker.NaiveLinker;
 import dcd.el.linker.RandomLinker;
+import dcd.el.linker.SimpleLinker;
 import dcd.el.linker.SimpleNaiveLinker;
 import dcd.el.objects.Document;
 import dcd.el.objects.LinkingResult;
@@ -28,10 +30,10 @@ public class LinkingJob {
 				.getValue("linker");
 		System.out.println(linkerName);
 
-		if (job.startsWith("link_with_cand_feat")) {
+		if (job.startsWith("link_with_linking_basis")) {
 			if (linkerName.equals("naive")) {
 				SimpleNaiveLinker simpleNaiveLinker = getSimpleNaiveLinker(config);
-				processCandidateLocalFeatureFile(config, job, simpleNaiveLinker);
+				linkWithCandidateFeatureFile(config, job, simpleNaiveLinker);
 			}
 		} else if (job.equals("link_full")) {
 			LinkerWithAliasDict linker = getFullLinker(config, linkerName);
@@ -44,11 +46,50 @@ public class LinkingJob {
 
 			processQueryFile(querySect, linker);
 			// TODO close
+		} else if (job.startsWith("gen_linking_basis")) {
+			AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
+			IniFile.Section featSect = config.getSection("feature");
+			FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
+			TfIdfExtractor tfidfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
+
+			IniFile.Section sect = config.getSection(job);
+			String queryFileName = sect.getValue("query_file"), srcDocPath = sect
+					.getValue("src_doc_path"), dstFileName = sect
+					.getValue("dst_file");
+
+			genLinkingBasis(dict, featureLoader, tfidfExtractor, queryFileName,
+					srcDocPath, dstFileName);
 		}
 	}
+	
+	private static void genLinkingBasis(AliasDict dict,
+			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
+			String queryFile, String srcDocPath, String dstFileName) {
+		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(dict, featureLoader, tfIdfExtractor);
+		Document[] documents = QueryReader.toDocuments(queryFile);
+		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
+		int mentionCnt = 0, docCnt = 0;
+		try {
+			for (Document doc : documents) {
+				++docCnt;
+				mentionCnt += doc.mentions.length;
+				System.out.println("processing " + docCnt + " " + doc.docId);
+				
+				doc.loadText(srcDocPath);
+				LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc);
+				doc.text = null;
+				linkingBasisDoc.toFile(dos);
+			}
+			dos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
+	}
 
-	private static void processCandidateLocalFeatureFile(IniFile config, String job,
-			SimpleNaiveLinker simpleNaiveLinker) {
+	private static void linkWithCandidateFeatureFile(IniFile config, String job,
+			SimpleLinker simpleLinker) {
 		IniFile.Section sect = config.getSection(job);
 		String candFeatFileName = sect.getValue("cand_feat_file"), goldFileName = sect
 				.getValue("gold_file"), resultFileName = sect
@@ -56,10 +97,10 @@ public class LinkingJob {
 
 		DataInputStream dis = IOUtils
 				.getBufferedDataInputStream(candFeatFileName);
-		DocFeaturesMentionCandidates dmc = new DocFeaturesMentionCandidates();
+		LinkingBasisDoc linkingBasisDoc = new LinkingBasisDoc();
 		LinkedList<LinkingResult> resultList = new LinkedList<LinkingResult>();
-		while (dmc.fromFile(dis)) {
-			LinkingResult[] results = simpleNaiveLinker.link14(dmc);
+		while (linkingBasisDoc.fromFile(dis)) {
+			LinkingResult[] results = simpleLinker.link14(linkingBasisDoc);
 			for (LinkingResult result : results) {
 				// writer.write(result.queryId + "\t" + result.kbid + "\n");
 				resultList.add(result);

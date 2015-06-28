@@ -16,18 +16,19 @@ public class TfIdfFeature extends Feature {
 			if (raf.getFilePointer() >= raf.length())
 				return false;
 
-//			if (withWid)
-//				wid = raf.readInt();
-
 			int len = raf.readInt();
 			if (len == 0) {
 				termIndices = null;
-				values = null;
+//				values = null;
+				tfs = null;
+				idfs = null;
 				return true;
 			}
 //			System.out.println(len);
 			termIndices = new int[len];
-			values = new double[len];
+//			values = new double[len];
+			tfs = new float[len];
+			idfs = new float[len];
 
 			FileChannel fc = raf.getChannel();
 			ByteBuffer buf = ByteBuffer.allocate(len * Integer.BYTES);
@@ -40,15 +41,9 @@ public class TfIdfFeature extends Feature {
 			// System.out.println("term " + termIndices[i]);
 			// }
 
-			buf = ByteBuffer.allocate(len * Double.BYTES);
-			buf.clear();
-			fc.read(buf);
-			buf.rewind();
-			buf.asDoubleBuffer().get(values);
+			readFloatArrayWithFileChannel(fc, tfs);
+			readFloatArrayWithFileChannel(fc, idfs);
 
-			// for (int i = 0; i < 10; ++i) {
-			// System.out.println("term " + values[i]);
-			// }
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -63,23 +58,26 @@ public class TfIdfFeature extends Feature {
 			if (dis.available() <= 0)
 				return false;
 
-//			if (withWid)
-//				wid = dis.readInt();
-
 			int numTerms = dis.readInt();
 			if (numTerms == 0) {
 				termIndices = null;
-				values = null;
+//				values = null;
+				tfs = null;
+				idfs = null;
 				return true;
 			}
 
 			termIndices = new int[numTerms];
-			values = new double[numTerms];
+//			values = new double[numTerms];
+			tfs = new float[numTerms];
+			idfs = new float[numTerms];
 
 			for (int i = 0; i < numTerms; ++i)
 				termIndices[i] = dis.readInt();
 			for (int i = 0; i < numTerms; ++i)
-				values[i] = dis.readDouble();
+				tfs[i] = dis.readFloat();
+			for (int i = 0; i < numTerms; ++i)
+				idfs[i] = dis.readFloat();
 
 			return true;
 		} catch (IOException e) {
@@ -90,22 +88,20 @@ public class TfIdfFeature extends Feature {
 
 	@Override
 	public void toFile(RandomAccessFile raf) {
-		if (values == null)
+		if (tfs == null)
 			toFile(raf, 0);
-		toFile(raf, values.length);
+		toFile(raf, tfs.length);
 	}
 
 	@Override
 	public void toFile(DataOutputStream dos) {
-		if (values == null)
+		if (tfs == null)
 			toFile(dos, 0);
-		toFile(dos, values.length);
+		toFile(dos, tfs.length);
 	}
 
 	public void toFile(RandomAccessFile raf, int numTerms) {
 		try {
-//			if (withWid)
-//				raf.writeInt(wid);
 			raf.writeInt(numTerms);
 			if (numTerms == 0)
 				return;
@@ -117,19 +113,16 @@ public class TfIdfFeature extends Feature {
 			buf.asIntBuffer().put(termIndices, 0, numTerms);
 			outChannel.write(buf);
 
-			buf = ByteBuffer.allocate(numTerms * Double.BYTES);
-			buf.clear();
-			buf.asDoubleBuffer().put(values, 0, numTerms);
-			outChannel.write(buf);
+			writeFloatArrayWithFileChannel(outChannel, tfs, numTerms);
+			writeFloatArrayWithFileChannel(outChannel, idfs, numTerms);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
 
 	public void toFile(DataOutputStream dos, int numTerms) {
 		try {
-//			if (withWid)
-//				dos.writeInt(wid);
 			dos.writeInt(numTerms);
 			if (numTerms == 0)
 				return;
@@ -139,45 +132,126 @@ public class TfIdfFeature extends Feature {
 			}
 
 			for (int i = 0; i < numTerms; ++i) {
-				dos.writeDouble(values[i]);
+				dos.writeFloat(tfs[i]);
+			}
+			for (int i = 0; i < numTerms; ++i) {
+				dos.writeFloat(idfs[i]);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	public static double tfSimilarity(TfIdfFeature fl, TfIdfFeature fr) {
+		return similarity(fl, fr, false);
+	}
+	
+	
 	public static double similarity(TfIdfFeature fl, TfIdfFeature fr) {
+		return similarity(fl, fr, true);
+//		if (fl.termIndices == null || fr.termIndices == null) {
+//			return 0;
+//		}
+//
+//		double result = 0;
+//		int posl = 0, posr = 0;
+//		while (posl < fl.tfs.length && posr < fr.tfs.length) {
+//			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
+//			if (terml < termr) {
+//				++posl;
+//			} else if (terml > termr) {
+//				++posr;
+//			} else {
+////				result += fl.values[posl] * fr.values[posr];
+//				result += fl.tfs[posl] * fl.idfs[posl] * fr.tfs[posr] * fr.idfs[posr];
+//				++posl;
+//				++posr;
+//			}
+//		}
+//		
+//		result /= fl.getNorm() * fr.getNorm();
+//
+//		return result;
+	}
+
+	// TODO remove
+	public double getNorm() {
+		double result = 0;
+		for (int i = 0; i < tfs.length; ++i) {
+			result += tfs[i] * idfs[i] * tfs[i] * idfs[i];
+		}
+//		for (double val : values) {
+//			result += val * val;
+//		}
+		return Math.sqrt(result);
+	}
+
+	private static double similarity(TfIdfFeature fl, TfIdfFeature fr, boolean useIdf) {
 		if (fl.termIndices == null || fr.termIndices == null) {
 			return 0;
 		}
 
-		double result = 0;
+		double result = 0, tmp = 0;
 		int posl = 0, posr = 0;
-		while (posl < fl.values.length && posr < fr.values.length) {
+		while (posl < fl.tfs.length && posr < fr.tfs.length) {
 			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
 			if (terml < termr) {
 				++posl;
 			} else if (terml > termr) {
 				++posr;
 			} else {
-				result += fl.values[posl] * fr.values[posr];
+//				result += fl.values[posl] * fr.values[posr];
+				tmp = fl.tfs[posl] * fr.tfs[posr];
+				if (useIdf)
+					tmp *= fl.idfs[posl] * fr.idfs[posr];
+				result += tmp;
 				++posl;
 				++posr;
 			}
 		}
 		
-		result /= fl.getNorm() * fr.getNorm();
+		result /= fl.getNorm(useIdf) * fr.getNorm(useIdf);
 
 		return result;
 	}
-
-	public double getNorm() {
+	
+	private double getNorm(boolean useIdf) {
 		double result = 0;
-		for (double val : values) {
-			result += val * val;
+		for (int i = 0; i < tfs.length; ++i) {
+			double tmp = tfs[i] * tfs[i];
+			if (useIdf) {
+				tmp *= idfs[i] * idfs[i];
+			}
+			result += tmp;
 		}
 		return Math.sqrt(result);
 	}
 
+	private void writeFloatArrayWithFileChannel(FileChannel fc, float[] vals, int len) {
+		ByteBuffer buf = ByteBuffer.allocate(len * Float.BYTES);
+		buf.clear();
+		buf.asFloatBuffer().put(vals, 0, len);
+		try {
+			fc.write(buf);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void readFloatArrayWithFileChannel(FileChannel fc, float[] vals) {
+		ByteBuffer buf = ByteBuffer.allocate(vals.length * Float.BYTES);
+		buf.clear();
+		try {
+			fc.read(buf);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		buf.rewind();
+		buf.asFloatBuffer().get(vals);
+	}
+
 	public int[] termIndices = null;
-	public double[] values = null;
+	public float[] tfs = null;
+	public float[] idfs = null;
+//	public double[] values = null;
 }

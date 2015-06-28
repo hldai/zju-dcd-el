@@ -80,6 +80,7 @@ public class FeatureLoader {
 		return null;
 	}
 	
+	// TODO for mids whose features are already loaded, reloading is not needed.
 	public FeaturePack[] loadFeaturePacks(LinkedList<ByteArrayString> candidateMids) {
 		FeaturePack[] featPacks = new FeaturePack[candidateMids.size()];
 		FeaturePackSortEntry[] sortEntries = new FeaturePackSortEntry[candidateMids

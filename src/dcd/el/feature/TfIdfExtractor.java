@@ -69,10 +69,14 @@ public class TfIdfExtractor {
 		}
 
 		feat.termIndices = Arrays.copyOf(termIndices, cnt);
-		feat.values = new double[cnt];
+//		feat.values = new double[cnt];
+		feat.tfs = new float[cnt];
+		feat.idfs = new float[cnt];
 		for (int i = 0; i < cnt; ++i) {
 //			System.out.println(termCnts[i] + "\t" + docTermCnt + "\t" + idfs[termIndices[i]]);
-			feat.values[i] = (double) termCnts[i] / docTermCnt * idfs[termIndices[i]];
+//			feat.values[i] = (double) termCnts[i] / docTermCnt * idfs[termIndices[i]];
+			feat.tfs[i] = (float) termCnts[i] / docTermCnt;
+			feat.idfs[i] = (float) idfs[termIndices[i]];
 		}
 
 		return feat;
@@ -83,7 +87,9 @@ public class TfIdfExtractor {
 		TfIdfFeature feature = new TfIdfFeature();
 		feature.termIndices = termIndices;
 		for (int i = 0; i < numTerms; ++i) {
-			feature.values[i] = (double)termCnts[i] / numDocTerms * idfs[termIndices[i]];
+//			feature.values[i] = (double)termCnts[i] / numDocTerms * idfs[termIndices[i]];
+			feature.tfs[i] = (float) termCnts[i] / numDocTerms;
+			feature.idfs[i] = (float) idfs[termIndices[i]];
 		}
 		return feature;
 	}
@@ -91,11 +97,15 @@ public class TfIdfExtractor {
 	public TfIdfFeature getTfIdf(WordCount[] wordCounts, int numWords, int numDocTerms) {
 		TfIdfFeature feature = new TfIdfFeature();
 		feature.termIndices = new int[numWords];
-		feature.values = new double[numWords];
+//		feature.values = new double[numWords];
+		feature.tfs = new float[numWords];
+		feature.idfs = new float[numWords];
 		for (int i = 0; i < numWords; ++i) {
 			feature.termIndices[i] = wordCounts[i].index;
 //			System.out.println(wordCounts[i].count + " " + idfs[wordCounts[i].index]);
-			feature.values[i] = (double)wordCounts[i].count / numDocTerms * idfs[wordCounts[i].index];
+//			feature.values[i] = (double)wordCounts[i].count / numDocTerms * idfs[wordCounts[i].index];
+			feature.tfs[i] = (float)wordCounts[i].count / numDocTerms;
+			feature.idfs[i] = (float)idfs[wordCounts[i].index];
 		}
 		return feature;
 	}
