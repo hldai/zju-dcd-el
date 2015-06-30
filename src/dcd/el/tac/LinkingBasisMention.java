@@ -21,8 +21,10 @@ public class LinkingBasisMention {
 			for (int i = 0; i < numCandidates; ++i) {
 //				IOUtils.writeStringAsByteArr(dos, mids[i], ELConsts.MID_BYTE_LEN);
 				mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
+				dos.writeFloat(aliasLikelihoods[i]);
 				dos.writeFloat(popularities[i]);
 				dos.writeDouble(tfidfSimilarities[i]);
+				dos.writeDouble(evScores[i]);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -41,14 +43,18 @@ public class LinkingBasisMention {
 		try {
 			numCandidates = dis.readInt();
 			mids = new ByteArrayString[numCandidates];
+			aliasLikelihoods = new float[numCandidates];
 			popularities = new float[numCandidates];
 			tfidfSimilarities = new double[numCandidates];
+			evScores = new double[numCandidates];
 			for (int i = 0; i < numCandidates; ++i) {
 //				mids[i] = IOUtils.readStringInByteArr(dis, ELConsts.MID_BYTE_LEN);
 				mids[i] = new ByteArrayString();
 				mids[i].fromFileWithFixedLen(dis, ELConsts.MID_BYTE_LEN);
+				aliasLikelihoods[i] = dis.readFloat();
 				popularities[i] = dis.readFloat();
 				tfidfSimilarities[i] = dis.readDouble();
+				evScores[i] = dis.readDouble();
 			}
 			return true;
 		} catch (IOException e) {
@@ -61,6 +67,8 @@ public class LinkingBasisMention {
 	public int numCandidates = 0;
 	
 	public ByteArrayString[] mids = null;
+	public float[] aliasLikelihoods = null;
 	public float[] popularities = null;
 	public double[] tfidfSimilarities = null;
+	public double[] evScores = null;
 }

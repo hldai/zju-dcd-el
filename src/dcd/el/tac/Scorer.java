@@ -14,12 +14,19 @@ public class Scorer {
 				.getUTF8BufReader(sytemResultFileName);
 		
 		BufferedWriter errListWriter = null;
-		if (errorListFileName != null)
+		if (errorListFileName != null) {
 			errListWriter = IOUtils.getUTF8BufWriter(errorListFileName, false);
+			try {
+				errListWriter.write("query ID\tgold EID\tsys EID\tscore\n");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
 		String sysLine = null, goldLine = null;
 		int cnt = 0, correctCnt = 0;
 		int inKbCnt = 0, inKbCorrectCnt = 0;
+		int inKbToNilCnt = 0, nilToInKbCnt = 0;
 		try {
 			goldReader.readLine(); // skip first line
 
@@ -41,9 +48,10 @@ public class Scorer {
 
 				++cnt;
 				if (goldVals[1].startsWith("NIL")) {
-					if (sysVals[1].equals("NIL"))
+					if (sysVals[1].startsWith("NIL"))
 						++correctCnt;
 					else {
+						++nilToInKbCnt;
 						if (errListWriter != null)
 							errListWriter.write(goldVals[0] + "\t" + goldVals[1] + "\t" + sysVals[1] + "\t" + sysVals[2] + "\n");
 					}
@@ -53,6 +61,8 @@ public class Scorer {
 						++inKbCorrectCnt;
 						++correctCnt;
 					} else {
+						if (sysVals[1].startsWith("NIL"))
+							++inKbToNilCnt;
 						if (errListWriter != null)
 							errListWriter.write(goldVals[0] + "\t" + goldVals[1] + "\t" + sysVals[1] + "\t" + sysVals[2] + "\n");
 					}
@@ -70,6 +80,9 @@ public class Scorer {
 					/ inKbCnt);
 			double nilAccuracy = (double) (correctCnt - inKbCorrectCnt) / (cnt - inKbCnt);
 			System.out.println("NIL accuracy: " + nilAccuracy);
+			int wrongCnt = cnt - correctCnt;
+			System.out.println("NIL to non-NIL: " + (double)nilToInKbCnt / wrongCnt);
+			System.out.println("non-NIL to NIL: " + (double)inKbToNilCnt / wrongCnt);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

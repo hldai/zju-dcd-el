@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import dcd.config.ConfigUtils;
 import dcd.config.IniFile;
 import dcd.el.dict.AliasDict;
+import dcd.el.dict.CandidatesRetriever;
+import dcd.el.dict.IndexedAliasDictWithPse;
 import dcd.el.feature.FeatureLoader;
 import dcd.el.feature.TfIdfExtractor;
 import dcd.el.io.IOUtils;
@@ -47,7 +49,9 @@ public class LinkingJob {
 			processQueryFile(querySect, linker);
 			// TODO close
 		} else if (job.startsWith("gen_linking_basis")) {
-			AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
+//			AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
+			IndexedAliasDictWithPse dict = ConfigUtils.getAliasDictWithPse(config.getSection("dict"));
+			CandidatesRetriever candidatesRetriever = new CandidatesRetriever(dict);
 			IniFile.Section featSect = config.getSection("feature");
 			FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
 			TfIdfExtractor tfidfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
@@ -57,15 +61,15 @@ public class LinkingJob {
 					.getValue("src_doc_path"), dstFileName = sect
 					.getValue("dst_file");
 
-			genLinkingBasis(dict, featureLoader, tfidfExtractor, queryFileName,
+			genLinkingBasis(candidatesRetriever, featureLoader, tfidfExtractor, queryFileName,
 					srcDocPath, dstFileName);
 		}
 	}
 	
-	private static void genLinkingBasis(AliasDict dict,
+	private static void genLinkingBasis(CandidatesRetriever candidatesRetriever,
 			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
 			String queryFile, String srcDocPath, String dstFileName) {
-		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(dict, featureLoader, tfIdfExtractor);
+		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor);
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
 		int mentionCnt = 0, docCnt = 0;

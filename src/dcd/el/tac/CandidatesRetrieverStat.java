@@ -13,6 +13,7 @@ import dcd.config.IniFile;
 import dcd.el.ELConsts;
 import dcd.el.dict.AliasDict;
 import dcd.el.dict.CandidatesRetriever;
+import dcd.el.dict.IndexedAliasDictWithPse;
 import dcd.el.io.IOUtils;
 import dcd.el.objects.ByteArrayString;
 import dcd.el.objects.Document;
@@ -21,22 +22,24 @@ import dcd.el.utils.CommonUtils;
 
 public class CandidatesRetrieverStat {
 	public static void genStat(IniFile config) {
-		AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
+//		AliasDict dict = ConfigUtils.getAliasDict(config.getSection("dict"));
+		IndexedAliasDictWithPse indexedAliasDictWithPse = ConfigUtils.getAliasDictWithPse(config.getSection("dict"));
+		CandidatesRetriever candidatesRetriever = new CandidatesRetriever(indexedAliasDictWithPse);
+		
 		MidToEidMapper mteMapper = ConfigUtils.getMidToEidMapper(config
 				.getSection("tac2014"));
 		IniFile.Section sect = config.getSection("candidate_retrieve_stat");
 		String queryFileName = sect.getValue("query_file"), goldFileName = sect
 				.getValue("gold_file"), errorFileName = sect.getValue("error_file");
-		genStat(dict, mteMapper, queryFileName, goldFileName, errorFileName);
+		genStat(candidatesRetriever, mteMapper, queryFileName, goldFileName, errorFileName);
 	}
 
-	public static void genStat(AliasDict dict, MidToEidMapper mapper,
+	public static void genStat(CandidatesRetriever candidatesRetriever, MidToEidMapper mapper,
 			String queryFileName, String goldFileName, String errorFileName) {
 		LinkingResult.ComparatorOnQueryId cmpOnQueryId = new LinkingResult.ComparatorOnQueryId();
 		LinkingResult[] goldResults = getGroudTruth(goldFileName);
 		Arrays.sort(goldResults, cmpOnQueryId);
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(errorFileName, false);
-		CandidatesRetriever candidatesRetriever = new CandidatesRetriever(dict);
 		Document[] documents = QueryReader.toDocuments(queryFileName);
 		int queryCnt = 0, hitCnt = 0, inKbCnt = 0, inKbHitCnt = 0;
 		int candidateCnt = 0;

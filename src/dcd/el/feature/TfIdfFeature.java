@@ -149,41 +149,6 @@ public class TfIdfFeature extends Feature {
 	
 	public static double similarity(TfIdfFeature fl, TfIdfFeature fr) {
 		return similarity(fl, fr, true);
-//		if (fl.termIndices == null || fr.termIndices == null) {
-//			return 0;
-//		}
-//
-//		double result = 0;
-//		int posl = 0, posr = 0;
-//		while (posl < fl.tfs.length && posr < fr.tfs.length) {
-//			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
-//			if (terml < termr) {
-//				++posl;
-//			} else if (terml > termr) {
-//				++posr;
-//			} else {
-////				result += fl.values[posl] * fr.values[posr];
-//				result += fl.tfs[posl] * fl.idfs[posl] * fr.tfs[posr] * fr.idfs[posr];
-//				++posl;
-//				++posr;
-//			}
-//		}
-//		
-//		result /= fl.getNorm() * fr.getNorm();
-//
-//		return result;
-	}
-
-	// TODO remove
-	public double getNorm() {
-		double result = 0;
-		for (int i = 0; i < tfs.length; ++i) {
-			result += tfs[i] * idfs[i] * tfs[i] * idfs[i];
-		}
-//		for (double val : values) {
-//			result += val * val;
-//		}
-		return Math.sqrt(result);
 	}
 
 	private static double similarity(TfIdfFeature fl, TfIdfFeature fr, boolean useIdf) {
