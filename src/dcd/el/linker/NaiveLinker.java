@@ -2,15 +2,15 @@
 
 package dcd.el.linker;
 
-import dcd.el.ELConsts;
-import dcd.el.dict.AliasDict;
+import edu.zju.dcd.edl.ELConsts;
+import edu.zju.dcd.edl.cg.AliasDict;
+import edu.zju.dcd.edl.obj.Document;
+import edu.zju.dcd.edl.obj.LinkingResult;
+import edu.zju.dcd.edl.obj.Mention;
+import edu.zju.dcd.edl.tac.MidToEidMapper;
 import dcd.el.feature.FeatureLoader;
 import dcd.el.feature.TfIdfExtractor;
 import dcd.el.feature.TfIdfFeature;
-import dcd.el.objects.Document;
-import dcd.el.objects.LinkingResult;
-import dcd.el.objects.Mention;
-import dcd.el.tac.MidToEidMapper;
 
 public class NaiveLinker extends LinkerWithAliasDict {
 

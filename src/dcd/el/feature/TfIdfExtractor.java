@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
-import dcd.el.io.IOUtils;
-import dcd.el.objects.ByteArrayString;
+import edu.zju.dcd.edl.io.IOUtils;
+import edu.zju.dcd.edl.obj.ByteArrayString;
 
 public class TfIdfExtractor {
 	public static class WordCount implements Comparable<WordCount> {
@@ -22,22 +22,51 @@ public class TfIdfExtractor {
 		}
 	}
 	
+	private static class CmpTmp implements Comparable<CmpTmp> {
+		ByteArrayString term;
+		double idf;
+		
+		public CmpTmp(ByteArrayString term, double idf) {
+			this.term = term;
+			this.idf = idf;
+		}
+
+		@Override
+		public int compareTo(CmpTmp cmpTmp) {
+			if (idf < cmpTmp.idf)
+				return -1;
+			return idf == cmpTmp.idf ? 0 : 1;
+		}
+	}
+	
 	public TfIdfExtractor(String idfFileName) {
 		System.out.println("Loading idf file...");
 		DataInputStream dis = IOUtils.getBufferedDataInputStream(idfFileName);
 		
 		try {
 			int numTerms = dis.readInt();
+//			CmpTmp[] cmpTmps = new CmpTmp[numTerms];
 			terms = new ByteArrayString[numTerms];
 			idfs = new double[numTerms];
 			for (int i = 0; i < numTerms; ++i) {
 				terms[i] = new ByteArrayString();
 				terms[i].fromFileWithByteLen(dis);
 				idfs[i] = dis.readDouble();
+				
+//				cmpTmps[i] = new CmpTmp(terms[i], idfs[i]);
 			}
 			
 			dis.close();
 			System.out.println("Done.");
+			
+//			Arrays.sort(cmpTmps);
+//			for (int i = 0; i < cmpTmps.length; ++i) {
+////				if (cmpTmps[i].term.toString().equals("chicago")) {
+////					System.out.println(cmpTmps[i].term.toString() + "\t" + cmpTmps[i].idf);
+////				}
+//				if (cmpTmps[i].idf > 4.5 && cmpTmps[i].idf < 5)
+//					System.out.println(cmpTmps[i].term.toString() + "\t" + cmpTmps[i].idf);
+//			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

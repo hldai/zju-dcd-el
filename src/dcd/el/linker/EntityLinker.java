@@ -2,8 +2,9 @@
 
 package dcd.el.linker;
 
-import dcd.el.objects.Document;
-import dcd.el.objects.LinkingResult;
+import edu.zju.dcd.edl.obj.Document;
+import edu.zju.dcd.edl.obj.LinkingResult;
+
 
 // given a document with mentions, link the mentions to the corresponding entity
 public interface EntityLinker {

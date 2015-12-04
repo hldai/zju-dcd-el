@@ -2,11 +2,11 @@
 
 package dcd.el.linker;
 
-import dcd.el.dict.AliasDict;
-import dcd.el.dict.CandidatesRetriever;
-import dcd.el.objects.Document;
-import dcd.el.objects.LinkingResult;
-import dcd.el.tac.MidToEidMapper;
+import edu.zju.dcd.edl.cg.AliasDict;
+import edu.zju.dcd.edl.cg.CandidatesRetriever;
+import edu.zju.dcd.edl.obj.Document;
+import edu.zju.dcd.edl.obj.LinkingResult;
+import edu.zju.dcd.edl.tac.MidToEidMapper;
 
 public abstract class LinkerWithAliasDict implements EntityLinker {
 	// return the mid of the entity linked
@@ -16,7 +16,8 @@ public abstract class LinkerWithAliasDict implements EntityLinker {
 		
 	public LinkerWithAliasDict(AliasDict dict, MidToEidMapper mapper) {
 //		this.aliasDict = dict;
-		candidatesRetriever = new CandidatesRetriever(dict);
+		// TODO
+//		candidatesRetriever = new CandidatesRetriever(dict);
 		this.mteMapper = mapper;
 	}
 	

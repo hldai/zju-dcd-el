@@ -2,8 +2,8 @@
 
 package dcd.el.linker;
 
-import dcd.el.objects.LinkingResult;
-import dcd.el.tac.LinkingBasisDoc;
+import edu.zju.dcd.edl.obj.LinkingResult;
+import edu.zju.dcd.edl.tac.LinkingBasisDoc;
 
 public interface SimpleLinker {
 	public LinkingResult[] link(LinkingBasisDoc linkingBasisDoc);

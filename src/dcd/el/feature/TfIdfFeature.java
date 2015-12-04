@@ -148,7 +148,70 @@ public class TfIdfFeature extends Feature {
 	
 	
 	public static double similarity(TfIdfFeature fl, TfIdfFeature fr) {
+//		TfIdfFeature tmp = getTmpFeature(fl, fr);
 		return similarity(fl, fr, true);
+	}
+	
+	private static TfIdfFeature getTmpFeature(TfIdfFeature fl, TfIdfFeature fr) {
+		TfIdfFeature tmp = new TfIdfFeature();
+		if (fl.termIndices == null || fr.termIndices == null)
+			return tmp;
+		
+		tmp.termIndices = fr.termIndices.clone();
+		tmp.idfs = fr.idfs.clone();
+		tmp.tfs = fr.tfs.clone();
+		int posl = 0, posr = 0;
+		while (posl < fl.tfs.length && posr < tmp.tfs.length) {
+			int terml = fl.termIndices[posl], termr = tmp.termIndices[posr];
+			if (terml < termr) {
+				++posl;
+			} else if (terml > termr) {
+//				tmp.tfs[posr] = 0;
+				++posr;
+			} else {
+//				tmp.tfs[posr] *= fl.tfs[posl];
+				++posl;
+				++posr;
+			}
+		}
+		return tmp;
+	}
+	
+	public static double similarityDistA(TfIdfFeature fl, TfIdfFeature fr) {
+		TfIdfFeature tmp = getTmpFeature(fl, fr);
+		return similarityDist(fl, tmp);
+	}
+	
+	public static double similarityDist(TfIdfFeature fl, TfIdfFeature fr) {
+		if (fl.termIndices == null || fr.termIndices == null) {
+			return 0;
+		}
+		
+		double result = 0, tmp = 0;
+		int posl = 0, posr = 0;
+		while (posl < fl.tfs.length && posr < fr.tfs.length) {
+			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
+			if (terml < termr) {
+				tmp = fl.tfs[posl] * fl.idfs[posl];
+				result += tmp * tmp;
+				++posl;
+			} else if (terml > termr) {
+				tmp = fr.tfs[posr] * fr.idfs[posr];
+				result += tmp * tmp;
+				++posr;
+			} else {
+//				result += fl.values[posl] * fr.values[posr];
+				tmp = fl.tfs[posl] * fl.idfs[posl] - fr.tfs[posr] * fr.idfs[posr];
+				result += tmp * tmp;
+				++posl;
+				++posr;
+			}
+		}
+		
+		if (Math.abs(result) < 0.00001) {
+			return 0;
+		}
+		return 1 / Math.sqrt(result);
 	}
 
 	private static double similarity(TfIdfFeature fl, TfIdfFeature fr, boolean useIdf) {
@@ -165,7 +228,6 @@ public class TfIdfFeature extends Feature {
 			} else if (terml > termr) {
 				++posr;
 			} else {
-//				result += fl.values[posl] * fr.values[posr];
 				tmp = fl.tfs[posl] * fr.tfs[posr];
 				if (useIdf)
 					tmp *= fl.idfs[posl] * fr.idfs[posr];
@@ -180,9 +242,9 @@ public class TfIdfFeature extends Feature {
 		return result;
 	}
 	
-	private double getNorm(boolean useIdf) {
+	public double getNorm(boolean useIdf) {
 		double result = 0;
-		for (int i = 0; i < tfs.length; ++i) {
+		for (int i = 0; i < tfs.length; ++i) {			
 			double tmp = tfs[i] * tfs[i];
 			if (useIdf) {
 				tmp *= idfs[i] * idfs[i];

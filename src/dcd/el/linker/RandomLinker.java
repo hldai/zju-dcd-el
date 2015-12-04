@@ -2,16 +2,11 @@
 
 package dcd.el.linker;
 
-import java.util.LinkedList;
-import java.util.Random;
-
-import dcd.el.ELConsts;
-import dcd.el.dict.AliasDict;
-import dcd.el.dict.CandidatesRetriever;
-import dcd.el.objects.ByteArrayString;
-import dcd.el.objects.Document;
-import dcd.el.objects.LinkingResult;
-import dcd.el.tac.MidToEidMapper;
+import edu.zju.dcd.edl.ELConsts;
+import edu.zju.dcd.edl.cg.AliasDict;
+import edu.zju.dcd.edl.obj.Document;
+import edu.zju.dcd.edl.obj.LinkingResult;
+import edu.zju.dcd.edl.tac.MidToEidMapper;
 
 public class RandomLinker extends LinkerWithAliasDict {
 
@@ -19,30 +14,31 @@ public class RandomLinker extends LinkerWithAliasDict {
 		super(dict, mapper);
 	}
 
+	// TODO
 	@Override
 	public LinkingResult[] link(Document doc) {
 		LinkingResult[] results = new LinkingResult[doc.mentions.length];
-		CandidatesRetriever.Candidates[] candidates = candidatesRetriever
-				.getCandidatesInDocument(doc);
-
-		for (int i = 0; i < results.length; ++i) {
-			LinkingResult result = new LinkingResult();
-			result.queryId = doc.mentions[i].queryId;
-			result.kbid = ELConsts.NIL;
-
-			LinkedList<ByteArrayString> mids = candidates[i].mids;
-			if (mids != null) {
-				int idx = random.nextInt(mids.size());
-				int j = 0;
-				for (ByteArrayString mid : mids) {
-					if (j == idx)
-						result.kbid = mid.toString().trim();
-					++j;
-				}
-			}
-			
-			results[i] = result;
-		}
+//		CandidatesRetriever.Candidates[] candidates = candidatesRetriever
+//				.getCandidatesInDocument(doc);
+//
+//		for (int i = 0; i < results.length; ++i) {
+//			LinkingResult result = new LinkingResult();
+//			result.queryId = doc.mentions[i].queryId;
+//			result.kbid = ELConsts.NIL;
+//
+//			LinkedList<ByteArrayString> mids = candidates[i].mids;
+//			if (mids != null) {
+//				int idx = random.nextInt(mids.size());
+//				int j = 0;
+//				for (ByteArrayString mid : mids) {
+//					if (j == idx)
+//						result.kbid = mid.toString().trim();
+//					++j;
+//				}
+//			}
+//			
+//			results[i] = result;
+//		}
 		
 		return results;
 	}
@@ -62,5 +58,5 @@ public class RandomLinker extends LinkerWithAliasDict {
 		return results;
 	}
 
-	private Random random = new Random();
+//	private Random random = new Random();
 }

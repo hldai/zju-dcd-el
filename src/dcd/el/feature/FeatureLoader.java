@@ -9,9 +9,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 
-import dcd.el.ELConsts;
-import dcd.el.io.IOUtils;
-import dcd.el.objects.ByteArrayString;
+import edu.zju.dcd.edl.ELConsts;
+import edu.zju.dcd.edl.cg.CandidatesRetriever;
+import edu.zju.dcd.edl.io.IOUtils;
+import edu.zju.dcd.edl.obj.ByteArrayString;
 
 public class FeatureLoader {
 	private class FeaturePackSortEntry {
@@ -35,9 +36,10 @@ public class FeatureLoader {
 		try {
 			featFileRaf = new RandomAccessFile(featFileName, "r");
 
-			System.out.println("Loading index...");
+			System.out.println("Loading index from " + featIndexFileName + " ...");
 			DataInputStream dis = IOUtils.getBufferedDataInputStream(featIndexFileName);
 			int len = dis.readInt();
+			System.out.println(len);
 			mids = new ByteArrayString[len];
 			filePointers = new long[len];
 			for (int i = 0; i < len; ++i) {
@@ -70,7 +72,7 @@ public class FeatureLoader {
 			FeaturePack feats = new FeaturePack();
 			featFileRaf.readInt(); // ignore wid
 //			feats.wid = featFileRaf.readInt();
-			feats.popularity.fromFile(featFileRaf);
+//			feats.popularity.fromFile(featFileRaf);
 			feats.tfidf.fromFile(featFileRaf);
 			return feats;
 		} catch (IOException e) {
@@ -109,7 +111,47 @@ public class FeatureLoader {
 				FeaturePackSortEntry sortEntry = sortEntries[i];
 				featFileRaf.seek(sortEntry.filePointer);
 				featFileRaf.readInt(); // ignore wid
-				sortEntry.featPack.popularity.fromFile(featFileRaf);
+//				sortEntry.featPack.popularity.fromFile(featFileRaf);
+				sortEntry.featPack.tfidf.fromFile(featFileRaf);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return featPacks;
+	}
+	
+	// TODO for mids whose features are already loaded, reloading is not needed.
+	public FeaturePack[] loadFeaturePacks(CandidatesRetriever.CandidateWithPopularity[] candidates,
+			int maxNumCandidates) {
+		int numCandidates = maxNumCandidates < candidates.length ? maxNumCandidates : candidates.length;
+		FeaturePack[] featPacks = new FeaturePack[numCandidates];
+		FeaturePackSortEntry[] sortEntries = new FeaturePackSortEntry[numCandidates];
+
+		int notNullCnt = 0, cnt = 0;
+		for (int i = 0; i < numCandidates; ++i) {
+			int pos = Arrays.binarySearch(mids, candidates[i].mid);
+
+			if (pos < 0) {
+				featPacks[cnt] = null;
+			} else {
+				featPacks[cnt] = new FeaturePack();
+				sortEntries[notNullCnt] = new FeaturePackSortEntry();
+				sortEntries[notNullCnt].featPack = featPacks[cnt];
+				sortEntries[notNullCnt].filePointer = filePointers[pos];
+				++notNullCnt;
+			}
+			++cnt;
+		}
+
+		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
+
+		try {
+			for (int i = 0; i < notNullCnt; ++i) {
+				FeaturePackSortEntry sortEntry = sortEntries[i];
+				featFileRaf.seek(sortEntry.filePointer);
+				featFileRaf.readInt(); // ignore wid
+//				sortEntry.featPack.popularity.fromFile(featFileRaf);
 				sortEntry.featPack.tfidf.fromFile(featFileRaf);
 			}
 		} catch (IOException e) {

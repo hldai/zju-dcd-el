@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/MySQL/Connector.J 5.1/mysql-connector-java-5.1.35-bin.jar"/>
 	<classpathentry kind="lib" path="D:/projects/os/stanford-parser-full-2015-04-20/stanford-parser.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
