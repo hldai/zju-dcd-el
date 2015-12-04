@@ -1,6 +1,6 @@
 // author: DHL brnpoem@gmail.com
 
-package dcd.el.linker;
+package edu.zju.dcd.edl.linker;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

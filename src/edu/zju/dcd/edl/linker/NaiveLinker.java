@@ -1,16 +1,16 @@
 // author: DHL brnpoem@gmail.com
 
-package dcd.el.linker;
+package edu.zju.dcd.edl.linker;
 
 import edu.zju.dcd.edl.ELConsts;
 import edu.zju.dcd.edl.cg.AliasDict;
+import edu.zju.dcd.edl.feature.FeatureLoader;
+import edu.zju.dcd.edl.feature.TfIdfExtractor;
+import edu.zju.dcd.edl.feature.TfIdfFeature;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.obj.Mention;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
-import dcd.el.feature.FeatureLoader;
-import dcd.el.feature.TfIdfExtractor;
-import dcd.el.feature.TfIdfFeature;
 
 public class NaiveLinker extends LinkerWithAliasDict {
 

@@ -1,6 +1,6 @@
 // author: DHL brnpoem@gmail.com
 
-package dcd.el.feature;
+package edu.zju.dcd.edl.feature;
 
 public class FeaturePack {
 //	public SingleIntFeature popularity = new SingleIntFeature();

@@ -1,13 +1,13 @@
 // author: DHL brnpoem@gmail.com
 
-package dcd.el.feature;
+package edu.zju.dcd.edl.feature;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class SingleIntFeature extends Feature {
+public class SingleFloatFeature extends Feature {
 
 	@Override
 	public boolean fromFile(RandomAccessFile raf) {
@@ -15,10 +15,7 @@ public class SingleIntFeature extends Feature {
 			if (raf.getFilePointer() >= raf.length())
 				return false;
 
-//			if (withWid)
-//				wid = raf.readInt();
-			value = raf.readInt();
-//			System.out.println(wid + "\t" + value + "\n");
+			value = raf.readFloat();
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -33,9 +30,7 @@ public class SingleIntFeature extends Feature {
 			if (dis.available() <= 0)
 				return false;
 
-//			if (withWid)
-//				wid = dis.readInt();
-			value = dis.readInt();
+			value = dis.readFloat();
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -46,9 +41,7 @@ public class SingleIntFeature extends Feature {
 	@Override
 	public void toFile(DataOutputStream dos) {
 		try {
-//			if (withWid)
-//				dos.writeInt(wid);
-			dos.writeInt(value);
+			dos.writeFloat(value);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -57,13 +50,11 @@ public class SingleIntFeature extends Feature {
 	@Override
 	public void toFile(RandomAccessFile raf) {
 		try {
-//			if (withWid)
-//				raf.writeInt(wid);
-			raf.writeInt(value);
+			raf.writeFloat(value);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public int value;
+	public float value;
 }

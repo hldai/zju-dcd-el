@@ -2,11 +2,11 @@
 
 package edu.zju.dcd.edl.config;
 
-import dcd.el.feature.FeatureLoader;
-import dcd.el.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.cg.AliasDictWithIndex;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.cg.IndexedAliasDictWithPse;
+import edu.zju.dcd.edl.feature.FeatureLoader;
+import edu.zju.dcd.edl.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 import edu.zju.dcd.edl.wordvec.WordPredictor;

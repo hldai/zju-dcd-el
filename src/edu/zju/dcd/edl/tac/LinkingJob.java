@@ -9,23 +9,23 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import dcd.el.feature.FeatureLoader;
-import dcd.el.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.cg.AliasDict;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.config.ConfigUtils;
 import edu.zju.dcd.edl.config.IniFile;
+import edu.zju.dcd.edl.feature.FeatureLoader;
+import edu.zju.dcd.edl.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.io.IOUtils;
+import edu.zju.dcd.edl.linker.LinkerWithAliasDict;
+import edu.zju.dcd.edl.linker.NaiveLinker;
+import edu.zju.dcd.edl.linker.RandomLinker;
+import edu.zju.dcd.edl.linker.SimpleLinker;
+import edu.zju.dcd.edl.linker.SimpleNaiveLinker;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.tac.CrossDocNilHandler;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 import edu.zju.dcd.edl.wordvec.WordPredictor;
-import dcd.el.linker.LinkerWithAliasDict;
-import dcd.el.linker.NaiveLinker;
-import dcd.el.linker.RandomLinker;
-import dcd.el.linker.SimpleLinker;
-import dcd.el.linker.SimpleNaiveLinker;
 
 public class LinkingJob {
 	public static void run(IniFile config) {

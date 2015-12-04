@@ -1,6 +1,6 @@
 // author: DHL brnpoem@gmail.com
 
-package dcd.el.feature;
+package edu.zju.dcd.edl.feature;
 
 import java.io.DataInputStream;
 import java.io.IOException;

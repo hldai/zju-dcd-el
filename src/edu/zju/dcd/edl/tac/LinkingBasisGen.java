@@ -3,11 +3,11 @@ package edu.zju.dcd.edl.tac;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import dcd.el.feature.FeatureLoader;
-import dcd.el.feature.FeaturePack;
-import dcd.el.feature.TfIdfExtractor;
-import dcd.el.feature.TfIdfFeature;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
+import edu.zju.dcd.edl.feature.FeatureLoader;
+import edu.zju.dcd.edl.feature.FeaturePack;
+import edu.zju.dcd.edl.feature.TfIdfExtractor;
+import edu.zju.dcd.edl.feature.TfIdfFeature;
 import edu.zju.dcd.edl.obj.ByteArrayString;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.Mention;
