@@ -180,7 +180,7 @@ public class SimpleNaiveLinker implements SimpleLinker {
 				
 				double maxScore = -1e5;
 				for (int j = 0; j < lbMention.numCandidates; ++j) {
-					if (midFilter.needFilter(lbMention.mids[j])) {
+					if (midFilter != null && midFilter.needFilter(lbMention.mids[j])) {
 						continue;
 					}
 					String curMid = lbMention.mids[j].toString().trim();

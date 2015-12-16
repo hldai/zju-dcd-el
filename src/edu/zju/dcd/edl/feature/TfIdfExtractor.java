@@ -22,22 +22,22 @@ public class TfIdfExtractor {
 		}
 	}
 	
-	private static class CmpTmp implements Comparable<CmpTmp> {
-		ByteArrayString term;
-		double idf;
-		
-		public CmpTmp(ByteArrayString term, double idf) {
-			this.term = term;
-			this.idf = idf;
-		}
-
-		@Override
-		public int compareTo(CmpTmp cmpTmp) {
-			if (idf < cmpTmp.idf)
-				return -1;
-			return idf == cmpTmp.idf ? 0 : 1;
-		}
-	}
+//	private static class CmpTmp implements Comparable<CmpTmp> {
+//		ByteArrayString term;
+//		double idf;
+//		
+//		public CmpTmp(ByteArrayString term, double idf) {
+//			this.term = term;
+//			this.idf = idf;
+//		}
+//
+//		@Override
+//		public int compareTo(CmpTmp cmpTmp) {
+//			if (idf < cmpTmp.idf)
+//				return -1;
+//			return idf == cmpTmp.idf ? 0 : 1;
+//		}
+//	}
 	
 	public TfIdfExtractor(String idfFileName) {
 		System.out.println("Loading idf file...");

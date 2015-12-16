@@ -37,8 +37,10 @@ public class ConfigUtils {
 		
 		IndexedAliasDictWithPse indexedAliasDictWithPse = ConfigUtils.getAliasDictWithPse(sect);
 		String midPopularityFileName = sect.getValue("mid_popularity_file"),
-				personListFileName = sect.getValue("person_list_file");
-		return new CandidatesRetriever(indexedAliasDictWithPse, midPopularityFileName, personListFileName);
+				personListFileName = sect.getValue("person_list_file"),
+				gpeAdjListFileName = sect.getValue("gpe_adj_list_file");
+		return new CandidatesRetriever(indexedAliasDictWithPse, midPopularityFileName, personListFileName,
+				gpeAdjListFileName);
 	}
 	
 	public static AliasDictWithIndex getAliasDict(IniFile.Section sect) {

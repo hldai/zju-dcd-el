@@ -27,8 +27,10 @@ public class CandidatesRetriever {
 		
 		@Override
 		public int compareTo(CandidateWithPopularity cwp) {
-			float thisPop = likelihood * popularity,
-					cmpPop = cwp.popularity * cwp.likelihood;
+//			float thisPop = likelihood * popularity,
+//					cmpPop = cwp.popularity * cwp.likelihood;
+			float thisPop = npse,
+					cmpPop = cwp.npse;
 			if (thisPop > cmpPop) {
 				return -1;
 			} else if (thisPop == cmpPop) {
@@ -99,13 +101,17 @@ public class CandidatesRetriever {
 	}
 	
 	public CandidatesRetriever(IndexedAliasDictWithPse indexedAliasDictWithPse, String midPopularityFileName,
-			String personListFileName) {
+			String personListFileName, String adjGpeListFileName) {
 		this.indexedAliasDictWithPse = indexedAliasDictWithPse;
-		midPopularity = new MidPopularity(midPopularityFileName);
-		if (personListFileName != null) {
+		
+		if (midPopularityFileName != null)
+			midPopularity = new MidPopularity(midPopularityFileName);
+		
+		if (personListFileName != null)
 			loadPersonList(personListFileName);
-		}
-		adjGpeMapper = new AdjGpeMapper("d:/data/cr/nation_adj.txt");
+		
+		if (adjGpeListFileName != null)
+			adjGpeMapper = new AdjGpeMapper(adjGpeListFileName);
 	}
 	
 	public CandidatesOfMention[] getCandidatesInDocument(Document doc) {
@@ -141,7 +147,9 @@ public class CandidatesRetriever {
 				candidatesOfMention.candidates[ix++] = candidateWithPopularity;
 				candidateWithPopularity.mid = curCandidate.mid;
 				candidateWithPopularity.likelihood = curCandidate.pse;
-				candidateWithPopularity.popularity = midPopularity.getPopularity(curCandidate.mid);
+				candidateWithPopularity.popularity = -1;
+				if (midPopularity != null)
+					candidateWithPopularity.popularity = midPopularity.getPopularity(curCandidate.mid);
 				candidateWithPopularity.npse = curCandidate.npse;
 			}
 			
@@ -149,73 +157,6 @@ public class CandidatesRetriever {
 		}
 		
 		return candidatesOfMentions;
-	}
-	
-	private CandidatesOfMention[] getCandidatesOfMentionsFromTempCandidates(CandidatesTemporary[] tmpCandidates) {
-		CandidatesOfMention[] candidatesOfMentions = new CandidatesOfMention[tmpCandidates.length];
-		int pos = 0;
-		for (CandidatesTemporary tmpCandidate : tmpCandidates) {
-			
-			CandidatesOfMention candidatesOfMention = new CandidatesOfMention();
-			candidatesOfMentions[pos++] = candidatesOfMention;
-			
-			if (tmpCandidate.mids == null || tmpCandidate.mids.size() == 0) {
-				continue;
-			}
-			
-			candidatesOfMention.candidates = new CandidateWithPopularity[tmpCandidate.mids.size()];
-			Iterator<ByteArrayString> midIter = tmpCandidate.mids.iterator();
-			Iterator<Float> pseIter = tmpCandidate.pses.iterator();
-			int ix = 0;
-			while (midIter.hasNext()) {
-				ByteArrayString mid = midIter.next();
-				float pse = pseIter.next();
-				CandidateWithPopularity candidateWithPopularity = new CandidateWithPopularity();
-				candidatesOfMention.candidates[ix++] = candidateWithPopularity;
-				candidateWithPopularity.mid = mid;
-				candidateWithPopularity.popularity = pse * midPopularity.getPopularity(mid);
-			}
-			
-			Arrays.sort(candidatesOfMention.candidates);
-		}
-		
-		return candidatesOfMentions;
-	}
-	
-	private void getCandidatesInDocumentAliasDict(Document doc, CandidatesTemporary[] candidates) {
-		for (int i = 0; i < doc.mentions.length; ++i) {
-			CandidatesTemporary tmpCandidates = new CandidatesTemporary();
-			String curNameString = doc.mentions[i].nameString;
-			
-			
-//			boolean isPerson = false;
-//			for (int j = i - 1; j > -1; --j) {
-//				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)) {
-//					mergeMids(tmpCandidates.mids, candidates[j].mids);
-//					if (candidates[j].mids != null && candidates[j].mids.size() > 0) {
-//						isPerson = isMidPerson(candidates[j].mids.getFirst());
-//						if (isPerson) {
-//							System.out.println(curNameString);
-//						}
-//					}
-//					break;
-//				}
-//			}
-//			
-//			if (!isPerson) {
-//				LinkedList<ByteArrayString> curMids = aliasDict.getMids(curNameString);
-//				mergeMids(tmpCandidates.mids, curMids);
-//			}
-			
-			tmpCandidates.mids = aliasDict.getMids(curNameString);
-			for (int j = 0; j < i; ++j) {
-				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)) {
-					mergeMids(tmpCandidates.mids, candidates[j].mids);
-				}
-			}
-			
-			candidates[i] = tmpCandidates;
-		}
 	}
 	
 	private CandidatesWithPseOfMention[] getCandidatesWithPseInDoc(Document doc) {
@@ -257,33 +198,6 @@ public class CandidatesRetriever {
 		}
 		
 		return candidatesWithPseInDoc;
-	}
-	
-	private void getCandidatesWithPseOfMentionSimple(Document doc, String curNameString,
-			CandidatesWithPseOfMention[] candidatesWithPseInDoc, int curMentionsPos) {
-		CandidatesWithPseOfMention curCandidatesWithPse = candidatesWithPseInDoc[curMentionsPos];
-		
-		IndexedAliasDictWithPse.MidPseList midPseList = indexedAliasDictWithPse.getMidPses(curNameString);
-		if (midPseList != null) {
-			CandidatesWithPseOfMention tmpCandidateWithPse = new CandidatesWithPseOfMention();
-			tmpCandidateWithPse.candidatesWithPse = new LinkedList<CandidateWithPse>();
-			Iterator<ByteArrayString> midIter = midPseList.mids.iterator();
-			Iterator<Float> pseIter = midPseList.pses.iterator();
-			Iterator<Float> npseIter = midPseList.npses.iterator();
-			while (midIter.hasNext()) {
-				ByteArrayString mid = midIter.next();
-				float pse = pseIter.next();
-				float npse = npseIter.next();
-				
-				CandidateWithPse candidateWithPse = new CandidateWithPse();
-				candidateWithPse.mid = mid;
-				candidateWithPse.pse = pse;
-				candidateWithPse.npse = npse;
-				tmpCandidateWithPse.candidatesWithPse.add(candidateWithPse);
-			}
-			
-			mergeCandidatesWithPseOfMention(curCandidatesWithPse, tmpCandidateWithPse, false);
-		}
 	}
 	
 	private void getCandidatesWithPseOfMention(Document doc, String curNameString,
@@ -337,92 +251,6 @@ public class CandidatesRetriever {
 		}
 	}
 	
-	private void getCandidatesInDocumentAliasDictWithPse(Document doc, CandidatesTemporary[] candidates) {
-		boolean[] isForumPosters = new boolean[doc.mentions.length];
-		for (int i = 0; i < doc.mentions.length; ++i) {
-			CandidatesTemporary tmpCandidates = new CandidatesTemporary();
-			candidates[i] = tmpCandidates;
-			String curNameString = doc.mentions[i].nameString;
-			
-			tmpCandidates.mids = new LinkedList<ByteArrayString>();
-			tmpCandidates.pses = new LinkedList<Float>();
-			
-			if (doc.mentions[i].beg >= FORUM_AUTHOR_TAG.length() 
-					&& doc.text.substring(doc.mentions[i].beg - FORUM_AUTHOR_TAG.length(), 
-							doc.mentions[i].beg).equals(FORUM_AUTHOR_TAG)) {
-				isForumPosters[i] = true;
-				continue;
-			}
-
-			for (int j = 0; j < i && !isForumPosters[i]; ++j) {
-				if (isForumPosters[j] && doc.mentions[j].nameString.equals(curNameString)) {
-					isForumPosters[i] = true;
-				}
-			}
-			if (isForumPosters[i]) {
-				continue;
-			}
-			
-			boolean isPerson = false;
-			for (int j = i - 1; j > -1; --j) {
-//				if (curNameString.equals("Walters")) {
-//					System.out.println(i + "\t" + j + "\t" + doc.mentions[j].nameString);
-//				}
-				
-				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)) {
-//					if (curNameString.equals("Walters")) {
-//						System.out.println("has " + doc.mentions[j].nameString);
-//					}
-					mergeMidPses(tmpCandidates.mids, tmpCandidates.pses,
-							candidates[j].mids, candidates[j].pses);
-
-					if (candidates[j].mids != null && candidates[j].mids.size() > 0) {
-						isPerson = isMidPerson(candidates[j].mids.getFirst());
-						if (!isPerson && candidates[j].mids.size() > 1) {
-							isPerson = isMidPerson(candidates[j].mids.get(1));
-						}
-						
-//						if (curNameString.equals("Walters")) {
-//							System.out.println(i + "\t" + candidates[j].mids.getFirst().toString().trim() + "\t" + isPerson);
-//						}
-					}
-					break;
-				}
-			}
-			
-			if (!isPerson) {
-				IndexedAliasDictWithPse.MidPseList midPseList = indexedAliasDictWithPse.getMidPses(curNameString);
-				
-				if (midPseList != null) {
-					mergeMidPses(tmpCandidates.mids, tmpCandidates.pses, midPseList.mids,
-							midPseList.pses);
-//					tmpCandidates.mids = midPseList.mids;
-//					tmpCandidates.pses = midPseList.pses;
-				}
-			}
-		}
-	}
-	
-	private static void mergeMids(LinkedList<ByteArrayString> mainMidList, LinkedList<ByteArrayString> newList) {
-		if (newList == null)
-			return ;
-		
-		if (mainMidList == null)
-			mainMidList = new LinkedList<ByteArrayString>();
-		
-		for (ByteArrayString newMid : newList) {
-			boolean flg = true;
-			for (ByteArrayString mid : mainMidList) {
-				if (mid.compareTo(newMid) == 0) {
-					flg = false;
-					break;
-				}
-			}
-			if (flg)
-				mainMidList.add(newMid);
-		}
-	}
-	
 	private static void mergeCandidatesWithPseOfMention(CandidatesWithPseOfMention mainCandidates, 
 			CandidatesWithPseOfMention newCandidates, boolean useDefPseForNewCandidate) {
 		if (newCandidates == null || newCandidates.candidatesWithPse == null)
@@ -455,37 +283,6 @@ public class CandidatesRetriever {
 				}
 				newCandidateWithPse.npse = candidateWithPse.npse;
 				mainCandidates.candidatesWithPse.add(newCandidateWithPse);
-			}
-		}
-	}
-	
-	private static void mergeMidPses(LinkedList<ByteArrayString> mainMidList, LinkedList<Float> mainPseList,
-			LinkedList<ByteArrayString> newMidList, LinkedList<Float> newPseList) {
-		if (newMidList == null)
-			return ;
-		
-		if (mainMidList == null)
-			return ;
-		if (mainPseList == null)
-			return ;
-		
-		Iterator<ByteArrayString> midIteratorNew = newMidList.iterator();
-		Iterator<Float> pseIteratorNew = newPseList.iterator();
-		while (midIteratorNew.hasNext()) {
-			ByteArrayString newMid = midIteratorNew.next();
-			float newPse = pseIteratorNew.next();
-			
-			boolean flg = true;
-			for (ByteArrayString mid : mainMidList) {
-				if (mid.compareTo(newMid) == 0) {
-					flg = false;
-					break;
-				}
-			}
-			
-			if (flg) {
-				mainMidList.add(newMid);
-				mainPseList.add(newPse); // TODO use a small const?
 			}
 		}
 	}

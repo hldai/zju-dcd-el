@@ -14,8 +14,13 @@ public class Document {
 		if (srcDocPath == null)
 			return false;
 		
-		String path = Paths.get(srcDocPath, docId + ".xml").toString();
+		String path = Paths.get(srcDocPath, docId).toString();
 		File file = new File(path);
+		
+		if (!file.exists()) {
+			path = Paths.get(srcDocPath, docId + ".xml").toString();
+			file = new File(path);
+		}
 		
 		if (!file.exists()) {
 			path = Paths.get(srcDocPath, docId + ".df.xml").toString();

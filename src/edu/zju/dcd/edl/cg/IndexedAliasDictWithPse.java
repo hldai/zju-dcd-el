@@ -88,6 +88,10 @@ public class IndexedAliasDictWithPse {
 		}
 		
 		MidPseList results = getMidPsesFromMidPseFile(mb.begPos, mb.len);
+//		System.out.println(alias + "             !!!");
+//		for (ByteArrayString mid : results.mids) {
+//			System.out.println(mid.toString());
+//		}
 		retTime += System.currentTimeMillis() - curTime;
 		return results;
 	}

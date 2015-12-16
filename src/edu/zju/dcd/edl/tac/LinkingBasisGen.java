@@ -15,7 +15,7 @@ import edu.zju.dcd.edl.utils.CommonUtils;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 import edu.zju.dcd.edl.wordvec.NameVecSimilarity;
 import edu.zju.dcd.edl.wordvec.WordPredictor;
-import edu.zju.dcd.edl.wordvec.WordVectorSet;
+//import edu.zju.dcd.edl.wordvec.WordVectorSet;
 
 public class LinkingBasisGen {
 	public class WordIndicesWithMentions {
@@ -34,8 +34,8 @@ public class LinkingBasisGen {
 		this.midWidMapper = midWidMapper;
 		
 		// TODO
-		WordVectorSet wordVectorSet = new WordVectorSet("e:/el/word2vec/wiki_vectors.jbin");
-		nameVecSimilarity = new NameVecSimilarity("e:/el/vec_rep/name_vecs.bin", wordVectorSet);
+//		WordVectorSet wordVectorSet = new WordVectorSet("e:/el/word2vec/wiki_vectors.jbin");
+//		nameVecSimilarity = new NameVecSimilarity("e:/el/vec_rep/name_vecs.bin", wordVectorSet);
 	}
 	
 	// doc's text should be loaded
@@ -136,26 +136,26 @@ public class LinkingBasisGen {
 	}
 	
 	private static final float KEY_WORD_IDF_THRES = 4.5f;
-	private float getWordHitRate(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
-		int hitCnt = 0, keywordCnt = 0;
-		int candTermIdxPos = 0;
-		for (int i = 0; i < docTfIdf.termIndices.length; ++i) {
-			if (docTfIdf.idfs[i] > KEY_WORD_IDF_THRES) {
-				keywordCnt += 1;
-				while (candTermIdxPos < candidateTfIdf.termIndices.length 
-						&& candidateTfIdf.termIndices[candTermIdxPos] < docTfIdf.termIndices[i]) {
-					++candTermIdxPos;
-				}
-				
-				if (candTermIdxPos < candidateTfIdf.termIndices.length 
-						&& candidateTfIdf.termIndices[candTermIdxPos] == docTfIdf.termIndices[i]) {
-					++hitCnt;
-				}
-			}
-		}
-		
-		return (float)hitCnt / keywordCnt;
-	}
+//	private float getWordHitRate(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
+//		int hitCnt = 0, keywordCnt = 0;
+//		int candTermIdxPos = 0;
+//		for (int i = 0; i < docTfIdf.termIndices.length; ++i) {
+//			if (docTfIdf.idfs[i] > KEY_WORD_IDF_THRES) {
+//				keywordCnt += 1;
+//				while (candTermIdxPos < candidateTfIdf.termIndices.length 
+//						&& candidateTfIdf.termIndices[candTermIdxPos] < docTfIdf.termIndices[i]) {
+//					++candTermIdxPos;
+//				}
+//				
+//				if (candTermIdxPos < candidateTfIdf.termIndices.length 
+//						&& candidateTfIdf.termIndices[candTermIdxPos] == docTfIdf.termIndices[i]) {
+//					++hitCnt;
+//				}
+//			}
+//		}
+//		
+//		return (float)hitCnt / keywordCnt;
+//	}
 
 	private float getWordHitRateIdf(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
 		float idfSum = 0, hitSum = 0;
@@ -178,35 +178,35 @@ public class LinkingBasisGen {
 		return hitSum / idfSum;
 	}
 
-	private float getWordHitRateIdfSim(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
-		TfIdfFeature fl = docTfIdf, fr = candidateTfIdf;
-		if (fl.termIndices == null || fr.termIndices == null) {
-			return 0;
-		}
-
-		double result = 0, tmp = 0;
-		int posl = 0, posr = 0;
-		while (posl < fl.tfs.length && posr < fr.tfs.length) {
-			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
-			if (terml < termr) {
-				++posl;
-			} else if (terml > termr) {
-				++posr;
-			} else {
-				if (fl.idfs[posl] > KEY_WORD_IDF_THRES) {
-					tmp = fl.tfs[posl] * fr.tfs[posr];
-					tmp *= fl.idfs[posl] * fr.idfs[posr];
-					result += tmp;
-				}
-				++posl;
-				++posr;
-			}
-		}
-		
-		result /= fl.getNorm(true) * fr.getNorm(true);
-
-		return (float)result;
-	}
+//	private float getWordHitRateIdfSim(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
+//		TfIdfFeature fl = docTfIdf, fr = candidateTfIdf;
+//		if (fl.termIndices == null || fr.termIndices == null) {
+//			return 0;
+//		}
+//
+//		double result = 0, tmp = 0;
+//		int posl = 0, posr = 0;
+//		while (posl < fl.tfs.length && posr < fr.tfs.length) {
+//			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
+//			if (terml < termr) {
+//				++posl;
+//			} else if (terml > termr) {
+//				++posr;
+//			} else {
+//				if (fl.idfs[posl] > KEY_WORD_IDF_THRES) {
+//					tmp = fl.tfs[posl] * fr.tfs[posr];
+//					tmp *= fl.idfs[posl] * fr.idfs[posr];
+//					result += tmp;
+//				}
+//				++posl;
+//				++posr;
+//			}
+//		}
+//		
+//		result /= fl.getNorm(true) * fr.getNorm(true);
+//
+//		return (float)result;
+//	}
 	
 	private boolean[] getNestVals(Document doc) {
 		boolean[] isNested = new boolean[doc.mentions.length];
