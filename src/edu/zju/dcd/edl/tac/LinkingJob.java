@@ -25,7 +25,6 @@ import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.tac.CrossDocNilHandler;
 import edu.zju.dcd.edl.utils.WidMidMapper;
-import edu.zju.dcd.edl.wordvec.WordPredictor;
 
 public class LinkingJob {
 	public static void run(IniFile config) {
@@ -61,7 +60,7 @@ public class LinkingJob {
 			FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
 			TfIdfExtractor tfIdfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
 //			WordPredictor wordPredictor = ConfigUtils.getWordPredictor(config.getSection("word_predictor"));
-			WordPredictor wordPredictor = null;
+//			WordPredictor wordPredictor = null;
 			WidMidMapper midWidMapper = ConfigUtils.getMidWidMapper(config.getSection("tac2014"));
 
 			IniFile.Section sect = config.getSection(job);
@@ -71,23 +70,21 @@ public class LinkingJob {
 
 			if (job.equals("gen_linking_basis_doc")) {
 				String docId = sect.getValue("doc_id");
-				genLinkingBasisDocForDebug(candidatesRetriever, featureLoader, tfIdfExtractor, wordPredictor,
-						midWidMapper,
-						docId, queryFileName, srcDocPath, dstFileName);
+				genLinkingBasisDocForDebug(candidatesRetriever, featureLoader, tfIdfExtractor,
+						midWidMapper, docId, queryFileName, srcDocPath, dstFileName);
 			} else {
-				genLinkingBasis(candidatesRetriever, featureLoader, tfIdfExtractor, wordPredictor,
-						midWidMapper,
-						queryFileName, srcDocPath, dstFileName);
+				genLinkingBasis(candidatesRetriever, featureLoader, tfIdfExtractor,
+						midWidMapper, queryFileName, srcDocPath, dstFileName);
 			}
 		}
 	}
 	
 	private static void genLinkingBasisDocForDebug(CandidatesRetriever candidatesRetriever,
-			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor, WordPredictor wordPredictor,
+			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
 			WidMidMapper midWidMapper, 
 			String docId, String queryFile, String srcDocPath, String dstFileName) {
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
-				wordPredictor, midWidMapper);
+				midWidMapper);
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(dstFileName, false);
 		try {
@@ -110,11 +107,11 @@ public class LinkingJob {
 	}
 	
 	private static void genLinkingBasis(CandidatesRetriever candidatesRetriever,
-			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor, WordPredictor wordPredictor,
+			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
 			WidMidMapper midWidMapper, 
 			String queryFile, String srcDocPath, String dstFileName) {
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
-				wordPredictor, midWidMapper);
+				midWidMapper);
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
 //		DataOutputStream dosTmp = IOUtils.getBufferedDataOutputStream("e:/el/");

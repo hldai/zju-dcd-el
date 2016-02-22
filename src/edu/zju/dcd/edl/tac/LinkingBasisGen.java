@@ -1,7 +1,6 @@
 package edu.zju.dcd.edl.tac;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.feature.FeatureLoader;
@@ -14,7 +13,6 @@ import edu.zju.dcd.edl.obj.Mention;
 import edu.zju.dcd.edl.utils.CommonUtils;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 import edu.zju.dcd.edl.wordvec.NameVecSimilarity;
-import edu.zju.dcd.edl.wordvec.WordPredictor;
 //import edu.zju.dcd.edl.wordvec.WordVectorSet;
 
 public class LinkingBasisGen {
@@ -24,14 +22,12 @@ public class LinkingBasisGen {
 		public int[] ends;
 	}
 	
-	public LinkingBasisGen(CandidatesRetriever candidatesRetriever,
-			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor, WordPredictor wordPredictor,
+	public LinkingBasisGen(CandidatesRetriever candidatesRetriever, FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
 			WidMidMapper midWidMapper) {
 		this.candidatesRetriever = candidatesRetriever;
 		this.featureLoader = featureLoader;
 		this.tfIdfExtractor = tfIdfExtractor;
-		this.wordPredictor = wordPredictor;
-		this.midWidMapper = midWidMapper;
+//		this.midWidMapper = midWidMapper;
 		
 		// TODO
 //		WordVectorSet wordVectorSet = new WordVectorSet("e:/el/word2vec/wiki_vectors.jbin");
@@ -56,8 +52,6 @@ public class LinkingBasisGen {
 		TfIdfFeature tfIdfFeature = tfIdfExtractor.getTfIdf(doc.text);
 //		int[] textIndices = wordPredictor.getWordIndices(doc.text);
 		
-		WordIndicesWithMentions indicesWithMentions = wordPredictor == null 
-				? null : getIndicesWithMentions(doc.text, doc.mentions);
 		
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			LinkingBasisMention linkingBasisMention = new LinkingBasisMention();
@@ -84,16 +78,6 @@ public class LinkingBasisGen {
 			
 			FeaturePack[] featurePacks = featureLoader.loadFeaturePacks(candidates, maxNumCandidates);
 			
-			int indicesBeg = 0, indicesEnd = 0;
-			if (wordPredictor != null) {
-				indicesBeg = indicesWithMentions.begs[i] - 5;
-				indicesEnd = indicesWithMentions.ends[i] + 5;
-				if (indicesBeg < 0)
-					indicesBeg = 0;
-				if (indicesEnd >= indicesWithMentions.indices.length)
-					indicesEnd = indicesWithMentions.indices.length - 1;
-			}
-			
 			for (int j = 0; j < numCandidates; ++j) {
 				linkingBasisMention.mids[j] = candidates[j].mid;
 				linkingBasisMention.aliasLikelihoods[j] = candidates[j].likelihood;
@@ -113,17 +97,7 @@ public class LinkingBasisGen {
 
 				linkingBasisMention.probabilities[j] = -1e8f;
 				
-				if (wordPredictor != null) {
-					int wid = midWidMapper.getWid(candidates[j].mid.toString().trim());
-					if (wid > -1) {
-	//					Float probability = wordPredictor.predictText(wid, indicesWithMentions.indices,
-	//							indicesBeg, indicesEnd);
-						Float probability = wordPredictor.predictText(wid, indicesWithMentions.indices);
-						if (probability != null) {
-							linkingBasisMention.probabilities[j] = probability;
-						}
-					}
-				} else if (nameVecSimilarity != null) {
+				if (nameVecSimilarity != null) {
 					linkingBasisMention.probabilities[j] = nameVecSimilarity.getSimilarity(mention.nameString,
 							candidates[j].mid);
 				}
@@ -271,48 +245,10 @@ public class LinkingBasisGen {
 		return idx;
 	}
 	
-	private WordIndicesWithMentions getIndicesWithMentions(String text, Mention[] mentions) {
-		WordIndicesWithMentions result = new WordIndicesWithMentions();
-		result.begs = new int[mentions.length];
-		result.ends = new int[mentions.length];
-		
-		String textPart = null;
-		int curPos = 0;
-		LinkedList<Integer> indices = new LinkedList<Integer>();
-		for (int i = 0; i < mentions.length; ++i) {
-//			System.out.println("beg " + mentions[i].beg);
-			if (curPos >= mentions[i].beg) {
-				result.begs[i] = result.begs[i - 1];
-				result.ends[i] = result.ends[i - 1];
-				continue;
-			}
-			
-			textPart = text.substring(curPos, mentions[i].beg);
-			wordPredictor.addWordIndices(textPart, indices);
-			result.begs[i] = indices.size();
-			
-			textPart = text.substring(mentions[i].beg, mentions[i].end + 1);			
-			wordPredictor.addWordIndices(textPart, indices);
-			result.ends[i] = indices.size() - 1;
-			
-			curPos = mentions[i].end + 1;
-		}
-		textPart = text.substring(curPos);
-		wordPredictor.addWordIndices(textPart, indices);
-		
-		result.indices = new int[indices.size()];
-		int pos = 0;
-		for (Integer idx : indices) {
-			result.indices[pos++] = idx;
-		}
-		
-		return result;
-	}
-	
 	private CandidatesRetriever candidatesRetriever = null;
 	private FeatureLoader featureLoader = null;
 	private TfIdfExtractor tfIdfExtractor = null;
-	private WordPredictor wordPredictor = null;
-	private WidMidMapper midWidMapper = null;
+//	private WordPredictor wordPredictor = null;
+//	private WidMidMapper midWidMapper = null;
 	private NameVecSimilarity nameVecSimilarity = null;
 }

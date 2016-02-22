@@ -9,22 +9,8 @@ import edu.zju.dcd.edl.feature.FeatureLoader;
 import edu.zju.dcd.edl.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
 import edu.zju.dcd.edl.utils.WidMidMapper;
-import edu.zju.dcd.edl.wordvec.WordPredictor;
 
 public class ConfigUtils {
-	public static WordPredictor getWordPredictor(IniFile.Section sect) {
-		if (sect == null)
-			return null;
-		
-		String entityVecFileName = sect.getValue("entity_vec_file"),
-				outputVecFileName = sect.getValue("output_vec_file"),
-				divisorsFileName = sect.getValue("divisors_file"),
-				vocabFileName = sect.getValue("vocab_file"),
-				filterWordsFileName = sect.getValue("filter_words_file");
-		
-		return new WordPredictor(entityVecFileName, outputVecFileName, 
-				divisorsFileName, vocabFileName, filterWordsFileName);
-	}
 	
 	public static WidMidMapper getMidWidMapper(IniFile.Section sect) {
 		String midWidFileName = sect.getValue("mid_wid_file");

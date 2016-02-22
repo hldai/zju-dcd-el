@@ -81,7 +81,7 @@ public class LinkDocuments {
 		SimpleNaiveLinker linker = initLinker(dataDir);
 		
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
-					null, midWidMapper);
+					midWidMapper);
 		Document[] documents = QueryReader.toDocuments(mentionFileName);
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		int mentionCnt = 0, docCnt = 0;
