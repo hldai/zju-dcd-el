@@ -21,8 +21,10 @@ public class SimpleNaiveLinker implements SimpleLinker {
 		this.mteMapper = mteMapper;
 		this.midFilter = midFilter;
 		
-		if (dstTrainingFileName != null)
+		if (dstTrainingFileName != null) {
+			System.out.println("dst training file: " + dstTrainingFileName);
 			trainFileWriter = IOUtils.getUTF8BufWriter(dstTrainingFileName, false);
+		}
 	}
 	
 	private static class TrainingEntry implements Comparable<TrainingEntry> {
@@ -59,33 +61,32 @@ public class SimpleNaiveLinker implements SimpleLinker {
 			if (lbMention.numCandidates > 0) {
 				double curScore = -1, maxScore = -1e5;
 				for (int j = 0; j < lbMention.numCandidates; ++j) {
-					if (midFilter != null && midFilter.needFilter(lbMention.mids[j])) {
-						continue;
-					}
-					String curMid = lbMention.mids[j].toString().trim();
-					if (linkingBasisDoc.isNested[i] && curMid.equals(results[i - 1].kbid)) {
-						continue;
-					}
-//					System.out.println(lbMention.probabilities[j]);
+//					if (midFilter != null && midFilter.needFilter(lbMention.mids[j])) {
+//						continue;
+//					}
+//					String curMid = lbMention.mids[j].toString().trim();
+//					if (linkingBasisDoc.isNested[i] && curMid.equals(results[i - 1].kbid)) {
+//						continue;
+//					}
 					
-//					curScore = 1 * Math.log(lbMention.popularities[j] + 1e-7) + 1 * Math.log(lbMention.aliasLikelihoods[j] + 1e-7) 
+//					curScore = 1 * Math.log(lbMention.npses[j])
 //							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
-//							+ 0 * Math.log(lbMention.probabilities[j] + 1e-7)
 //							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
 					
-//					System.out.println(lbMention.npses[j] + "\t" + lbMention.tfidfSimilarities[j] + "\t" 
-//+ lbMention.probabilities[j] + "\t" + lbMention.wordHitRates[j]);
+//					curScore = 0 * Math.log(lbMention.npses[j])
+//							+ 1 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
+//							+ 0 * Math.log(lbMention.wordHitRates[j] + 1e-7);
 					
-					curScore = 1 * Math.log(lbMention.npses[j] + 1e-7)
-							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
-//							+ 0 * Math.log(lbMention.probabilities[j] + 1e-7)
-//							+ 0.1 * lbMention.probabilities[j]
-							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
+//					System.out.println(lbMention.npses[j] + "\t" + lbMention.tfidfSimilarities[j] + "\t" 
+//					+ lbMention.wordHitRates[j] + "\t" + lbMention.docVecSimilarities[j]);
+
+//					curScore = 1 * lbMention.npses[j];
+//					curScore = 1 * lbMention.npses[j] + 1.1 * lbMention.docVecSimilarities[j];
 					
 //					curScore = lbMention.popularities[j] * lbMention.aliasLikelihoods[j] + 0.2 * lbMention.tfidfSimilarities[j];
 //					curScore = 1 * Math.log(lbMention.popularities[j])
 //							+ 10 * Math.log(lbMention.tfidfSimilarities[j]) + 1 * Math.log(lbMention.evScores[j]);
-//					System.out.println(mc.popularities[j] + "\t" + mc.tfidfSimilarities[j] + "\t" + curScore + "\t" + maxScore);
+//					System.out.println(curScore + "\t" + maxScore);
 					if (curScore > maxScore) {
 						result.kbid = lbMention.mids[j].toString().trim();
 						maxScore = curScore;
@@ -117,7 +118,7 @@ public class SimpleNaiveLinker implements SimpleLinker {
 			results[i] = result;
 		}
 		
-		relink(results, linkingBasisDoc);
+//		relink(results, linkingBasisDoc);
 		
 		return results;
 	}

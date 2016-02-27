@@ -26,9 +26,35 @@ public class LinkingBasisMention {
 				dos.writeFloat(popularities[i]);
 				dos.writeFloat(npses[i]);
 				dos.writeDouble(tfidfSimilarities[i]);
-				dos.writeFloat(probabilities[i]);
 				dos.writeFloat(wordHitRates[i]);
-//				dos.writeDouble(evScores[i]);
+				dos.writeFloat(docVecSimilarities[i]);
+				dos.writeFloat(tmpVals[i]);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void toFileVecTrain(DataOutputStream dos) {
+		ByteArrayString queryIdBas = new ByteArrayString(queryId);
+		if (queryId.equals("EDL14_ENG_0184"))
+			System.out.println("    " + mids[0].toString());
+		queryIdBas.toFileWithByteLen(dos);
+		try {
+			int cnt = 0;
+			for (int i = 0; i < numCandidates; ++i)
+				if (wikiVecs[i] != null)
+					++cnt;
+			
+			dos.writeInt(cnt);
+			
+			for (int i = 0; i < numCandidates; ++i) {
+				if (wikiVecs[i] != null) {
+					mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
+					for (int j = 0; j < wikiVecs[i].length; ++j) {
+						dos.writeFloat(wikiVecs[i][j]);
+					}
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -45,8 +71,8 @@ public class LinkingBasisMention {
 				writer.write(popularities[i] + "\t");
 				writer.write(npses[i] + "\t");
 				writer.write(tfidfSimilarities[i] + "\t");
-				writer.write(probabilities[i] + "\t");
-				writer.write(wordHitRates[i] + "\n");
+				writer.write(wordHitRates[i] + "\t");
+				writer.write(docVecSimilarities[i] + "\n");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -74,9 +100,9 @@ public class LinkingBasisMention {
 			popularities = new float[numCandidates];
 			npses = new float[numCandidates];
 			tfidfSimilarities = new double[numCandidates];
-			probabilities = new float[numCandidates];
 			wordHitRates = new float[numCandidates];
-//			evScores = new double[numCandidates];
+			docVecSimilarities = new float[numCandidates];
+			tmpVals = new float[numCandidates];
 			for (int i = 0; i < numCandidates; ++i) {
 				mids[i] = new ByteArrayString();
 				mids[i].fromFileWithFixedLen(dis, ELConsts.MID_BYTE_LEN);
@@ -84,9 +110,9 @@ public class LinkingBasisMention {
 				popularities[i] = dis.readFloat();
 				npses[i] = dis.readFloat();
 				tfidfSimilarities[i] = dis.readDouble();
-				probabilities[i] = dis.readFloat();
 				wordHitRates[i] = dis.readFloat();
-//				evScores[i] = dis.readDouble();
+				docVecSimilarities[i] = dis.readFloat();
+				tmpVals[i] = dis.readFloat();
 			}
 			return true;
 		} catch (IOException e) {
@@ -103,7 +129,9 @@ public class LinkingBasisMention {
 	public float[] popularities = null;
 	public float[] npses = null;
 	public double[] tfidfSimilarities = null;
-	public float[] probabilities = null;
 	public float[] wordHitRates = null;
-//	public double[] evScores = null;
+	public float[] docVecSimilarities = null;
+	public float[] tmpVals = null;
+	
+	public float[][] wikiVecs = null;
 }

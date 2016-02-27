@@ -117,7 +117,26 @@ public class CandidatesRetriever {
 	public CandidatesOfMention[] getCandidatesInDocument(Document doc) {
 		CandidatesWithPseOfMention[] candidatesWithPseInDoc = getCandidatesWithPseInDoc(doc);
 		
-		return getCandidatesOfMentions(candidatesWithPseInDoc);
+//		for (int i = 0; i < doc.mentions.length; ++i) {
+//			if (doc.mentions[i].queryId.equals("EDL14_ENG_0401")) {
+//				System.out.println(candidatesWithPseInDoc[i].candidatesWithPse.size());
+//				for (CandidateWithPse cwp : candidatesWithPseInDoc[i].candidatesWithPse) {
+//					System.out.println(cwp.mid.toString());
+//				}
+//			}
+//		}
+		
+		CandidatesOfMention[] candidatesOfMentions = getCandidatesOfMentions(candidatesWithPseInDoc);
+
+//		for (int i = 0; i < doc.mentions.length; ++i) {
+//			if (doc.mentions[i].queryId.equals("EDL14_ENG_0401")) {
+//				System.out.println(candidatesOfMentions[i].candidates.length);
+//				for (CandidateWithPopularity cwp : candidatesOfMentions[i].candidates) {
+//					System.out.println(cwp.mid.toString());
+//				}
+//			}
+//		}
+		return candidatesOfMentions;
 
 //		CandidatesTemporary[] tmpCandidates = new CandidatesTemporary[doc.mentions.length];
 //		if (aliasDict != null) {
@@ -140,18 +159,35 @@ public class CandidatesRetriever {
 				continue;
 			}
 			
-			candidatesOfMention.candidates = new CandidateWithPopularity[tmpCandidates.candidatesWithPse.size()];
-			int ix = 0;
-			for (CandidateWithPse  curCandidate : tmpCandidates.candidatesWithPse) {
+			LinkedList<CandidateWithPopularity> candidatesList = new LinkedList<CandidateWithPopularity>();
+//			int ix = 0;
+			for (CandidateWithPse curCandidate : tmpCandidates.candidatesWithPse) {
+				boolean flg = true;
+				for (CandidateWithPopularity cwp : candidatesList) {
+					if (curCandidate.mid.compareTo(cwp.mid) == 0) {
+						flg = false;
+					}
+				}
+//				for (int i = 0; i < ix && flg; ++i) {
+//				}
+				
+				if (!flg)
+					continue;
+				
 				CandidateWithPopularity candidateWithPopularity = new CandidateWithPopularity();
-				candidatesOfMention.candidates[ix++] = candidateWithPopularity;
+//				candidatesOfMention.candidates[ix++] = candidateWithPopularity;
 				candidateWithPopularity.mid = curCandidate.mid;
 				candidateWithPopularity.likelihood = curCandidate.pse;
 				candidateWithPopularity.popularity = -1;
 				if (midPopularity != null)
 					candidateWithPopularity.popularity = midPopularity.getPopularity(curCandidate.mid);
 				candidateWithPopularity.npse = curCandidate.npse;
+				
+				candidatesList.add(candidateWithPopularity);
 			}
+			
+			candidatesOfMention.candidates = new CandidateWithPopularity[candidatesList.size()];
+			candidatesList.toArray(candidatesOfMention.candidates);
 			
 			Arrays.sort(candidatesOfMention.candidates);
 		}
@@ -194,6 +230,7 @@ public class CandidatesRetriever {
 			}
 			
 			getCandidatesWithPseOfMention(doc, curNameString, candidatesWithPseInDoc, i);
+			
 //			getCandidatesWithPseOfMentionSimple(doc, curNameString, candidatesWithPseInDoc, i);
 		}
 		

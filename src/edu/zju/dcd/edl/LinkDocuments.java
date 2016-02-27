@@ -81,7 +81,7 @@ public class LinkDocuments {
 		SimpleNaiveLinker linker = initLinker(dataDir);
 		
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
-					midWidMapper);
+					midWidMapper, null, null, null, null);
 		Document[] documents = QueryReader.toDocuments(mentionFileName);
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		int mentionCnt = 0, docCnt = 0;
@@ -107,13 +107,7 @@ public class LinkDocuments {
 					}
 					
 					writer.write(result.queryId + "\t" + kbid + "\n");
-					
-//					if (result.kbid.startsWith(NIL))
-//						result.kbid = NIL;
-//					writer.write(result.queryId + "\t" + result.kbid + "\n");
-//					resultList.add(result);
 				}
-//				linkingBasisDoc.toFile(dos);
 				
 				if (docCnt == 3)
 					break;

@@ -59,32 +59,34 @@ public class LinkingJob {
 			IniFile.Section featSect = config.getSection("feature");
 			FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
 			TfIdfExtractor tfIdfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
-//			WordPredictor wordPredictor = ConfigUtils.getWordPredictor(config.getSection("word_predictor"));
-//			WordPredictor wordPredictor = null;
+//			FeatureLoader featureLoader = null;
+//			TfIdfExtractor tfIdfExtractor = null;
+			
+			String wikiVecsFile = featSect.getValue("wiki_vecs_file"), widListFile = featSect.getValue("wids_list_file");
+			
 			WidMidMapper midWidMapper = ConfigUtils.getMidWidMapper(config.getSection("tac2014"));
 
 			IniFile.Section sect = config.getSection(job);
-			String queryFileName = sect.getValue("query_file"), srcDocPath = sect
-					.getValue("src_doc_path"), dstFileName = sect
-					.getValue("dst_file");
+			String queryFileName = sect.getValue("query_file");
+			String srcDocPath = sect.getValue("src_doc_path");
+			String docVecsFile = sect.getValue("doc_vecs_file");
+			String docIdsFile = sect.getValue("doc_ids_file");
+			String dstFileName = sect.getValue("dst_file");
 
+			LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
+					midWidMapper, wikiVecsFile, widListFile, docVecsFile, docIdsFile);
+			
 			if (job.equals("gen_linking_basis_doc")) {
 				String docId = sect.getValue("doc_id");
-				genLinkingBasisDocForDebug(candidatesRetriever, featureLoader, tfIdfExtractor,
-						midWidMapper, docId, queryFileName, srcDocPath, dstFileName);
+				genLinkingBasisDocForDebug(linkingBasisGen, docId, queryFileName, srcDocPath, dstFileName);
 			} else {
-				genLinkingBasis(candidatesRetriever, featureLoader, tfIdfExtractor,
-						midWidMapper, queryFileName, srcDocPath, dstFileName);
+				genLinkingBasis(linkingBasisGen, queryFileName, srcDocPath, dstFileName);
 			}
 		}
 	}
 	
-	private static void genLinkingBasisDocForDebug(CandidatesRetriever candidatesRetriever,
-			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
-			WidMidMapper midWidMapper, 
+	private static void genLinkingBasisDocForDebug(LinkingBasisGen linkingBasisGen,
 			String docId, String queryFile, String srcDocPath, String dstFileName) {
-		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
-				midWidMapper);
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(dstFileName, false);
 		try {
@@ -106,17 +108,14 @@ public class LinkingJob {
 		}
 	}
 	
-	private static void genLinkingBasis(CandidatesRetriever candidatesRetriever,
-			FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
-			WidMidMapper midWidMapper, 
-			String queryFile, String srcDocPath, String dstFileName) {
-		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
-				midWidMapper);
+	private static void genLinkingBasis(LinkingBasisGen linkingBasisGen, String queryFile, 
+			String srcDocPath, String dstFileName) {
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
-//		DataOutputStream dosTmp = IOUtils.getBufferedDataOutputStream("e:/el/");
+		DataOutputStream dosTmp = IOUtils.getBufferedDataOutputStream("e:/dc/el/dwe_train/tac14_train.bin");
 		int mentionCnt = 0, docCnt = 0;
 		try {
+			dosTmp.writeInt(documents.length);
 			for (Document doc : documents) {
 				++docCnt;
 				mentionCnt += doc.mentions.length;
@@ -127,10 +126,12 @@ public class LinkingJob {
 				doc.text = null;
 				linkingBasisDoc.toFile(dos);
 				
+				linkingBasisDoc.toFileVecTrain(dosTmp);
 //				if (docCnt == 3)
 //					break;
 			}
 			dos.close();
+			dosTmp.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -138,8 +139,7 @@ public class LinkingJob {
 		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
 	}
 
-	private static void linkWithLinkingBasisFile(IniFile config, String job,
-			SimpleLinker simpleLinker) {
+	private static void linkWithLinkingBasisFile(IniFile config, String job, SimpleLinker simpleLinker) {
 		IniFile.Section sect = config.getSection(job);
 		String linkingBasisFileName = sect.getValue("linking_basis_file"), goldFileName = sect
 				.getValue("gold_file"), resultFileName = sect
@@ -160,6 +160,13 @@ public class LinkingJob {
 		LinkingBasisDoc linkingBasisDoc = new LinkingBasisDoc();
 		LinkedList<LinkingResult> resultList = new LinkedList<LinkingResult>();
 		while (linkingBasisDoc.fromFile(dis)) {
+			for (int i = 0; i < linkingBasisDoc.linkingBasisMentions.length; ++i) {
+				LinkingBasisMention lbMention = linkingBasisDoc.linkingBasisMentions[i];
+				if (lbMention.queryId.equals("EDL14_ENG_0184")) {
+					System.out.println("EDL14_ENG_0184 " + lbMention.mids[0].toString());
+				}
+			}
+			
 			LinkingResult[] results = null;
 			if (useMid) {
 				results = simpleLinker.link(linkingBasisDoc);
@@ -174,7 +181,7 @@ public class LinkingJob {
 		}
 
 		Collections.sort(resultList, new LinkingResult.ComparatorOnQueryId());
-		CrossDocNilHandler.handle(resultList, queryFileName);
+//		CrossDocNilHandler.handle(resultList, queryFileName);
 		writeLinkingResultsToFile(resultList, resultFileName, useMid);
 
 		if (goldFileName != null)

@@ -40,6 +40,27 @@ public class LinkingBasisDoc {
 		}
 	}
 	
+	public void toFileVecTrain(DataOutputStream dos) {
+		IOUtils.writeStringVaryLen(dos, docId);
+		try {
+			for (float v : docVec) {
+				dos.writeFloat(v);
+			}
+			
+			if (linkingBasisMentions == null) {
+				dos.writeInt(0);
+				return ;
+			}
+			
+			dos.writeInt(linkingBasisMentions.length);
+			for (LinkingBasisMention linkingBasisMention : linkingBasisMentions) {
+				linkingBasisMention.toFileVecTrain(dos);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void toFile(BufferedWriter writer) {
 		try {
 			writer.write(docId + "\n");
@@ -101,4 +122,6 @@ public class LinkingBasisDoc {
 	public int[] corefChain = null;
 	
 	public boolean[][] possibleCoref = null;
+	
+	public float[] docVec = null;
 }

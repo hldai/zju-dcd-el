@@ -21,4 +21,13 @@ public class MathUtils {
 			vec[i] /= sqrSum;
 		}
 	}
+	
+	public static float norm(float[] vec) {
+		float sqrSum = 0;
+		for (int i = 0; i < vec.length; ++i) {
+			sqrSum += vec[i] * vec[i];
+		}
+
+		return (float) Math.sqrt(sqrSum);
+	}
 }

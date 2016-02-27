@@ -291,4 +291,37 @@ public class IOUtils {
 		
 		return new String(sb);
 	}
+	
+	public static float[][] loadVectors(String fileName) {
+		if (fileName == null)
+			return null;
+		
+		try {
+			System.out.println("Loading " + fileName);
+			FileInputStream fs = new FileInputStream(fileName);
+			FileChannel fc = fs.getChannel();
+			int numVecs = readLittleEndianInt(fc);
+			int dim = readLittleEndianInt(fc);
+			System.out.println("numVecs: " + numVecs + " dim: " + dim);
+			
+			float[][] vecs = new float[numVecs][];
+			for (int i = 0; i < numVecs; ++i) {
+				vecs[i] = new float[dim];
+				
+				ByteBuffer buf = ByteBuffer.allocate(Float.BYTES * dim);
+				buf.order(ByteOrder.LITTLE_ENDIAN);
+				fc.read(buf);
+				buf.rewind();
+
+				buf.asFloatBuffer().get(vecs[i]);
+			}
+			
+			fs.close();
+			
+			return vecs;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

@@ -105,6 +105,7 @@ public class Scorer {
 				errListWriter.close();
 
 //			System.out.println(cnt + "\t" + inKbCnt);
+			System.out.println(correctCnt + "\t" + inKbCnt + "\t" + cnt);
 			System.out.println("accuracy: " + (double) correctCnt / cnt);
 			System.out.println("In KB accuracy: " + (double) inKbCorrectCnt
 					/ inKbCnt);

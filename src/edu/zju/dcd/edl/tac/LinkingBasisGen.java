@@ -1,16 +1,25 @@
 package edu.zju.dcd.edl.tac;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.feature.FeatureLoader;
 import edu.zju.dcd.edl.feature.FeaturePack;
 import edu.zju.dcd.edl.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.feature.TfIdfFeature;
+import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.ByteArrayString;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.Mention;
 import edu.zju.dcd.edl.utils.CommonUtils;
+import edu.zju.dcd.edl.utils.MathUtils;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 import edu.zju.dcd.edl.wordvec.NameVecSimilarity;
 //import edu.zju.dcd.edl.wordvec.WordVectorSet;
@@ -23,18 +32,20 @@ public class LinkingBasisGen {
 	}
 	
 	public LinkingBasisGen(CandidatesRetriever candidatesRetriever, FeatureLoader featureLoader, TfIdfExtractor tfIdfExtractor,
-			WidMidMapper midWidMapper) {
+			WidMidMapper midWidMapper, String wikiVecsFile, String wikiWidListFile, String docVecsFile, String docIdListFile) {
 		this.candidatesRetriever = candidatesRetriever;
 		this.featureLoader = featureLoader;
 		this.tfIdfExtractor = tfIdfExtractor;
-//		this.midWidMapper = midWidMapper;
+		this.midWidMapper = midWidMapper;
 		
-		// TODO
-//		WordVectorSet wordVectorSet = new WordVectorSet("e:/el/word2vec/wiki_vectors.jbin");
-//		nameVecSimilarity = new NameVecSimilarity("e:/el/vec_rep/name_vecs.bin", wordVectorSet);
+		wikiVecs = IOUtils.loadVectors(wikiVecsFile);
+		loadWikiIds(wikiWidListFile);
+		
+		docVecs = IOUtils.loadVectors(docVecsFile);
+		loadDocIds(docIdListFile);
 	}
 	
-	// doc's text should be loaded
+	// doc's text should have been loaded
 	public LinkingBasisDoc getLinkingBasisDoc(Document doc, int maxNumCandidates) {
 		LinkingBasisDoc result = new LinkingBasisDoc();
 		result.docId = doc.docId;
@@ -49,9 +60,13 @@ public class LinkingBasisGen {
 		result.corefChain = getCorefChain(doc, candidatesOfMentions);
 		result.possibleCoref = getPossibleCoref(doc, candidatesOfMentions);
 		
-		TfIdfFeature tfIdfFeature = tfIdfExtractor.getTfIdf(doc.text);
+		TfIdfFeature tfIdfFeature = null;
+		if (tfIdfExtractor != null)
+			tfIdfFeature = tfIdfExtractor.getTfIdf(doc.text);
 //		int[] textIndices = wordPredictor.getWordIndices(doc.text);
 		
+		float[] docVec = getDocVec(doc.docId);
+		result.docVec = docVec;
 		
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			LinkingBasisMention linkingBasisMention = new LinkingBasisMention();
@@ -60,6 +75,10 @@ public class LinkingBasisGen {
 			linkingBasisMention.queryId = mention.queryId;
 			
 			CandidatesRetriever.CandidateWithPopularity[] candidates = candidatesOfMentions[i].candidates;
+			
+			if (mention.queryId.equals("EDL14_ENG_0184")) {
+				System.out.println(candidates[0].mid.toString());
+			}
 			
 			if (candidates == null) {
 				continue;
@@ -73,36 +92,61 @@ public class LinkingBasisGen {
 			linkingBasisMention.popularities = new float[numCandidates];
 			linkingBasisMention.npses = new float[numCandidates];
 			linkingBasisMention.tfidfSimilarities = new double[numCandidates];
-			linkingBasisMention.probabilities = new float[numCandidates];
 			linkingBasisMention.wordHitRates = new float[numCandidates];
+			linkingBasisMention.docVecSimilarities = new float[numCandidates];
+			linkingBasisMention.tmpVals = new float[numCandidates];
 			
-			FeaturePack[] featurePacks = featureLoader.loadFeaturePacks(candidates, maxNumCandidates);
+			linkingBasisMention.wikiVecs = new float[numCandidates][];
+
+			FeaturePack[] featurePacks = null;
+			if (featureLoader != null)
+				featurePacks = featureLoader.loadFeaturePacks(candidates, maxNumCandidates);
 			
 			for (int j = 0; j < numCandidates; ++j) {
 				linkingBasisMention.mids[j] = candidates[j].mid;
 				linkingBasisMention.aliasLikelihoods[j] = candidates[j].likelihood;
 				linkingBasisMention.popularities[j] = candidates[j].popularity;
 				linkingBasisMention.npses[j] = candidates[j].npse;
-				if (featurePacks[j] == null) {
-					linkingBasisMention.tfidfSimilarities[j] = 0;
-					linkingBasisMention.wordHitRates[j] = 0;
+				if (featurePacks == null || featurePacks[j] == null || tfIdfFeature == null) {
+					linkingBasisMention.tfidfSimilarities[j] = 1e-8f;
+					linkingBasisMention.wordHitRates[j] = 1e-8f;
 				} else {
 					linkingBasisMention.tfidfSimilarities[j] = TfIdfFeature.similarity(
 							tfIdfFeature, featurePacks[j].tfidf);
-//					linkingBasisMention.wordHitRates[j] = getWordHitRate(tfIdfFeature, featurePacks[j].tfidf);
 					linkingBasisMention.wordHitRates[j] = getWordHitRateIdf(tfIdfFeature, featurePacks[j].tfidf);
-//					linkingBasisMention.tfidfSimilarities[j] = TfIdfFeature.tfSimilarity(
-//							tfIdfFeature, featurePacks[j].tfidf);
 				}
 
-				linkingBasisMention.probabilities[j] = -1e8f;
-				
-				if (nameVecSimilarity != null) {
-					linkingBasisMention.probabilities[j] = nameVecSimilarity.getSimilarity(mention.nameString,
-							candidates[j].mid);
+				linkingBasisMention.docVecSimilarities[j] = 1e-8f;
+				linkingBasisMention.tmpVals[j] = 1e-8f;
+				float[] wikiVec = getWikiVec(candidates[j].mid.toString().trim());
+				linkingBasisMention.wikiVecs[j] = wikiVec;
+				if (docVec != null && wikiVec != null) {
+					float norm0 = 0;
+					float norm1 = 0;
+					linkingBasisMention.docVecSimilarities[j] = 0;
+					for (int k = 0; k < docVec.length; ++k) {
+						linkingBasisMention.docVecSimilarities[j] += docVec[k] * wikiVec[k];
+						norm0 += docVec[k] * docVec[k];
+						norm1 += wikiVec[k] * wikiVec[k];
+					}
+					norm0 = (float)Math.sqrt(norm0);
+					norm1 = (float)Math.sqrt(norm1);
+					linkingBasisMention.docVecSimilarities[j] /= norm0 * norm1;
+
+
+//					norm0 = 0;
+//					norm1 = 0;
+//					linkingBasisMention.tmpVals[j] = 0;
+//					for (int k = 50; k < docVec.length; ++k) {
+//						linkingBasisMention.tmpVals[j] += docVec[k] * wikiVec[k];
+//						norm0 += docVec[k] * docVec[k];
+//						norm1 += wikiVec[k] * wikiVec[k];
+//					}
+//					norm0 = (float)Math.sqrt(norm0);
+//					norm1 = (float)Math.sqrt(norm1);
+//					
+//					linkingBasisMention.tmpVals[j] /= norm0 * norm1;
 				}
-//				linkingBasisMention.probabilities[j] = (float) Math.random();
-				
 			}
 		}
 		
@@ -110,26 +154,6 @@ public class LinkingBasisGen {
 	}
 	
 	private static final float KEY_WORD_IDF_THRES = 4.5f;
-//	private float getWordHitRate(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
-//		int hitCnt = 0, keywordCnt = 0;
-//		int candTermIdxPos = 0;
-//		for (int i = 0; i < docTfIdf.termIndices.length; ++i) {
-//			if (docTfIdf.idfs[i] > KEY_WORD_IDF_THRES) {
-//				keywordCnt += 1;
-//				while (candTermIdxPos < candidateTfIdf.termIndices.length 
-//						&& candidateTfIdf.termIndices[candTermIdxPos] < docTfIdf.termIndices[i]) {
-//					++candTermIdxPos;
-//				}
-//				
-//				if (candTermIdxPos < candidateTfIdf.termIndices.length 
-//						&& candidateTfIdf.termIndices[candTermIdxPos] == docTfIdf.termIndices[i]) {
-//					++hitCnt;
-//				}
-//			}
-//		}
-//		
-//		return (float)hitCnt / keywordCnt;
-//	}
 
 	private float getWordHitRateIdf(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
 		float idfSum = 0, hitSum = 0;
@@ -151,36 +175,6 @@ public class LinkingBasisGen {
 		
 		return hitSum / idfSum;
 	}
-
-//	private float getWordHitRateIdfSim(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
-//		TfIdfFeature fl = docTfIdf, fr = candidateTfIdf;
-//		if (fl.termIndices == null || fr.termIndices == null) {
-//			return 0;
-//		}
-//
-//		double result = 0, tmp = 0;
-//		int posl = 0, posr = 0;
-//		while (posl < fl.tfs.length && posr < fr.tfs.length) {
-//			int terml = fl.termIndices[posl], termr = fr.termIndices[posr];
-//			if (terml < termr) {
-//				++posl;
-//			} else if (terml > termr) {
-//				++posr;
-//			} else {
-//				if (fl.idfs[posl] > KEY_WORD_IDF_THRES) {
-//					tmp = fl.tfs[posl] * fr.tfs[posr];
-//					tmp *= fl.idfs[posl] * fr.idfs[posr];
-//					result += tmp;
-//				}
-//				++posl;
-//				++posr;
-//			}
-//		}
-//		
-//		result /= fl.getNorm(true) * fr.getNorm(true);
-//
-//		return (float)result;
-//	}
 	
 	private boolean[] getNestVals(Document doc) {
 		boolean[] isNested = new boolean[doc.mentions.length];
@@ -245,10 +239,105 @@ public class LinkingBasisGen {
 		return idx;
 	}
 	
+	private void loadWikiIds(String wikiIdFile) {
+		if (wikiIdFile == null)
+			return;
+		
+		try {
+			FileInputStream fs = new FileInputStream(wikiIdFile);
+			FileChannel fc = fs.getChannel();
+			int numWids = IOUtils.readLittleEndianInt(fc);
+			System.out.println(numWids + " wids");
+			
+			wids = new int[numWids];
+			
+			ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES * numWids);
+			buf.order(ByteOrder.LITTLE_ENDIAN);
+			fc.read(buf);
+			buf.rewind();
+
+			buf.asIntBuffer().get(wids);
+			
+			fs.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadDocIds(String docIdFile) {
+		if (docIdFile == null)
+			return;
+		
+		BufferedReader reader = IOUtils.getUTF8BufReader(docIdFile);
+		docIdToIdx = new HashMap<String, Integer>();
+		
+		try {
+			String line = null;
+			int cnt = 0;
+			while ((line = reader.readLine()) != null) {
+				String docId = line;
+				if (docId.endsWith(".xml"))
+					docId = docId.substring(0, docId.length() - 4);
+				if (docId.endsWith(".df"))
+					docId = docId.substring(0, docId.length() - 3);
+				if (docId.endsWith(".nw"))
+					docId = docId.substring(0, docId.length() - 3);
+
+				docIdToIdx.put(docId, cnt);
+				++cnt;
+			}
+			reader.close();
+			System.out.println(cnt + " docs read from " + docIdFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private float[] getWikiVec(String mid) {
+		if (wikiVecs == null)
+			return null;
+		
+		int wid = midWidMapper.getWid(mid);
+		if (mid.equals("05sb1"))
+			System.out.println("wid " + wid);
+		if (wid < 0)
+			return null;
+		
+		int pos = Arrays.binarySearch(wids, wid);
+		if (mid.equals("05sb1"))
+			System.out.println("pos " + pos);
+		if (pos < 0)
+			return null;
+		return wikiVecs[pos];
+	}
+	
+	private float[] getDocVec(String docId) {
+		if (docVecs == null)
+			return null;
+		
+		if (docId.endsWith(".xml"))
+			docId = docId.substring(0, docId.length() - 4);
+		if (docId.endsWith(".df"))
+			docId = docId.substring(0, docId.length() - 3);
+		if (docId.endsWith(".nw"))
+			docId = docId.substring(0, docId.length() - 3);
+		
+		Integer idx = docIdToIdx.get(docId);
+		if (idx == null) {
+			System.out.println("doc not found " + docId);
+			return null;
+		}
+		
+		return docVecs[idx];
+	}
+	
 	private CandidatesRetriever candidatesRetriever = null;
 	private FeatureLoader featureLoader = null;
 	private TfIdfExtractor tfIdfExtractor = null;
-//	private WordPredictor wordPredictor = null;
-//	private WidMidMapper midWidMapper = null;
-	private NameVecSimilarity nameVecSimilarity = null;
+	private WidMidMapper midWidMapper = null;
+	
+	private float[][] wikiVecs = null;
+	private float[][] docVecs = null;
+	private int[] wids = null;
+	private HashMap<String, Integer> docIdToIdx = null;
 }
