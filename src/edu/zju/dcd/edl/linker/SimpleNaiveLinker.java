@@ -69,23 +69,24 @@ public class SimpleNaiveLinker implements SimpleLinker {
 //						continue;
 //					}
 					
-//					curScore = 1 * Math.log(lbMention.npses[j])
-//							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
-//							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
+					curScore = 1 * Math.log(lbMention.npses[j])
+							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
+							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
 					
 //					curScore = 0 * Math.log(lbMention.npses[j])
-//							+ 1 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
-//							+ 0 * Math.log(lbMention.wordHitRates[j] + 1e-7);
+//							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
+//							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
 					
 //					System.out.println(lbMention.npses[j] + "\t" + lbMention.tfidfSimilarities[j] + "\t" 
 //					+ lbMention.wordHitRates[j] + "\t" + lbMention.docVecSimilarities[j]);
 
 //					curScore = 1 * lbMention.npses[j];
-//					curScore = 1 * lbMention.npses[j] + 1.1 * lbMention.docVecSimilarities[j];
+//					curScore = 1.2 * lbMention.docVecSimilarities[j];
+//					curScore = 0.1f * lbMention.npses[j] + (1 - 0.1f) * lbMention.docVecSimilarities[j];
+//					curScore = 0.4f * lbMention.npses[j] + (1 - 0.4f) * lbMention.docVecSimilarities[j];
 					
-//					curScore = lbMention.popularities[j] * lbMention.aliasLikelihoods[j] + 0.2 * lbMention.tfidfSimilarities[j];
-//					curScore = 1 * Math.log(lbMention.popularities[j])
-//							+ 10 * Math.log(lbMention.tfidfSimilarities[j]) + 1 * Math.log(lbMention.evScores[j]);
+//					curScore = 0.6f * Math.log(lbMention.npses[j]) + (1 - 0.6f) * Math.log(lbMention.docVecSimilarities[j]);
+					
 //					System.out.println(curScore + "\t" + maxScore);
 					if (curScore > maxScore) {
 						result.kbid = lbMention.mids[j].toString().trim();

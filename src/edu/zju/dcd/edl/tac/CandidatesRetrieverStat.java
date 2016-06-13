@@ -22,7 +22,7 @@ public class CandidatesRetrieverStat {
 //		IndexedAliasDictWithPse indexedAliasDictWithPse = ConfigUtils.getAliasDictWithPse(config.getSection("dict"));
 //		CandidatesRetriever candidatesRetriever = new CandidatesRetriever(indexedAliasDictWithPse);
 
-		CandidatesRetriever candidatesRetriever = ConfigUtils.getCandidateRetriever(config.getSection("dict"));
+		CandidatesRetriever candidatesRetriever = ConfigUtils.getCandidateRetriever(config.getSection("dict"), null);
 		
 		MidToEidMapper mteMapper = ConfigUtils.getMidToEidMapper(config
 				.getSection("tac2014"));

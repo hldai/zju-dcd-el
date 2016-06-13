@@ -11,6 +11,7 @@ import edu.zju.dcd.edl.ELConsts;
 import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.ByteArrayString;
 import edu.zju.dcd.edl.obj.Document;
+import edu.zju.dcd.edl.tac.MidToEidMapper;
 import edu.zju.dcd.edl.utils.AdjGpeMapper;
 import edu.zju.dcd.edl.utils.CommonUtils;
 
@@ -94,14 +95,15 @@ public class CandidatesRetriever {
 		public float[] popularities;
 	}
 	
-	public CandidatesRetriever(AliasDict aliasDict, String midPopularityFileName) {
+	public CandidatesRetriever(AliasDict aliasDict, String midPopularityFileName, MidToEidMapper mteMapper) {
 		this.aliasDict = aliasDict;
 		midPopularity = new MidPopularity(midPopularityFileName);
 		adjGpeMapper = new AdjGpeMapper("d:/data/cr/nation_adj.txt");
+		this.mteMapper = mteMapper;
 	}
 	
 	public CandidatesRetriever(IndexedAliasDictWithPse indexedAliasDictWithPse, String midPopularityFileName,
-			String personListFileName, String adjGpeListFileName) {
+			String personListFileName, String adjGpeListFileName, MidToEidMapper mteMapper) {
 		this.indexedAliasDictWithPse = indexedAliasDictWithPse;
 		
 		if (midPopularityFileName != null)
@@ -112,40 +114,16 @@ public class CandidatesRetriever {
 		
 		if (adjGpeListFileName != null)
 			adjGpeMapper = new AdjGpeMapper(adjGpeListFileName);
+		
+		this.mteMapper = mteMapper;
 	}
 	
 	public CandidatesOfMention[] getCandidatesInDocument(Document doc) {
 		CandidatesWithPseOfMention[] candidatesWithPseInDoc = getCandidatesWithPseInDoc(doc);
 		
-//		for (int i = 0; i < doc.mentions.length; ++i) {
-//			if (doc.mentions[i].queryId.equals("EDL14_ENG_0401")) {
-//				System.out.println(candidatesWithPseInDoc[i].candidatesWithPse.size());
-//				for (CandidateWithPse cwp : candidatesWithPseInDoc[i].candidatesWithPse) {
-//					System.out.println(cwp.mid.toString());
-//				}
-//			}
-//		}
-		
 		CandidatesOfMention[] candidatesOfMentions = getCandidatesOfMentions(candidatesWithPseInDoc);
-
-//		for (int i = 0; i < doc.mentions.length; ++i) {
-//			if (doc.mentions[i].queryId.equals("EDL14_ENG_0401")) {
-//				System.out.println(candidatesOfMentions[i].candidates.length);
-//				for (CandidateWithPopularity cwp : candidatesOfMentions[i].candidates) {
-//					System.out.println(cwp.mid.toString());
-//				}
-//			}
-//		}
+		
 		return candidatesOfMentions;
-
-//		CandidatesTemporary[] tmpCandidates = new CandidatesTemporary[doc.mentions.length];
-//		if (aliasDict != null) {
-//			getCandidatesInDocumentAliasDict(doc, tmpCandidates);
-//		} else {
-//			getCandidatesInDocumentAliasDictWithPse(doc, tmpCandidates);
-//		}
-//		
-//		return getCandidatesOfMentionsFromTempCandidates(tmpCandidates);
 	}
 	
 	private CandidatesOfMention[] getCandidatesOfMentions(CandidatesWithPseOfMention[] candidatesWithPseInDoc) {
@@ -276,6 +254,10 @@ public class CandidatesRetriever {
 					float pse = pseIter.next();
 					float npse = npseIter.next();
 					
+					if (mteMapper != null && mteMapper.getEid(mid) == null) {
+						continue;
+					}
+					
 					CandidateWithPse candidateWithPse = new CandidateWithPse();
 					candidateWithPse.mid = mid;
 					candidateWithPse.pse = pse;
@@ -353,4 +335,5 @@ public class CandidatesRetriever {
 	AdjGpeMapper adjGpeMapper = null;
 	
 	String[] personMids = null;
+	protected MidToEidMapper mteMapper = null;
 }

@@ -33,6 +33,11 @@ public class QueryReader {
 					+ "<name>(.*?)</name>\\s*"
 					+ "<docid>(.*?)</docid>\\s*</query>\\s*");
 
+	private static final Pattern QUERY_PATTERN_WITHOUT_POS_TRAIN = Pattern
+			.compile("\\s*?<query\\sid=\\\"(.*?)\\\">\\s*"
+					+ "<name>(.*?)</name>\\s*"
+					+ "<docid>(.*?)</docid>\\s*<entity>(.*?)</entity>\\s*</query>\\s*");
+
 	// note that the text attribute of a Document is not set in this method
 	public static Document[] toDocuments(String queryFileName) {
 		BufferedReader reader = IOUtils.getUTF8BufReader(queryFileName);
@@ -49,8 +54,11 @@ public class QueryReader {
 			e.printStackTrace();
 		}
 
-		if (queries.size() == 0)
+		assert queries.size() != 0;
+		if (queries.size() == 0) {
+			System.out.println("no queries found!");
 			return null;
+		}
 
 		Collections.sort(queries, new Query.QueryComparator());
 
@@ -122,6 +130,7 @@ public class QueryReader {
 		return numMentionsList;
 	}
 
+	// TODO
 	private static Query nextQuery(BufferedReader bufReader) {
 		String line = null;
 		StringBuilder sb = new StringBuilder();
@@ -141,7 +150,8 @@ public class QueryReader {
 				return null;
 
 			Matcher m0 = QUERY_PATTERN_WITHOUT_POS.matcher(sb),
-					m1 = QUERY_PATTERN.matcher(sb);
+					m1 = QUERY_PATTERN.matcher(sb), 
+					m2 = QUERY_PATTERN_WITHOUT_POS_TRAIN.matcher(sb);
 			Query q = new Query();
 			Matcher m = null;
 			if (m1.find()) {
@@ -150,6 +160,8 @@ public class QueryReader {
 				m = m1;
 			} else if (m0.find()) {
 				m = m0;
+			} else if (m2.find()) {
+				m = m2;
 			}
 			
 			if (m != null) {
@@ -158,20 +170,6 @@ public class QueryReader {
 				q.docId = m.group(3);
 				return q;
 			}
-//			Matcher m = withPosition ? QUERY_PATTERN.matcher(sb) : QUERY_PATTERN_WITHOUT_POS.matcher(sb);
-//			if (m.find()) {
-//				Query q = new Query();
-//				q.queryId = m.group(1);
-//				q.name = m.group(2);
-//				q.docId = m.group(3);
-//				
-//				if (withPosition) {
-//					q.begPos = Integer.valueOf(m.group(4));
-//					q.endPos = Integer.valueOf(m.group(5));
-//				}
-//
-//				return q;
-//			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

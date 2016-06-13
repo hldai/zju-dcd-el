@@ -55,7 +55,6 @@ public class LinkingJob {
 			processQueryFile(querySect, linker);
 			// TODO close
 		} else if (job.startsWith("gen_linking_basis")) {
-			CandidatesRetriever candidatesRetriever = ConfigUtils.getCandidateRetriever(config.getSection("dict"));
 			IniFile.Section featSect = config.getSection("feature");
 			FeatureLoader featureLoader = ConfigUtils.getFeatureLoader(featSect);
 			TfIdfExtractor tfIdfExtractor = ConfigUtils.getTfIdfExtractor(featSect);
@@ -63,8 +62,14 @@ public class LinkingJob {
 //			TfIdfExtractor tfIdfExtractor = null;
 			
 			String wikiVecsFile = featSect.getValue("wiki_vecs_file"), widListFile = featSect.getValue("wids_list_file");
+
+			IniFile.Section tac2014Sect = config.getSection("tac2014");
+			WidMidMapper midWidMapper = ConfigUtils.getMidWidMapper(tac2014Sect);
+			MidToEidMapper mteMapper = ConfigUtils.getMidToEidMapper(tac2014Sect);
+//			MidToEidMapper mteMapper = null;
 			
-			WidMidMapper midWidMapper = ConfigUtils.getMidWidMapper(config.getSection("tac2014"));
+			CandidatesRetriever candidatesRetriever = ConfigUtils.getCandidateRetriever(config.getSection("dict"),
+					mteMapper);
 
 			IniFile.Section sect = config.getSection(job);
 			String queryFileName = sect.getValue("query_file");
@@ -72,6 +77,7 @@ public class LinkingJob {
 			String docVecsFile = sect.getValue("doc_vecs_file");
 			String docIdsFile = sect.getValue("doc_ids_file");
 			String dstFileName = sect.getValue("dst_file");
+			String dstVecTrainFileName = sect.getValue("dst_vec_train_file");
 
 			LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
 					midWidMapper, wikiVecsFile, widListFile, docVecsFile, docIdsFile);
@@ -80,7 +86,7 @@ public class LinkingJob {
 				String docId = sect.getValue("doc_id");
 				genLinkingBasisDocForDebug(linkingBasisGen, docId, queryFileName, srcDocPath, dstFileName);
 			} else {
-				genLinkingBasis(linkingBasisGen, queryFileName, srcDocPath, dstFileName);
+				genLinkingBasis(linkingBasisGen, queryFileName, srcDocPath, dstFileName, dstVecTrainFileName);
 			}
 		}
 	}
@@ -109,13 +115,19 @@ public class LinkingJob {
 	}
 	
 	private static void genLinkingBasis(LinkingBasisGen linkingBasisGen, String queryFile, 
-			String srcDocPath, String dstFileName) {
+			String srcDocPath, String dstFileName, String dstVecTrainFile) {
 		Document[] documents = QueryReader.toDocuments(queryFile);
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
-		DataOutputStream dosTmp = IOUtils.getBufferedDataOutputStream("e:/dc/el/dwe_train/tac14_train.bin");
+		
+		DataOutputStream dosTmp = null;
+		if (dstVecTrainFile != null)
+			dosTmp = IOUtils.getBufferedDataOutputStream(dstVecTrainFile);
+		
 		int mentionCnt = 0, docCnt = 0;
 		try {
-			dosTmp.writeInt(documents.length);
+			System.out.println(documents.length + " docs.");
+			if (dosTmp != null)
+				dosTmp.writeInt(documents.length);
 			for (Document doc : documents) {
 				++docCnt;
 				mentionCnt += doc.mentions.length;
@@ -126,12 +138,15 @@ public class LinkingJob {
 				doc.text = null;
 				linkingBasisDoc.toFile(dos);
 				
-				linkingBasisDoc.toFileVecTrain(dosTmp);
+				if (dosTmp != null)
+					linkingBasisDoc.toFileVecTrain(dosTmp);
 //				if (docCnt == 3)
 //					break;
 			}
 			dos.close();
-			dosTmp.close();
+			
+			if (dosTmp != null)
+				dosTmp.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -160,12 +175,12 @@ public class LinkingJob {
 		LinkingBasisDoc linkingBasisDoc = new LinkingBasisDoc();
 		LinkedList<LinkingResult> resultList = new LinkedList<LinkingResult>();
 		while (linkingBasisDoc.fromFile(dis)) {
-			for (int i = 0; i < linkingBasisDoc.linkingBasisMentions.length; ++i) {
-				LinkingBasisMention lbMention = linkingBasisDoc.linkingBasisMentions[i];
-				if (lbMention.queryId.equals("EDL14_ENG_0184")) {
-					System.out.println("EDL14_ENG_0184 " + lbMention.mids[0].toString());
-				}
-			}
+//			for (int i = 0; i < linkingBasisDoc.linkingBasisMentions.length; ++i) {
+//				LinkingBasisMention lbMention = linkingBasisDoc.linkingBasisMentions[i];
+//				if (lbMention.queryId.equals("EDL14_ENG_0184")) {
+//					System.out.println("EDL14_ENG_0184 " + lbMention.mids[0].toString());
+//				}
+//			}
 			
 			LinkingResult[] results = null;
 			if (useMid) {

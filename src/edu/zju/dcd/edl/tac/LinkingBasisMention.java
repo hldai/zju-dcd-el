@@ -37,8 +37,6 @@ public class LinkingBasisMention {
 	
 	public void toFileVecTrain(DataOutputStream dos) {
 		ByteArrayString queryIdBas = new ByteArrayString(queryId);
-		if (queryId.equals("EDL14_ENG_0184"))
-			System.out.println("    " + mids[0].toString());
 		queryIdBas.toFileWithByteLen(dos);
 		try {
 			int cnt = 0;
@@ -51,6 +49,7 @@ public class LinkingBasisMention {
 			for (int i = 0; i < numCandidates; ++i) {
 				if (wikiVecs[i] != null) {
 					mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
+					dos.writeFloat(npses[i]);
 					for (int j = 0; j < wikiVecs[i].length; ++j) {
 						dos.writeFloat(wikiVecs[i][j]);
 					}

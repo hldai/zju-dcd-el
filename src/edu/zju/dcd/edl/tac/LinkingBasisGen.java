@@ -76,10 +76,6 @@ public class LinkingBasisGen {
 			
 			CandidatesRetriever.CandidateWithPopularity[] candidates = candidatesOfMentions[i].candidates;
 			
-			if (mention.queryId.equals("EDL14_ENG_0184")) {
-				System.out.println(candidates[0].mid.toString());
-			}
-			
 			if (candidates == null) {
 				continue;
 			}
@@ -298,14 +294,10 @@ public class LinkingBasisGen {
 			return null;
 		
 		int wid = midWidMapper.getWid(mid);
-		if (mid.equals("05sb1"))
-			System.out.println("wid " + wid);
 		if (wid < 0)
 			return null;
 		
 		int pos = Arrays.binarySearch(wids, wid);
-		if (mid.equals("05sb1"))
-			System.out.println("pos " + pos);
 		if (pos < 0)
 			return null;
 		return wikiVecs[pos];

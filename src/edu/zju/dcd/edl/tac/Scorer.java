@@ -47,15 +47,23 @@ public class Scorer {
 				goldLine = goldReader.readLine();
 
 				if (goldLine == null) {
-					System.out.println("Query id not consistent!");
+					System.out.println("Query id not consistent! goldLine is null");
 					break;
 				}
-
-				String[] sysVals = sysLine.split("\t"), goldVals = goldLine
-						.split("\t");
+				
+//				goldLine = goldLine.trim();
+//				if (goldLine.length() == 0)
+//					goldLine = goldReader.readLine();
+//				char ch = goldLine.charAt(goldLine.length() - 1);
+//				if (ch < '0' || ch > '9')
+//					goldLine = goldReader.readLine();
+				
+				String[] goldVals = goldLine.split("\t");
+				String[] sysVals = sysLine.split("\t");
 
 				if (!goldVals[0].equals(sysVals[0])) {
 					System.out.println("Query id not consistent!");
+					System.out.println(goldVals[0] + "\t" + sysVals[0]);
 					break;
 				}
 
@@ -104,8 +112,8 @@ public class Scorer {
 			if (errListWriter != null)
 				errListWriter.close();
 
-//			System.out.println(cnt + "\t" + inKbCnt);
-			System.out.println(correctCnt + "\t" + inKbCnt + "\t" + cnt);
+			System.out.println("correctCnt\tinKbCorrectCnt\tinKbCnt\tcnt");
+			System.out.println(correctCnt + "\t" + inKbCorrectCnt + "\t" + inKbCnt + "\t" + cnt);
 			System.out.println("accuracy: " + (double) correctCnt / cnt);
 			System.out.println("In KB accuracy: " + (double) inKbCorrectCnt
 					/ inKbCnt);

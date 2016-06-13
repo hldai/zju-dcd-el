@@ -44,7 +44,7 @@ public class LinkDocuments {
 		
 		IndexedAliasDictWithPse indexedAliasDictWithPse = new IndexedAliasDictWithPse(
 				aliasFilePath, aliasIndexFilePath, midPath);
-		return new CandidatesRetriever(indexedAliasDictWithPse, null, personListFilePath, null);
+		return new CandidatesRetriever(indexedAliasDictWithPse, null, personListFilePath, null, null);
 	}
 	
 	private static FeatureLoader initFeatureLoader(String dataDir) {

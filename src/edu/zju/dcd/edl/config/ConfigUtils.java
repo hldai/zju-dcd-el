@@ -17,7 +17,7 @@ public class ConfigUtils {
 		return new WidMidMapper(midWidFileName);
 	}
 	
-	public static CandidatesRetriever getCandidateRetriever(IniFile.Section sect) {
+	public static CandidatesRetriever getCandidateRetriever(IniFile.Section sect, MidToEidMapper mteMapper) {
 		if (sect == null)
 			return null;
 		
@@ -26,7 +26,7 @@ public class ConfigUtils {
 				personListFileName = sect.getValue("person_list_file"),
 				gpeAdjListFileName = sect.getValue("gpe_adj_list_file");
 		return new CandidatesRetriever(indexedAliasDictWithPse, midPopularityFileName, personListFileName,
-				gpeAdjListFileName);
+				gpeAdjListFileName, mteMapper);
 	}
 	
 	public static AliasDictWithIndex getAliasDict(IniFile.Section sect) {
