@@ -43,3 +43,9 @@ Temporary Items
 .apdisk
 
 *.class
+
+bin/
+.idea/
+.settings/
+.project
+.classpath
