@@ -34,7 +34,10 @@ public class LinkMain {
 	public static void main(String[] args) {
 		long startTime = System.currentTimeMillis();
 
-		IniFile config = new IniFile("d:/data/el/config/tac_link.ini");
+		String dataDir = "/home/dhl/data/EDL/";
+		String configFile = dataDir + "config/tac-link.ini";
+
+		IniFile config = new IniFile(configFile);
 		runByConfig(config);
 //		test();
 

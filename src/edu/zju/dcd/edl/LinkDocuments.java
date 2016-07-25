@@ -82,7 +82,13 @@ public class LinkDocuments {
 		
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
 					midWidMapper, null, null, null, null);
-		Document[] documents = QueryReader.toDocuments(mentionFileName);
+
+		Document[] documents = null;
+		if (mentionFileName.endsWith(".xml"))
+			documents = QueryReader.toDocuments(mentionFileName);
+		else
+			documents = QueryReader.toDocumentsTab(mentionFileName);
+
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		int mentionCnt = 0, docCnt = 0;
 		try {

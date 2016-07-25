@@ -40,30 +40,20 @@ public class QueryReader {
 
 	// note that the text attribute of a Document is not set in this method
 	public static Document[] toDocuments(String queryFileName) {
-		BufferedReader reader = IOUtils.getUTF8BufReader(queryFileName);
+		LinkedList<Query> queries = readQueries(queryFileName);
+		return queriesToDocs(queries);
+	}
 
-		LinkedList<Query> queries = new LinkedList<Query>();
-		Query query = null;
-		try {
-			while ((query = nextQuery(reader)) != null) {
-				queries.add(query);
-			}
+	public static Document[] toDocumentsTab(String mentionsFile) {
+		LinkedList<Query> queries = readQueriesTabFile(mentionsFile);
+		return queriesToDocs(queries);
+	}
 
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		assert queries.size() != 0;
-		if (queries.size() == 0) {
-			System.out.println("no queries found!");
-			return null;
-		}
-
+	private static Document[] queriesToDocs(LinkedList<Query> queries) {
 		Collections.sort(queries, new Query.QueryComparator());
 
 		LinkedList<Integer> numMentionsList = getNumMentionsList(queries);
-		
+
 		Mention.MentionPosComparator mentionPosComparator = new Mention.MentionPosComparator();
 
 		int numDocs = numMentionsList.size();
@@ -85,7 +75,7 @@ public class QueryReader {
 			}
 			doc.docId = q.docId;
 			Arrays.sort(doc.mentions, mentionPosComparator);
-			
+
 			docs[docIdx++] = doc;
 		}
 
@@ -107,8 +97,33 @@ public class QueryReader {
 			e.printStackTrace();
 		}
 
-		if (queries.size() == 0)
-			return null;
+		assert queries.size() != 0;
+		return queries;
+	}
+
+	private static LinkedList<Query> readQueriesTabFile(String fileName) {
+		BufferedReader reader = IOUtils.getUTF8BufReader(fileName);
+		LinkedList<Query> queries = new LinkedList<Query>();
+
+		String line = null;
+		try {
+			while ((line = reader.readLine()) != null) {
+				String[] vals = line.split("\t");
+				Query q = new Query();
+				q.queryId = vals[1];
+				q.name = vals[2];
+
+				int colonPos = vals[3].indexOf(':'), dashPos = vals[3].indexOf('-');
+				q.docId = vals[3].substring(0, colonPos);
+				q.begPos = Integer.valueOf(vals[3].substring(colonPos + 1, dashPos));
+				q.endPos = Integer.valueOf(vals[3].substring(dashPos + 1));
+				queries.add(q);
+//				System.out.println(q.docId);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return queries;
 	}
 

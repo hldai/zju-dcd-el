@@ -116,7 +116,12 @@ public class LinkingJob {
 	
 	private static void genLinkingBasis(LinkingBasisGen linkingBasisGen, String queryFile, 
 			String srcDocPath, String dstFileName, String dstVecTrainFile) {
-		Document[] documents = QueryReader.toDocuments(queryFile);
+		Document[] documents = null;
+		if (queryFile.endsWith(".xml"))
+			documents = QueryReader.toDocuments(queryFile);
+		else
+			documents = QueryReader.toDocumentsTab(queryFile);
+
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(dstFileName);
 		
 		DataOutputStream dosTmp = null;
@@ -285,14 +290,12 @@ public class LinkingJob {
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		try {
 			for (LinkingResult result : results) {
-				if (result.kbid.startsWith("NIL"))
-					writer.write(result.queryId + "\t" + result.kbid + "\t" + result.confidence + "\n");
-				else {
-					if (useMid)
-						writer.write(result.queryId + "\tm." + result.kbid + "\t" + result.confidence + "\n");
-					else
-						writer.write(result.queryId + "\t" + result.kbid + "\t" + result.confidence + "\n");
-				}
+				if (useMid)
+					writer.write(String.format("ZJU\t%s\t%s\t%s:%d-%d\tm.%s\t%s\t%s\t%.2f\n", result.queryId,
+							"NAME", "DOCID", 0, 0, result.kbid, "PER", "NAM", result.confidence));
+				else
+					writer.write(String.format("ZJU\t%s\t%s\t%s:%d-%d\t%s\t%s\t%s\t%.2f\n", result.queryId,
+							"NAME", "DOCID", 0, 0, result.kbid, "PER", "NAM", result.confidence));
 			}
 			writer.close();
 		} catch (IOException e) {

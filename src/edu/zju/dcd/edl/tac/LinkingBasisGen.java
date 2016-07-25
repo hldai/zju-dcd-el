@@ -38,11 +38,11 @@ public class LinkingBasisGen {
 		this.tfIdfExtractor = tfIdfExtractor;
 		this.midWidMapper = midWidMapper;
 		
-		wikiVecs = IOUtils.loadVectors(wikiVecsFile);
-		loadWikiIds(wikiWidListFile);
+//		wikiVecs = IOUtils.loadVectors(wikiVecsFile);
+//		loadWikiIds(wikiWidListFile);
 		
-		docVecs = IOUtils.loadVectors(docVecsFile);
-		loadDocIds(docIdListFile);
+//		docVecs = IOUtils.loadVectors(docVecsFile);
+//		loadDocIds(docIdListFile);
 	}
 	
 	// doc's text should have been loaded
@@ -128,20 +128,6 @@ public class LinkingBasisGen {
 					norm0 = (float)Math.sqrt(norm0);
 					norm1 = (float)Math.sqrt(norm1);
 					linkingBasisMention.docVecSimilarities[j] /= norm0 * norm1;
-
-
-//					norm0 = 0;
-//					norm1 = 0;
-//					linkingBasisMention.tmpVals[j] = 0;
-//					for (int k = 50; k < docVec.length; ++k) {
-//						linkingBasisMention.tmpVals[j] += docVec[k] * wikiVec[k];
-//						norm0 += docVec[k] * docVec[k];
-//						norm1 += wikiVec[k] * wikiVec[k];
-//					}
-//					norm0 = (float)Math.sqrt(norm0);
-//					norm1 = (float)Math.sqrt(norm1);
-//					
-//					linkingBasisMention.tmpVals[j] /= norm0 * norm1;
 				}
 			}
 		}
