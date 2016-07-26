@@ -49,7 +49,7 @@ public class CandidatesRetrieverStat {
 			CandidatesRetriever.CandidatesOfMention[] candidatesOfMentions = candidatesRetriever
 					.getCandidatesInDocument(doc);
 			for (int i = 0; i < candidatesOfMentions.length; ++i) {
-				tmpResult.queryId = doc.mentions[i].queryId;
+				tmpResult.queryId = doc.mentions[i].mentionId;
 				if (candidatesOfMentions[i].candidates != null) {
 					candidateCnt += candidatesOfMentions[i].candidates.length;
 				}

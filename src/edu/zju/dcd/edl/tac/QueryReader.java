@@ -67,7 +67,7 @@ public class QueryReader {
 			for (int i = 0; i < n; ++i) {
 				q = iter.next();
 				Mention m = new Mention();
-				m.queryId = q.queryId;
+				m.mentionId = q.queryId;
 				m.nameString = q.name;
 				m.beg = q.begPos;
 				m.end = q.endPos;
@@ -112,6 +112,7 @@ public class QueryReader {
 				Query q = new Query();
 				q.queryId = vals[1];
 				q.name = vals[2];
+//				System.out.println(q.name);
 
 				int colonPos = vals[3].indexOf(':'), dashPos = vals[3].indexOf('-');
 				q.docId = vals[3].substring(0, colonPos);

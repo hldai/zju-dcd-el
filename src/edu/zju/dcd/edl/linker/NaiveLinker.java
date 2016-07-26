@@ -57,7 +57,7 @@ public class NaiveLinker extends LinkerWithAliasDict {
 	private LinkingResult linkMention(Mention mention,
 			TfIdfFeature mentionTfIdfFeature) {
 		LinkingResult result = new LinkingResult();
-		result.queryId = mention.queryId;
+		result.queryId = mention.mentionId;
 		result.kbid = ELConsts.NIL;
 
 //		LinkedList<String> mids = aliasDict.getMids(mention.nameString);

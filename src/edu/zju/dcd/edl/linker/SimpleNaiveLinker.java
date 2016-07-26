@@ -57,28 +57,32 @@ public class SimpleNaiveLinker implements SimpleLinker {
 			LinkingResult result = new LinkingResult();
 			result.kbid = ELConsts.NIL;
 			result.queryId = lbMention.queryId;
-			
 			if (lbMention.numCandidates > 0) {
 				double curScore = -1, maxScore = -1e5;
 				for (int j = 0; j < lbMention.numCandidates; ++j) {
-//					if (midFilter != null && midFilter.needFilter(lbMention.mids[j])) {
-//						continue;
-//					}
-//					String curMid = lbMention.mids[j].toString().trim();
-//					if (linkingBasisDoc.isNested[i] && curMid.equals(results[i - 1].kbid)) {
-//						continue;
-//					}
+//					System.out.println(result.queryId);
+					String curMid = lbMention.mids[j].toString().trim();
+
+					if (midFilter != null && midFilter.needFilter(lbMention.mids[j])) {
+						continue;
+					}
+					if (linkingBasisDoc.isNested[i] && curMid.equals(results[i - 1].kbid)) {
+						continue;
+					}
 					
 					curScore = 1 * Math.log(lbMention.npses[j])
 							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
 							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
+
+//					System.out.println(String.format("%.2f\t%.2f\t%.2f", Math.log(lbMention.npses[j]),
+//							Math.log(lbMention.tfidfSimilarities[j] + 1e-7),
+//							Math.log(lbMention.wordHitRates[j] + 1e-7)));
+//					curScore = 1 * Math.log(lbMention.npses[j])
+//							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7);
 					
 //					curScore = 0 * Math.log(lbMention.npses[j])
 //							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
 //							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
-					
-//					System.out.println(lbMention.npses[j] + "\t" + lbMention.tfidfSimilarities[j] + "\t" 
-//					+ lbMention.wordHitRates[j] + "\t" + lbMention.docVecSimilarities[j]);
 
 //					curScore = 1 * lbMention.npses[j];
 //					curScore = 1.2 * lbMention.docVecSimilarities[j];
@@ -86,8 +90,7 @@ public class SimpleNaiveLinker implements SimpleLinker {
 //					curScore = 0.4f * lbMention.npses[j] + (1 - 0.4f) * lbMention.docVecSimilarities[j];
 					
 //					curScore = 0.6f * Math.log(lbMention.npses[j]) + (1 - 0.6f) * Math.log(lbMention.docVecSimilarities[j]);
-					
-//					System.out.println(curScore + "\t" + maxScore);
+
 					if (curScore > maxScore) {
 						result.kbid = lbMention.mids[j].toString().trim();
 						maxScore = curScore;
@@ -119,7 +122,7 @@ public class SimpleNaiveLinker implements SimpleLinker {
 			results[i] = result;
 		}
 		
-//		relink(results, linkingBasisDoc);
+		relink(results, linkingBasisDoc);
 		
 		return results;
 	}
@@ -157,6 +160,8 @@ public class SimpleNaiveLinker implements SimpleLinker {
 			int j = linkingBasisDoc.corefChain[i];
 			if (j < 0)
 				continue;
+
+//			System.out.println("coref " + j);
 
 			if (results[j].kbid.startsWith(ELConsts.NIL)) {
 				continue;

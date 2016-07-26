@@ -72,7 +72,7 @@ public class LinkingBasisGen {
 			LinkingBasisMention linkingBasisMention = new LinkingBasisMention();
 			result.linkingBasisMentions[i] = linkingBasisMention;
 			Mention mention = doc.mentions[i];
-			linkingBasisMention.queryId = mention.queryId;
+			linkingBasisMention.queryId = mention.mentionId;
 			
 			CandidatesRetriever.CandidateWithPopularity[] candidates = candidatesOfMentions[i].candidates;
 			
@@ -103,6 +103,12 @@ public class LinkingBasisGen {
 				linkingBasisMention.aliasLikelihoods[j] = candidates[j].likelihood;
 				linkingBasisMention.popularities[j] = candidates[j].popularity;
 				linkingBasisMention.npses[j] = candidates[j].npse;
+
+//				if (doc.mentions[i].nameString.equals("Africa")) {
+//					System.out.println(String.format("%s\t%.5f", candidates[j].mid.toString().trim(),
+//							candidates[j].npse));
+//				}
+
 				if (featurePacks == null || featurePacks[j] == null || tfIdfFeature == null) {
 					linkingBasisMention.tfidfSimilarities[j] = 1e-8f;
 					linkingBasisMention.wordHitRates[j] = 1e-8f;

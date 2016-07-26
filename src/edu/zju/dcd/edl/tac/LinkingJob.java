@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import edu.zju.dcd.edl.cg.AliasDict;
@@ -23,6 +24,7 @@ import edu.zju.dcd.edl.linker.SimpleLinker;
 import edu.zju.dcd.edl.linker.SimpleNaiveLinker;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
+import edu.zju.dcd.edl.obj.Mention;
 import edu.zju.dcd.edl.tac.CrossDocNilHandler;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 
@@ -178,7 +180,8 @@ public class LinkingJob {
 		DataInputStream dis = IOUtils
 				.getBufferedDataInputStream(linkingBasisFileName);
 		LinkingBasisDoc linkingBasisDoc = new LinkingBasisDoc();
-		LinkedList<LinkingResult> resultList = new LinkedList<LinkingResult>();
+//		LinkedList<LinkingResult> resultList = new LinkedList<LinkingResult>();
+		HashMap<String, String> mentionIdToKbid = new HashMap<String, String>();
 		while (linkingBasisDoc.fromFile(dis)) {
 //			for (int i = 0; i < linkingBasisDoc.linkingBasisMentions.length; ++i) {
 //				LinkingBasisMention lbMention = linkingBasisDoc.linkingBasisMentions[i];
@@ -186,7 +189,7 @@ public class LinkingJob {
 //					System.out.println("EDL14_ENG_0184 " + lbMention.mids[0].toString());
 //				}
 //			}
-			
+
 			LinkingResult[] results = null;
 			if (useMid) {
 				results = simpleLinker.link(linkingBasisDoc);
@@ -196,17 +199,19 @@ public class LinkingJob {
 			
 			for (LinkingResult result : results) {
 				// writer.write(result.queryId + "\t" + result.kbid + "\n");
-				resultList.add(result);
+//				resultList.add(result);
+				mentionIdToKbid.put(result.queryId, result.kbid);
 			}
 		}
 
-		Collections.sort(resultList, new LinkingResult.ComparatorOnQueryId());
+//		Collections.sort(resultList, new LinkingResult.ComparatorOnQueryId());
 //		CrossDocNilHandler.handle(resultList, queryFileName);
-		writeLinkingResultsToFile(resultList, resultFileName, useMid);
+//		writeLinkingResultsToFile(resultList, resultFileName, useMid);
+		saveLinkingResults(mentionIdToKbid, queryFileName, resultFileName);
 
-		if (goldFileName != null)
-			Scorer.score(goldFileName, resultFileName, queryFileName, eidWidMapper,
-					errorListFileName);
+//		if (goldFileName != null)
+//			Scorer.score(goldFileName, resultFileName, queryFileName, eidWidMapper,
+//					errorListFileName);
 	}
 
 	private static void processQueryFile(IniFile.Section querySect,
@@ -284,7 +289,8 @@ public class LinkingJob {
 		
 		return new SimpleNaiveLinker(mteMapper, midFilter, dstTrainingFileName);
 	}
-	
+
+	// TODO del
 	private static void writeLinkingResultsToFile(LinkedList<LinkingResult> results, String resultFileName,
 			boolean useMid) {
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
@@ -297,6 +303,25 @@ public class LinkingJob {
 					writer.write(String.format("ZJU\t%s\t%s\t%s:%d-%d\t%s\t%s\t%s\t%.2f\n", result.queryId,
 							"NAME", "DOCID", 0, 0, result.kbid, "PER", "NAM", result.confidence));
 			}
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void saveLinkingResults(HashMap<String, String> el, String edlFile, String dstFile) {
+		BufferedWriter writer = IOUtils.getUTF8BufWriter(dstFile, false);
+		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile);
+		try {
+			for (Mention m : mentions) {
+				String kbid = el.getOrDefault(m.mentionId, "NIL0001");
+				if (!kbid.startsWith("NIL"))
+					kbid = "m." + kbid;
+//				System.out.println(String.format("%s\t%s", m.mentionId, kbid));
+				writer.write(String.format("%s\t%s\t%s\t%s:%d-%d\t%s\t%s\t%s\t1.0\n", "ZJU", m.mentionId,
+						m.nameString, m.docId, m.beg, m.end, kbid, m.entityType, m.mentionType));
+			}
+
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();

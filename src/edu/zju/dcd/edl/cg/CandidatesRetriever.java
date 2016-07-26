@@ -208,7 +208,13 @@ public class CandidatesRetriever {
 			}
 			
 			getCandidatesWithPseOfMention(doc, curNameString, candidatesWithPseInDoc, i);
-			
+
+//			if (curNameString.equals("Africa")) {
+//				System.out.println("hit");
+//				for (CandidateWithPse cwp : curCandidatesWithPse.candidatesWithPse) {
+//					System.out.println(String.format("%s\t%.6f", cwp.mid.toString().trim(), cwp.npse));
+//				}
+//			}
 //			getCandidatesWithPseOfMentionSimple(doc, curNameString, candidatesWithPseInDoc, i);
 		}
 		
@@ -233,9 +239,17 @@ public class CandidatesRetriever {
 						isPerson = isMidPerson(candidatesWithPseInDoc[j].candidatesWithPse.get(1).mid);
 					}
 				}
-				
-				mergeCandidatesWithPseOfMention(curCandidatesWithPse, candidatesWithPseInDoc[j], false);
-				
+
+				// TODO trying
+				if (isPerson)
+					mergeCandidatesWithPseOfMention(curCandidatesWithPse, candidatesWithPseInDoc[j], false);
+
+//				if (curNameString.equals("Africa")) {
+//					System.out.println("hit0");
+//					for (CandidateWithPse cwp : curCandidatesWithPse.candidatesWithPse) {
+//						System.out.println(String.format("%s\t%.6f", cwp.mid.toString().trim(), cwp.npse));
+//					}
+//				}
 				break;
 			}
 		}
@@ -253,10 +267,16 @@ public class CandidatesRetriever {
 					ByteArrayString mid = midIter.next();
 					float pse = pseIter.next();
 					float npse = npseIter.next();
-					
-					if (mteMapper != null && mteMapper.getEid(mid) == null) {
-						continue;
-					}
+
+					// TODO emadr
+//					if (mteMapper != null && mteMapper.getEid(mid) == null) {
+//						continue;
+//					}
+
+					// TODO debug
+//					if (curNameString.equals("Africa")) {
+//						System.out.println("in\t" + mid.toString().trim());
+//					}
 					
 					CandidateWithPse candidateWithPse = new CandidateWithPse();
 					candidateWithPse.mid = mid;
@@ -266,6 +286,14 @@ public class CandidatesRetriever {
 				}
 				
 				mergeCandidatesWithPseOfMention(curCandidatesWithPse, tmpCandidateWithPse, false);
+
+
+//				if (curNameString.equals("Africa")) {
+//					System.out.println("hit1");
+//					for (CandidateWithPse cwp : curCandidatesWithPse.candidatesWithPse) {
+//						System.out.println(String.format("%s\t%.6f", cwp.mid.toString().trim(), cwp.npse));
+//					}
+//				}
 			}
 		}
 	}
@@ -307,6 +335,7 @@ public class CandidatesRetriever {
 	}
 	
 	private void loadPersonList(String fileName) {
+		System.out.println(String.format("Loading %s ...", fileName));
 		int numLines = IOUtils.getNumLinesFor(fileName);
 		personMids = new String[numLines];
 		BufferedReader reader = IOUtils.getUTF8BufReader(fileName);
