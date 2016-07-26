@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import edu.zju.dcd.edl.io.IOUtils;
 
 public class Document {
+	private static final String DOC_HEAD = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
+
 	public boolean loadText(String srcDocPath) {
 		if (srcDocPath == null)
 			return false;
@@ -40,7 +42,7 @@ public class Document {
 			}
 			reader.close();
 			
-			text = new String(sb);
+			text = sb.substring(DOC_HEAD.length());
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();

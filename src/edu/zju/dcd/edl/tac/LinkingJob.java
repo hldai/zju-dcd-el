@@ -141,7 +141,7 @@ public class LinkingJob {
 				System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
 				
 				doc.loadText(srcDocPath);
-				LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 40);  // TODO
+				LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 50);  // TODO
 				doc.text = null;
 				linkingBasisDoc.toFile(dos);
 				
