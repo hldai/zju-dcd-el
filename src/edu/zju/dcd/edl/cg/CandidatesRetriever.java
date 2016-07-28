@@ -364,5 +364,7 @@ public class CandidatesRetriever {
 	AdjGpeMapper adjGpeMapper = null;
 	
 	String[] personMids = null;
+
+	// for when NIL's are removed
 	protected MidToEidMapper mteMapper = null;
 }

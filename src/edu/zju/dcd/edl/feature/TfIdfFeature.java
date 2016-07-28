@@ -218,6 +218,7 @@ public class TfIdfFeature extends Feature {
 		if (fl.termIndices == null || fr.termIndices == null) {
 			return 0;
 		}
+//		System.out.println(String.format("%d\t%d", fl.tfs.length, fr.tfs.length));
 
 		double result = 0, tmp = 0;
 		int posl = 0, posr = 0;

@@ -48,10 +48,6 @@ public class LinkMain {
 	private static void test() {
 	}
 
-	private static void genFeatures(CommandLine cmd) {
-		System.out.println("preparing features ...");
-	}
-
 	private static void linking(CommandLine cmd) {
 		System.out.println("linking ...");
 		SimpleNaiveLinker linker = getLinker(cmd);

@@ -40,33 +40,21 @@ public class TfIdfExtractor {
 //	}
 	
 	public TfIdfExtractor(String idfFileName) {
-		System.out.println("Loading idf file...");
+		System.out.println(String.format("Loading idf file: %s ...", idfFileName));
 		DataInputStream dis = IOUtils.getBufferedDataInputStream(idfFileName);
 		
 		try {
 			int numTerms = dis.readInt();
-//			CmpTmp[] cmpTmps = new CmpTmp[numTerms];
 			terms = new ByteArrayString[numTerms];
 			idfs = new double[numTerms];
 			for (int i = 0; i < numTerms; ++i) {
 				terms[i] = new ByteArrayString();
 				terms[i].fromFileWithByteLen(dis);
 				idfs[i] = dis.readDouble();
-				
-//				cmpTmps[i] = new CmpTmp(terms[i], idfs[i]);
 			}
 			
 			dis.close();
 			System.out.println("Done.");
-			
-//			Arrays.sort(cmpTmps);
-//			for (int i = 0; i < cmpTmps.length; ++i) {
-////				if (cmpTmps[i].term.toString().equals("chicago")) {
-////					System.out.println(cmpTmps[i].term.toString() + "\t" + cmpTmps[i].idf);
-////				}
-//				if (cmpTmps[i].idf > 4.5 && cmpTmps[i].idf < 5)
-//					System.out.println(cmpTmps[i].term.toString() + "\t" + cmpTmps[i].idf);
-//			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
