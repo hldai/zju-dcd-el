@@ -86,7 +86,6 @@ public class SimpleNaiveLinker implements SimpleLinker {
 
 //					curScore = 1 * lbMention.npses[j];
 //					curScore = 1.2 * lbMention.docVecSimilarities[j];
-//					curScore = 0.1f * lbMention.npses[j] + (1 - 0.1f) * lbMention.docVecSimilarities[j];
 //					curScore = 0.4f * lbMention.npses[j] + (1 - 0.4f) * lbMention.docVecSimilarities[j];
 					
 //					curScore = 0.6f * Math.log(lbMention.npses[j]) + (1 - 0.6f) * Math.log(lbMention.docVecSimilarities[j]);

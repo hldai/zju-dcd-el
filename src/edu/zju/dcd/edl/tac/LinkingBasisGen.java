@@ -318,6 +318,7 @@ public class LinkingBasisGen {
 	private CandidatesRetriever candidatesRetriever = null;
 	private FeatureLoader featureLoader = null;
 	private TfIdfExtractor tfIdfExtractor = null;
+	// for finding wiki vecs
 	private WidMidMapper midWidMapper = null;
 	
 	private float[][] wikiVecs = null;

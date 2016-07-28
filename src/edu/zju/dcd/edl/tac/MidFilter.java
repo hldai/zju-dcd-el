@@ -10,7 +10,7 @@ import edu.zju.dcd.edl.obj.ByteArrayString;
 
 public class MidFilter {
 	public MidFilter(String fileName) {
-		System.out.println("loading mids need filter...");
+		System.out.println("Loading mids need filter...");
 		DataInputStream dis = IOUtils.getBufferedDataInputStream(fileName);
 		try {
 			int numMids = dis.readInt();

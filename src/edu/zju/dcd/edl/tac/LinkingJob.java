@@ -309,6 +309,7 @@ public class LinkingJob {
 		}
 	}
 
+	// TODO dup
 	private static void saveLinkingResults(HashMap<String, String> el, String edlFile, String dstFile) {
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(dstFile, false);
 		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile);
