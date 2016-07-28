@@ -1,2 +1,0 @@
-java -cp out/production/zju-dcd-el/ edu.zju.dcd.edl.LinkMain -lf \
-     -res /media/dhl/Data/data/el/res/

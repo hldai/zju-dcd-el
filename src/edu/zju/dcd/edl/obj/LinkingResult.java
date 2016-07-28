@@ -34,6 +34,7 @@ public class LinkingResult {
 		}
 	}
 
+	// TODO remove
 	public static LinkingResult[] getGroudTruth(String goldFileName) {
 		LinkedList<LinkingResult> results = new LinkedList<LinkingResult>();
 
@@ -45,6 +46,28 @@ public class LinkingResult {
 				LinkingResult result = new LinkingResult();
 				result.queryId = CommonUtils.getFieldFromLine(line, 0);
 				result.kbid = CommonUtils.getFieldFromLine(line, 1);
+				results.add(result);
+			}
+
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return results.toArray(new LinkingResult[results.size()]);
+	}
+
+	public static LinkingResult[] getGroudTruthTab(String goldEdlFile) {
+		LinkedList<LinkingResult> results = new LinkedList<LinkingResult>();
+
+		BufferedReader reader = IOUtils.getUTF8BufReader(goldEdlFile);
+		try {
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				LinkingResult result = new LinkingResult();
+				result.queryId = CommonUtils.getFieldFromLine(line, 1);
+				result.kbid = CommonUtils.getFieldFromLine(line, 4);
+//				System.out.println(String.format("%s\t%s", result.queryId, result.kbid));
 				results.add(result);
 			}
 

@@ -39,8 +39,6 @@ public class LinkMain {
 		System.out.println("job: " + job);
 		if (job.startsWith("link") || job.startsWith("gen_linking_basis")) {
 			LinkingJob.run(config);
-		} else if (job.equals("test")) {
-			test();
 		} else if (job.equals("candidate_retrieve_stat"))
 			CandidatesRetrieverStat.genStat(config);
 	}
