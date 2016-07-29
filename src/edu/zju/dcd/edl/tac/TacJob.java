@@ -7,10 +7,7 @@ import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.obj.Mention;
 
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -19,7 +16,10 @@ import java.util.LinkedList;
  */
 public class TacJob {
 	public static void genLinkingFeatures(LinkingBasisGen linkingBasisGen, String mentionsFile,
-										  String srcDocPath, String outputFile, String dstVecTrainFile) {
+										  String docPathFile, String outputFile,
+										  String dstVecTrainFile) throws Exception {
+		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
+
 		Document[] documents = null;
 		if (mentionsFile.endsWith(".xml"))
 			documents = QueryReader.toDocuments(mentionsFile);
@@ -33,32 +33,32 @@ public class TacJob {
 			dosTmp = IOUtils.getBufferedDataOutputStream(dstVecTrainFile);
 
 		int mentionCnt = 0, docCnt = 0;
-		try {
-			System.out.println(documents.length + " docs.");
+		String docPath = null;
+
+		System.out.println(documents.length + " docs.");
+		if (dosTmp != null)
+			dosTmp.writeInt(documents.length);
+
+		for (Document doc : documents) {
+			++docCnt;
+			mentionCnt += doc.mentions.length;
+			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
+
+			docPath = docIdToPath.get(doc.docId);
+			doc.loadText(docPath);
+			LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 50); // TODO
+			doc.text = null;
+			linkingBasisDoc.toFile(dos);
+
 			if (dosTmp != null)
-				dosTmp.writeInt(documents.length);
-			for (Document doc : documents) {
-				++docCnt;
-				mentionCnt += doc.mentions.length;
-				System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
-
-				doc.loadText(srcDocPath);
-				LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 50); // TODO
-				doc.text = null;
-				linkingBasisDoc.toFile(dos);
-
-				if (dosTmp != null)
-					linkingBasisDoc.toFileVecTrain(dosTmp);
-//				if (docCnt == 3)
+				linkingBasisDoc.toFileVecTrain(dosTmp);
+//			if (docCnt == 3)
 //					break;
-			}
-			dos.close();
-
-			if (dosTmp != null)
-				dosTmp.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+		dos.close();
+
+		if (dosTmp != null)
+			dosTmp.close();
 
 		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
 	}
@@ -111,5 +111,23 @@ public class TacJob {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static HashMap<String, String> loadDocPaths(String docPathFile) throws IOException {
+		BufferedReader reader = IOUtils.getUTF8BufReader(docPathFile);
+		HashMap<String, String> docIdToPath = new HashMap<>();
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			int begPosLinux = line.lastIndexOf('/');
+			int begPosWin = line.lastIndexOf('\\');
+			int begPos = begPosLinux > begPosWin ? begPosLinux + 1 : begPosWin + 1;
+			int endPos = line.indexOf('.');
+			String docId = line.substring(begPos, endPos);
+			docIdToPath.put(docId, line);
+//			System.out.println(String.format("%s -> %s", docId, line));
+		}
+		reader.close();
+
+		return docIdToPath;
 	}
 }

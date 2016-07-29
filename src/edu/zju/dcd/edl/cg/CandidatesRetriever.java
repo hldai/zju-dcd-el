@@ -385,7 +385,7 @@ public class CandidatesRetriever {
 	AliasDict aliasDict = null;
 	IndexedAliasDictWithPse indexedAliasDictWithPse = null;
 	MidPopularity midPopularity = null;
-	
+	// TODO remove
 //	AdjGpeMapper adjGpeMapper = null;
 	HashMap<String, String> aliasToOrigin = null;
 	

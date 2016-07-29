@@ -65,8 +65,8 @@ public class LinkMain {
 		}
 
 		String filterMidsFile = Paths.get(resourceDir, "freebase/filter_mids_10_8.bin").toString();
-		MidFilter midFilter = null;
-//		MidFilter midFilter = new MidFilter(filterMidsFile);
+//		MidFilter midFilter = null;
+		MidFilter midFilter = new MidFilter(filterMidsFile);
 
 		return new SimpleNaiveLinker(mteMapper, midFilter, null);
 	}

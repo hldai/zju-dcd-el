@@ -13,27 +13,7 @@ public class Document {
 	private static final String DOC_HEAD = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 
 	public boolean loadText(String srcDocPath) {
-		if (srcDocPath == null)
-			return false;
-		
-		String path = Paths.get(srcDocPath, docId).toString();
-		File file = new File(path);
-		
-		if (!file.exists()) {
-			path = Paths.get(srcDocPath, docId + ".xml").toString();
-			file = new File(path);
-		}
-		
-		if (!file.exists()) {
-			path = Paths.get(srcDocPath, docId + ".df.xml").toString();
-			file = new File(path);
-		}
-		
-		if (!file.exists()) {
-			path = Paths.get(srcDocPath, docId + ".nw.xml").toString();
-		}
-		
-		BufferedReader reader = IOUtils.getUTF8BufReader(path);
+		BufferedReader reader = IOUtils.getUTF8BufReader(srcDocPath);
 		try {
 			StringBuilder sb = new StringBuilder();
 			String line = null;

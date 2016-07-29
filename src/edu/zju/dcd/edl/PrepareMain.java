@@ -1,6 +1,5 @@
 package edu.zju.dcd.edl;
 
-import edu.zju.dcd.edl.cg.AliasDictWithIndex;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.cg.IndexedAliasDictWithPse;
 import edu.zju.dcd.edl.feature.FeatureLoader;
@@ -24,7 +23,7 @@ public class PrepareMain {
 		Options options = new Options();
 		options.addOption("res", true, "resource directory");
 		options.addOption("mentions", true, "mentions file");
-		options.addOption("dd", true, "directory of documents");
+		options.addOption("dl", true, "document path list file");
 		options.addOption("o", true, "output file");
 
 		CommandLineParser cmParser = new DefaultParser();
@@ -32,9 +31,9 @@ public class PrepareMain {
 		prepare(cmd);
 	}
 
-	private static void prepare(CommandLine cmd) {
+	private static void prepare(CommandLine cmd) throws Exception {
 		String mentionsFile = cmd.getOptionValue("mentions");
-		String docsDir = cmd.getOptionValue("dd");
+		String docListFile = cmd.getOptionValue("dl");
 		String outputFile = cmd.getOptionValue("o");
 		String resourceDir = cmd.getOptionValue("res");
 
@@ -55,7 +54,7 @@ public class PrepareMain {
 
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
 				midWidMapper, wikiVecsFile, widListFile, docVecsFile, docIdsFile);
-		TacJob.genLinkingFeatures(linkingBasisGen, mentionsFile, docsDir, outputFile, dstVecTrainFile);
+		TacJob.genLinkingFeatures(linkingBasisGen, mentionsFile, docListFile, outputFile, dstVecTrainFile);
 	}
 
 	private static CandidatesRetriever getCandidatesRetriever(String resourceDir) {
@@ -70,7 +69,6 @@ public class PrepareMain {
 
 		String midPopularityFile = Paths.get(resourceDir, "prog-gen/mid_pop_link.bin").toString();
 		String personListFile = Paths.get(resourceDir, "freebase/person_list.txt").toString();
-//		String gpeAdjListFile = Paths.get(resourceDir, "nation_adj.txt").toString();
 		String nameDictFile = Paths.get(resourceDir, "names-dict.txt").toString();
 		return new CandidatesRetriever(indexedAliasDictWithPse, midPopularityFile,
 				personListFile, nameDictFile, mteMapper);
@@ -79,7 +77,6 @@ public class PrepareMain {
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();
 
-//		runByConfig();
 		runByArgs(args);
 
 		long endTime = System.currentTimeMillis();
