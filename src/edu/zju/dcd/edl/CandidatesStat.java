@@ -6,7 +6,6 @@ import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
-import edu.zju.dcd.edl.tac.QueryReader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -66,7 +65,7 @@ public class CandidatesStat {
 		Arrays.sort(goldResults, cmpOnQueryId);
 
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(errorFileName, false);
-		Document[] documents = QueryReader.toDocumentsEdlFile(goldEdlFile);
+		Document[] documents = Document.loadEdlFile(goldEdlFile);
 		int queryCnt = 0, hitCnt = 0, inKbCnt = 0, inKbHitCnt = 0;
 		int candidateCnt = 0;
 		LinkingResult tmpResult = new LinkingResult();

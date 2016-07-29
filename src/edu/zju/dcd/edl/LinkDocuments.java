@@ -16,7 +16,6 @@ import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.tac.LinkingBasisDoc;
 import edu.zju.dcd.edl.tac.LinkingBasisGen;
 import edu.zju.dcd.edl.tac.MidFilter;
-import edu.zju.dcd.edl.tac.QueryReader;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 
 public class LinkDocuments {
@@ -83,11 +82,11 @@ public class LinkDocuments {
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
 					midWidMapper, null, null, null, null);
 
-		Document[] documents = null;
-		if (mentionFileName.endsWith(".xml"))
-			documents = QueryReader.toDocumentsXmlFile(mentionFileName);
-		else
-			documents = QueryReader.toDocumentsEdlFile(mentionFileName);
+		Document[] documents = Document.loadEdlFile(mentionFileName);
+//		if (mentionFileName.endsWith(".xml"))
+//			documents = QueryReader.toDocumentsXmlFile(mentionFileName);
+//		else
+//			documents = QueryReader.toDocumentsEdlFile(mentionFileName);
 
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		int mentionCnt = 0, docCnt = 0;

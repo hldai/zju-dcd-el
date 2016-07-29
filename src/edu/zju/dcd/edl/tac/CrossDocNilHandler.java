@@ -7,11 +7,6 @@ import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.obj.Mention;
 
 public class CrossDocNilHandler {
-//	private static class NilQueryList {
-//		String nilId = null;
-//		LinkedList<Query> queries = new LinkedList<Query>();
-//	}
-
 	// mentions of one entity
 	private static class MentionsOfEntity {
 		String kbid;
@@ -21,7 +16,6 @@ public class CrossDocNilHandler {
 	public static void handle(HashMap<String, String> mentionIdToKbid, String edlFile) {
 		System.out.println("Handling cross doc nils...");
 
-//		LinkedList<Mention> mentions = QueryReader.loadMentionsEdlFile(edlFile);
 		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile);
 		LinkedList<MentionsOfEntity> mentionsOfEntities = getMentionsOfNilEntities(mentionIdToKbid, mentions);
 

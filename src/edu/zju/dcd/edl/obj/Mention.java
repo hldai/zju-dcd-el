@@ -53,6 +53,20 @@ public class Mention {
 	public boolean isNominal() {
 		return mentionType.equals("NOM");
 	}
+
+	public static class DocPosComparator implements Comparator<Mention> {
+		@Override
+		public int compare(Mention ml, Mention mr) {
+			int docCmp = ml.docId.compareTo(mr.docId);
+			if (docCmp != 0)
+				return docCmp;
+
+			if (ml.beg != mr.beg)
+				return ml.beg - mr.beg;
+
+			return mr.end - ml.end;
+		}
+	}
 	
 	public static class MentionPosComparator implements Comparator<Mention> {
 		@Override

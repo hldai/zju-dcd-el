@@ -20,11 +20,11 @@ public class TacJob {
 										  String dstVecTrainFile) throws Exception {
 		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
 
-		Document[] documents = null;
-		if (mentionsFile.endsWith(".xml"))
-			documents = QueryReader.toDocumentsXmlFile(mentionsFile);
-		else
-			documents = QueryReader.toDocumentsEdlFile(mentionsFile);
+		Document[] documents = Document.loadEdlFile(mentionsFile);
+//		if (mentionsFile.endsWith(".xml"))
+//			documents = QueryReader.toDocumentsXmlFile(mentionsFile);
+//		else
+//			documents = QueryReader.toDocumentsEdlFile(mentionsFile);
 
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
 
