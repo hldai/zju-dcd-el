@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -95,15 +96,8 @@ public class CandidatesRetriever {
 		public float[] popularities;
 	}
 	
-	public CandidatesRetriever(AliasDict aliasDict, String midPopularityFileName, MidToEidMapper mteMapper) {
-		this.aliasDict = aliasDict;
-		midPopularity = new MidPopularity(midPopularityFileName);
-		adjGpeMapper = new AdjGpeMapper("d:/data/cr/nation_adj.txt");
-		this.mteMapper = mteMapper;
-	}
-	
 	public CandidatesRetriever(IndexedAliasDictWithPse indexedAliasDictWithPse, String midPopularityFileName,
-			String personListFileName, String adjGpeListFileName, MidToEidMapper mteMapper) {
+			String personListFileName, String nameDictFile, MidToEidMapper mteMapper) {
 		this.indexedAliasDictWithPse = indexedAliasDictWithPse;
 		
 		if (midPopularityFileName != null)
@@ -112,8 +106,11 @@ public class CandidatesRetriever {
 		if (personListFileName != null)
 			loadPersonList(personListFileName);
 		
-		if (adjGpeListFileName != null)
-			adjGpeMapper = new AdjGpeMapper(adjGpeListFileName);
+//		if (nameDictFile != null)
+//			adjGpeMapper = new AdjGpeMapper(nameDictFile);
+
+		if (nameDictFile != null)
+			loadNameDictFile(nameDictFile);
 		
 		this.mteMapper = mteMapper;
 	}
@@ -191,10 +188,17 @@ public class CandidatesRetriever {
 			
 			String curNameString = doc.mentions[i].nameString;
 
-			if (adjGpeMapper != null) {
-				String adjName = adjGpeMapper.getName(curNameString);
-				if (adjName != null) {
-					curNameString = adjName;
+//			if (adjGpeMapper != null) {
+//				String adjName = adjGpeMapper.getName(curNameString);
+//				if (adjName != null) {
+//					curNameString = adjName;
+//				}
+//			}
+			if (aliasToOrigin != null) {
+				String originName = aliasToOrigin.get(curNameString);
+				if (originName != null) {
+//					System.out.println(String.format("%s -> %s", curNameString, originName));
+					curNameString = originName;
 				}
 			}
 			
@@ -356,12 +360,34 @@ public class CandidatesRetriever {
 		int pos = Arrays.binarySearch(personMids, smid);
 		return pos > -1;
 	}
+
+	private void loadNameDictFile(String nameDictFile) {
+		BufferedReader reader = IOUtils.getUTF8BufReader(nameDictFile);
+		aliasToOrigin = new HashMap<>();
+		try {
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				String[] vals = line.split("\t");
+				if (vals.length < 3)
+					continue;
+
+				for (int i = 2; i < vals.length; ++i) {
+					aliasToOrigin.put(vals[i], vals[0]);
+//					System.out.println(vals[i] + "\t" + vals[0]);
+				}
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	AliasDict aliasDict = null;
 	IndexedAliasDictWithPse indexedAliasDictWithPse = null;
 	MidPopularity midPopularity = null;
 	
-	AdjGpeMapper adjGpeMapper = null;
+//	AdjGpeMapper adjGpeMapper = null;
+	HashMap<String, String> aliasToOrigin = null;
 	
 	String[] personMids = null;
 

@@ -70,9 +70,10 @@ public class PrepareMain {
 
 		String midPopularityFile = Paths.get(resourceDir, "prog-gen/mid_pop_link.bin").toString();
 		String personListFile = Paths.get(resourceDir, "freebase/person_list.txt").toString();
-		String gpeAdjListFile = Paths.get(resourceDir, "nation_adj.txt").toString();
+//		String gpeAdjListFile = Paths.get(resourceDir, "nation_adj.txt").toString();
+		String nameDictFile = Paths.get(resourceDir, "names-dict.txt").toString();
 		return new CandidatesRetriever(indexedAliasDictWithPse, midPopularityFile,
-				personListFile, gpeAdjListFile, mteMapper);
+				personListFile, nameDictFile, mteMapper);
 	}
 
 	public static void main(String[] args) throws Exception {

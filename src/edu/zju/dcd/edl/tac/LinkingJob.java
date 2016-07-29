@@ -28,6 +28,7 @@ import edu.zju.dcd.edl.obj.Mention;
 import edu.zju.dcd.edl.tac.CrossDocNilHandler;
 import edu.zju.dcd.edl.utils.WidMidMapper;
 
+// TODO remove
 public class LinkingJob {
 	public static void run(IniFile config) {
 		IniFile.Section mainSect = config.getSection("main");

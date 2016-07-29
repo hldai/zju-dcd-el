@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+dataset=LDC2015E103
+#dataset=LDC2015E75
+
 java -cp ../out/production/zju-dcd-el/ edu.zju.dcd.edl.LinkMain -f \
      -res /media/dhl/Data/data/el/res/ \
-     -feat /home/dhl/data/EDL/LDC2015E103/result/cmn-tfidf.bin \
-     -mentions /home/dhl/data/EDL/LDC2015E103/data/gold-eng-mentions.tab \
-     -o /home/dhl/data/EDL/LDC2015E103/result/sys-link-gm.tab
+     -feat /home/dhl/data/EDL/$dataset/output/cmn-tfidf.bin \
+     -mentions /home/dhl/data/EDL/$dataset/data/gold-eng-mentions.tab \
+     -o /home/dhl/data/EDL/$dataset/output/sys-link-gm.tab

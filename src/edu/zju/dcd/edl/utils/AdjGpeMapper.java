@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 import edu.zju.dcd.edl.io.IOUtils;
 
+// TODO remove
 public class AdjGpeMapper {
 	private static class AdjName implements Comparable<AdjName> {
 		public String adj = null;
