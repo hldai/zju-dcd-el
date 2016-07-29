@@ -85,9 +85,9 @@ public class LinkDocuments {
 
 		Document[] documents = null;
 		if (mentionFileName.endsWith(".xml"))
-			documents = QueryReader.toDocuments(mentionFileName);
+			documents = QueryReader.toDocumentsXmlFile(mentionFileName);
 		else
-			documents = QueryReader.toDocumentsTab(mentionFileName);
+			documents = QueryReader.toDocumentsEdlFile(mentionFileName);
 
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(resultFileName, false);
 		int mentionCnt = 0, docCnt = 0;

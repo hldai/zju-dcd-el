@@ -39,12 +39,13 @@ public class QueryReader {
 					+ "<docid>(.*?)</docid>\\s*<entity>(.*?)</entity>\\s*</query>\\s*");
 
 	// note that the text attribute of a Document is not set in this method
-	public static Document[] toDocuments(String queryFileName) {
-		LinkedList<Query> queries = readQueries(queryFileName);
+	public static Document[] toDocumentsXmlFile(String mentionsFile) {
+		LinkedList<Query> queries = readQueries(mentionsFile);
 		return queriesToDocs(queries);
 	}
 
-	public static Document[] toDocumentsTab(String mentionsFile) {
+	// [RUN_ID]\t[QUERY_ID]\t[MENTION_NAME]\t[DOC_ID]:[BEG_POS]:[END_POS]\t ...
+	public static Document[] toDocumentsEdlFile(String mentionsFile) {
 		LinkedList<Query> queries = readQueriesTabFile(mentionsFile);
 		return queriesToDocs(queries);
 	}
@@ -81,6 +82,41 @@ public class QueryReader {
 
 		return docs;
 	}
+
+//	public static LinkedList<Mention> loadMentionsEdlFile(String edlFile) {
+//		BufferedReader reader = IOUtils.getUTF8BufReader(edlFile);
+//		LinkedList<Mention> mentions = new LinkedList<>();
+//		String line = null;
+//		try {
+//			while ((line = reader.readLine()) != null) {
+//				Mention m = mentionFromEdlLine(line);
+//				mentions.add(m);
+//			}
+//			reader.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		return mentions;
+//	}
+
+//	private static Mention mentionFromEdlLine(String line) {
+//		String[] vals = line.split("\t");
+//
+//		Mention m = new Mention();
+//		m.mentionId = vals[1];
+//		m.nameString = vals[2];
+//
+//		int colonPos = vals[3].indexOf(':'), dashPos = vals[3].indexOf('-');
+//		m.docId = vals[3].substring(0, colonPos);
+//		m.beg = Integer.valueOf(vals[3].substring(colonPos + 1, dashPos));
+//		m.end = Integer.valueOf(vals[3].substring(dashPos + 1));
+//
+//		m.kbid = vals[4];
+//		m.entityType = vals[5];
+//		m.mentionType = vals[6];
+//
+//		return m;
+//	}
 	
 	public static LinkedList<Query> readQueries(String fileName) {
 		BufferedReader reader = IOUtils.getUTF8BufReader(fileName);

@@ -49,6 +49,10 @@ public class Mention {
 	public String kbid = null;
 	public String entityType = null;
 	public String mentionType = null;
+
+	public boolean isNominal() {
+		return mentionType.equals("NOM");
+	}
 	
 	public static class MentionPosComparator implements Comparator<Mention> {
 		@Override
@@ -57,6 +61,13 @@ public class Mention {
 				return m0.beg - m1.beg;
 			
 			return m1.end - m0.end;
+		}
+	}
+
+	public static class MentionIdComparator implements Comparator<Mention> {
+		@Override
+		public int compare(Mention ml, Mention mr) {
+			return ml.mentionId.compareTo(mr.mentionId);
 		}
 	}
 }

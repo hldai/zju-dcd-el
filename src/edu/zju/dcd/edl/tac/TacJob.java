@@ -22,9 +22,9 @@ public class TacJob {
 
 		Document[] documents = null;
 		if (mentionsFile.endsWith(".xml"))
-			documents = QueryReader.toDocuments(mentionsFile);
+			documents = QueryReader.toDocumentsXmlFile(mentionsFile);
 		else
-			documents = QueryReader.toDocumentsTab(mentionsFile);
+			documents = QueryReader.toDocumentsEdlFile(mentionsFile);
 
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
 
@@ -73,7 +73,7 @@ public class TacJob {
 
 		DataInputStream dis = IOUtils.getBufferedDataInputStream(featureFile);
 		LinkingBasisDoc linkingBasisDoc = new LinkingBasisDoc();
-		HashMap<String, String> mentionIdToKbid = new HashMap<String, String>();
+		HashMap<String, String> mentionIdToKbid = new HashMap<>();
 		while (linkingBasisDoc.fromFile(dis)) {
 			LinkingResult[] results;
 			if (useMid) {
@@ -83,14 +83,11 @@ public class TacJob {
 			}
 
 			for (LinkingResult result : results) {
-				// writer.write(result.queryId + "\t" + result.kbid + "\n");
-//				resultList.add(result);
 				mentionIdToKbid.put(result.queryId, result.kbid);
 			}
 		}
 
-//		Collections.sort(resultList, new LinkingResult.ComparatorOnQueryId());
-//		CrossDocNilHandler.handle(resultList, queryFileName);
+//		CrossDocNilHandler.handle(mentionIdToKbid, mentionsFile);
 		saveLinkingResults(mentionIdToKbid, mentionsFile, outputFile);
 	}
 

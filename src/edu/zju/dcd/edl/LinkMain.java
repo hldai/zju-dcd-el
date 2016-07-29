@@ -38,7 +38,7 @@ public class LinkMain {
 		String job = mainSect.getValue("job");
 		System.out.println("job: " + job);
 		if (job.startsWith("link") || job.startsWith("gen_linking_basis")) {
-			LinkingJob.run(config);
+//			LinkingJob.run(config);
 		}
 	}
 

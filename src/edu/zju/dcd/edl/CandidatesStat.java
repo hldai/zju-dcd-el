@@ -66,7 +66,7 @@ public class CandidatesStat {
 		Arrays.sort(goldResults, cmpOnQueryId);
 
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(errorFileName, false);
-		Document[] documents = QueryReader.toDocumentsTab(goldEdlFile);
+		Document[] documents = QueryReader.toDocumentsEdlFile(goldEdlFile);
 		int queryCnt = 0, hitCnt = 0, inKbCnt = 0, inKbHitCnt = 0;
 		int candidateCnt = 0;
 		LinkingResult tmpResult = new LinkingResult();
