@@ -27,6 +27,7 @@ public class Mention {
 				m.beg = Integer.valueOf(vals[3].substring(colonPos + 1, dashPos));
 				m.end = Integer.valueOf(vals[3].substring(dashPos + 1));
 
+				m.kbid = vals[4];
 				m.entityType = vals[5];
 				m.mentionType = vals[6];
 

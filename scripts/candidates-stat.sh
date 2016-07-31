@@ -10,4 +10,4 @@ classpath=$bin_dir:$stanford_corenlp
 java -Xmx10g -cp $classpath edu.zju.dcd.edl.CandidatesStat \
      -res /media/dhl/Data/data/el/res/ \
      -gold /home/dhl/data/EDL/$dataset/data/gold-eng-nam-mentions.tab \
-     -o /home/dhl/data/EDL/$dataset/output/candidates-error.txt
+     -o /home/dhl/data/EDL/$dataset/output/candidates-error-cg.txt

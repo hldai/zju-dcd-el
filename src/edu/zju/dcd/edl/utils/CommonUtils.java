@@ -60,6 +60,13 @@ public class CommonUtils {
 			if (pos == mainStr.length())
 				return false;
 		}
+
+		while (pos < mainStr.length()) {
+			if (mainStr.charAt(pos) == ' ')
+				return false;
+			++pos;
+		}
+
 		return true;
 	}
 	

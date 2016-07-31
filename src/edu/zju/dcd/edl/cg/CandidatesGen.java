@@ -37,23 +37,34 @@ public class CandidatesGen {
 				continue;
 
 			String curNameString = doc.mentions[i].nameString;
+//			if (curNameString.equals("Iraq")) {
+//				System.out.println("iraq");
+//			}
 
-			for (int j = 0; j < doc.mentions.length; ++j) {
-				if (i != j && CommonUtils.isAbbr(doc.mentions[j].nameString, curNameString)) {
+			// closest
+			boolean flg = false;
+			for (int j = 0; !flg && j < doc.mentions.length; ++j) {
+				if (i != j && CommonUtils.isAbbr(doc.mentions[j].nameString, curNameString)
+						&& candidatesEntries[j] != null) {
 					candidatesEntries[i] = candidatesEntries[j];
-					break;
+					flg = true;
 				}
 			}
-			if (candidatesEntries[i] != null)
+			if (flg)
 				continue;
 
-			for (int j = 0; j < i; ++j) {
+			for (int j = i - 1; !flg && j >= 0; --j) {
 				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)
 						&& isPerson(candidatesEntries[j])) {
 					candidatesEntries[i] = candidatesEntries[j];
-					break;
+//					System.out.println(String.format("%s -> %s", curNameString, doc.mentions[j].nameString));
+					flg = true;
 				}
 			}
+			if (flg)
+				continue;
+
+			candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
 		}
 
 		return candidatesEntries;
@@ -72,10 +83,9 @@ public class CandidatesGen {
 				if (originName != null) {
 //					System.out.println(String.format("%s -> %s", curNameString, originName));
 					curNameString = originName;
+					candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+					continue;
 				}
-
-				candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
-				continue;
 			}
 
 			boolean isFullName = true;
