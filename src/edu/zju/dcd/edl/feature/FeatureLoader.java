@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import edu.zju.dcd.edl.ELConsts;
@@ -16,9 +17,62 @@ import edu.zju.dcd.edl.obj.ByteArrayString;
 
 // rename as AttributeLoader
 public class FeatureLoader {
-	private class FeaturePackSortEntry {
+	private static final int MAX_CACHE_SIZE = 100000;
+
+	private static class FeaturePackSortEntry {
 		public long filePointer = -1;
 		public FeaturePack featPack = null;
+	}
+
+	private static class CacheEntry {
+		public int midPos;
+		public TfIdfFeature tfidf = null;
+		public CacheEntry prev = null;
+		public CacheEntry next = null;
+	}
+
+	private static class CacheQueue {
+		public CacheQueue() {
+			head.next = tail;
+			tail.prev = head;
+		}
+
+		public CacheEntry add(int midPos, TfIdfFeature tfidf) {
+			CacheEntry cacheEntry = new CacheEntry();
+			cacheEntry.midPos = midPos;
+			cacheEntry.tfidf = tfidf;
+
+			add(cacheEntry);
+			return cacheEntry;
+		}
+
+		public void add(CacheEntry cacheEntry) {
+			cacheEntry.next = head.next;
+			head.next.prev = cacheEntry;
+			head.next = cacheEntry;
+			cacheEntry.prev = head;
+			++len;
+		}
+
+		public void remove(CacheEntry cacheEntry) {
+			cacheEntry.prev.next = cacheEntry.next;
+			cacheEntry.next.prev = cacheEntry.prev;
+			cacheEntry.prev = null;
+			cacheEntry.next = null;
+		}
+
+		public CacheEntry pop() {
+			CacheEntry last = tail.prev;
+			if (last == head)
+				return null;
+
+			remove(last);
+			return last;
+		}
+
+		public int len = 0;
+		public CacheEntry head = new CacheEntry();
+		public CacheEntry tail = new CacheEntry();
 	}
 
 	private class FilePointerComparator implements
@@ -137,6 +191,7 @@ public class FeatureLoader {
 				featPacks[cnt] = null;
 			} else {
 				featPacks[cnt] = new FeaturePack();
+
 				sortEntries[notNullCnt] = new FeaturePackSortEntry();
 				sortEntries[notNullCnt].featPack = featPacks[cnt];
 				sortEntries[notNullCnt].filePointer = filePointers[pos];
@@ -174,10 +229,29 @@ public class FeatureLoader {
 				featPacks[cnt] = null;
 			} else {
 				featPacks[cnt] = new FeaturePack();
-				sortEntries[notNullCnt] = new FeaturePackSortEntry();
-				sortEntries[notNullCnt].featPack = featPacks[cnt];
-				sortEntries[notNullCnt].filePointer = filePointers[pos];
-				++notNullCnt;
+//				sortEntries[notNullCnt] = new FeaturePackSortEntry();
+//				sortEntries[notNullCnt].featPack = featPacks[cnt];
+//				sortEntries[notNullCnt].filePointer = filePointers[pos];
+//				++notNullCnt;
+
+				CacheEntry cacheEntry = cacheMap.get(pos);
+				if (cacheEntry != null) {
+					featPacks[cnt].tfidf = cacheEntry.tfidf;
+					cacheQueue.remove(cacheEntry);
+					cacheQueue.add(cacheEntry);
+				} else {
+					sortEntries[notNullCnt] = new FeaturePackSortEntry();
+					sortEntries[notNullCnt].featPack = featPacks[cnt];
+					sortEntries[notNullCnt].filePointer = filePointers[pos];
+					++notNullCnt;
+
+					cacheEntry = cacheQueue.add(pos, featPacks[cnt].tfidf);
+					cacheMap.put(pos, cacheEntry);
+					if (cacheQueue.len > MAX_CACHE_SIZE) {
+						CacheEntry toRemove = cacheQueue.pop();
+						cacheMap.remove(toRemove.midPos);
+					}
+				}
 			}
 			++cnt;
 		}
@@ -198,6 +272,9 @@ public class FeatureLoader {
 
 		return featPacks;
 	}
+
+	CacheQueue cacheQueue = new CacheQueue();
+	HashMap<Integer, CacheEntry> cacheMap = new HashMap<>();
 
 	RandomAccessFile featFileRaf = null;
 	ByteArrayString[] mids = null;

@@ -121,7 +121,7 @@ public class SimpleNaiveLinker implements SimpleLinker {
 			results[i] = result;
 		}
 		
-		relink(results, linkingBasisDoc);
+//		relink(results, linkingBasisDoc);
 		
 		return results;
 	}

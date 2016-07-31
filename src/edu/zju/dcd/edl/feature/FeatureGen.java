@@ -27,10 +27,12 @@ public class FeatureGen {
 			return result;
 		result.linkingBasisMentions = new LinkingBasisMention[doc.mentions.length];
 
-		CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidatesOfMentionsInDoc(doc);
+		result.corefChain = new int[doc.mentions.length];
+		CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidatesOfMentionsInDoc(doc,
+				result.corefChain);
 
-		result.corefChain = getCorefChain(doc);
-		result.possibleCoref = getPossibleCoref(doc);
+//		result.corefChain = getCorefChain(doc);
+		result.possibleCoref = getPossibleCoref(doc); // TODO remove
 
 		TfIdfFeature tfidfDoc = null;
 		if (tfIdfExtractor != null)
@@ -40,8 +42,19 @@ public class FeatureGen {
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			LinkingBasisMention linkingBasisMention = new LinkingBasisMention();
 			result.linkingBasisMentions[i] = linkingBasisMention;
+
 			Mention mention = doc.mentions[i];
 			linkingBasisMention.queryId = mention.mentionId;
+
+			if (result.corefChain[i] > -1) {
+				LinkingBasisMention corefFeat = result.linkingBasisMentions[result.corefChain[i]];
+				linkingBasisMention.numCandidates = corefFeat.numCandidates;
+				linkingBasisMention.mids = corefFeat.mids;
+				linkingBasisMention.npses = corefFeat.npses;
+				linkingBasisMention.tfidfSimilarities = corefFeat.tfidfSimilarities;
+				linkingBasisMention.wordHitRates = corefFeat.wordHitRates;
+				continue;
+			}
 
 			CandidatesDict.CandidatesEntry candidatesEntry = candidatesEntries[i];
 			if (candidatesEntry == null) {

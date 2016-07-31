@@ -149,7 +149,9 @@ public class CandidatesStat {
 			queryCnt += doc.mentions.length;
 
 			Mention[] curMentions = doc.mentions;
-			CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidatesOfMentionsInDoc(doc);
+			int[] corefChain = new int[doc.mentions.length];
+			CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidatesOfMentionsInDoc(doc,
+					corefChain);
 			for (int i = 0; i < candidatesEntries.length; ++i) {
 				CandidatesDict.CandidatesEntry curCandidatesEntry = candidatesEntries[i];
 

@@ -3,6 +3,7 @@ package edu.zju.dcd.edl.cg;
 import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.ByteArrayString;
 import edu.zju.dcd.edl.obj.Document;
+import edu.zju.dcd.edl.obj.Mention;
 import edu.zju.dcd.edl.utils.CommonUtils;
 
 import java.io.BufferedReader;
@@ -26,11 +27,13 @@ public class CandidatesGen {
 			loadNameDictFile(nameDictFile);
 	}
 
-	public CandidatesDict.CandidatesEntry[] getCandidatesOfMentionsInDoc(Document doc) {
+	public CandidatesDict.CandidatesEntry[] getCandidatesOfMentionsInDoc(Document doc, int[] corefChain) {
 		CandidatesDict.CandidatesEntry[] candidatesEntries = new CandidatesDict.CandidatesEntry[doc.mentions.length];
 
-		boolean[] isForumPosters = findForumPosters(doc);
-		handleFullNames(doc, isForumPosters, candidatesEntries);
+		Arrays.fill(corefChain, -1);
+
+		boolean[] isForumPosters = findForumPosters(doc, corefChain);
+		handleFullNames(doc, isForumPosters, candidatesEntries, corefChain);
 
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			if (isForumPosters[i] || candidatesEntries[i] != null)
@@ -48,6 +51,10 @@ public class CandidatesGen {
 						&& candidatesEntries[j] != null) {
 					candidatesEntries[i] = candidatesEntries[j];
 					flg = true;
+					if (i > j)
+						corefChain[i] = j;
+					else
+						corefChain[j] = i;
 				}
 			}
 			if (flg)
@@ -59,6 +66,7 @@ public class CandidatesGen {
 					candidatesEntries[i] = candidatesEntries[j];
 //					System.out.println(String.format("%s -> %s", curNameString, doc.mentions[j].nameString));
 					flg = true;
+					corefChain[i] = j;
 				}
 			}
 			if (flg)
@@ -71,7 +79,8 @@ public class CandidatesGen {
 	}
 
 	private void handleFullNames(Document doc, boolean[] isForumPosters,
-								 CandidatesDict.CandidatesEntry[] candidatesEntries) {
+								 CandidatesDict.CandidatesEntry[] candidatesEntries,
+								 int[] corefChain) {
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			if (isForumPosters[i])
 				continue;
@@ -82,8 +91,14 @@ public class CandidatesGen {
 				String originName = aliasToOrigin.get(curNameString);
 				if (originName != null) {
 //					System.out.println(String.format("%s -> %s", curNameString, originName));
-					curNameString = originName;
-					candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+					int prevMentionPos = findName(doc.mentions, i, curNameString);
+					if (prevMentionPos > -1) {
+						candidatesEntries[i] = candidatesEntries[prevMentionPos];
+						corefChain[i] = prevMentionPos;
+					} else {
+						curNameString = originName;
+						candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+					}
 					continue;
 				}
 			}
@@ -99,12 +114,26 @@ public class CandidatesGen {
 			}
 
 			if (isFullName) {
-				candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+				corefChain[i] = findName(doc.mentions, i, curNameString);
+				if (corefChain[i] > -1) {
+					candidatesEntries[i] = candidatesEntries[corefChain[i]];
+				} else {
+					candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+				}
 			}
 		}
 	}
 
-	private boolean[] findForumPosters(Document doc) {
+	private int findName(Mention[] mentions, int endPos, String name) {
+		for (int i = 0; i < endPos; ++i) {
+			if (mentions[i].nameString.equals(name)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private boolean[] findForumPosters(Document doc, int[] corefChain) {
 		boolean[] isForumPosters = new boolean[doc.mentions.length];
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			if (doc.text != null && doc.mentions[i].beg >= FORUM_AUTHOR_TAG.length()
@@ -119,6 +148,16 @@ public class CandidatesGen {
 			for (int j = 0; j < doc.mentions.length; ++j) {
 				if (i != j && isForumPosters[j] && doc.mentions[j].nameString.equals(curNameString)) {
 					isForumPosters[i] = true;
+				}
+			}
+		}
+
+		for (int i = 1; i < doc.mentions.length; ++i) {
+			String curNameString = doc.mentions[i].nameString;
+			for (int j = 0; j < i; ++j) {
+				if (isForumPosters[i] && isForumPosters[j] && doc.mentions[j].nameString.equals(curNameString)) {
+					corefChain[i] = j;
+					break;
 				}
 			}
 		}

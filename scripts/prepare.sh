@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#dataset=LDC2015E103
-dataset=LDC2015E75
+dataset=LDC2015E103
+#dataset=LDC2015E75
 
 bin_dir=../out/production/zju-dcd-el
 stanford_corenlp=/media/dhl/Data/lib/stanford-nlp/stanford-corenlp-full-2015-12-09/stanford-corenlp-3.6.0.jar
