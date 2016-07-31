@@ -3,7 +3,6 @@
 package edu.zju.dcd.edl.obj;
 
 import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.tac.Query;
 
 import java.io.BufferedReader;
 import java.io.IOException;

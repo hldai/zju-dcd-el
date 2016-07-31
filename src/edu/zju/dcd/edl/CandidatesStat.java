@@ -1,8 +1,10 @@
 package edu.zju.dcd.edl;
 
+import edu.zju.dcd.edl.cg.CandidatesDict;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.cg.IndexedAliasDictWithPse;
 import edu.zju.dcd.edl.io.IOUtils;
+import edu.zju.dcd.edl.obj.ByteArrayString;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
@@ -33,12 +35,16 @@ public class CandidatesStat {
 
 	public static void stat(CommandLine cmd) throws IOException {
 		String resourceDir = cmd.getOptionValue("res");
-		CandidatesRetriever candidatesRetriever = getCandidatesRetriever(resourceDir);
 
-		String goldEdlFile = cmd.getOptionValue("gold");
-		String errorFileName = cmd.getOptionValue("o");
+		String candidatesDictFile = Paths.get(resourceDir, "prog-gen/candidates-dict.bin").toString();
+		CandidatesDict candidatesDict = new CandidatesDict(candidatesDictFile);
 
-		genStat(candidatesRetriever, null, goldEdlFile, errorFileName);
+//		CandidatesRetriever candidatesRetriever = getCandidatesRetriever(resourceDir);
+//
+//		String goldEdlFile = cmd.getOptionValue("gold");
+//		String errorFileName = cmd.getOptionValue("o");
+//
+//		genStat(candidatesRetriever, null, goldEdlFile, errorFileName);
 	}
 
 	private static CandidatesRetriever getCandidatesRetriever(String resourceDir) {
@@ -140,10 +146,14 @@ public class CandidatesStat {
 			if (sysKbid != null && sysKbid.equals(goldKbId))
 				return true;
 
-			if (++candCnt == 40)
+			if (++candCnt == 50)
 				return false;
 		}
 		return false;
+	}
+
+	private static class TC {
+		public int val = 3;
 	}
 
 	public static void main(String[] args) throws Exception {

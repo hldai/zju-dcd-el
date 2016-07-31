@@ -1,4 +1,4 @@
-// author: DHL brnpoem@gmail.com
+// author: DHL hldai@outlook.com
 
 package edu.zju.dcd.edl.io;
 

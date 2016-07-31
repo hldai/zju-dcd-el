@@ -14,6 +14,7 @@ public class MidFilter {
 		DataInputStream dis = IOUtils.getBufferedDataInputStream(fileName);
 		try {
 			int numMids = dis.readInt();
+			System.out.println(numMids);
 			filterMids = new ByteArrayString[numMids];
 			for (int i = 0; i < numMids; ++i) {
 				filterMids[i] = new ByteArrayString();

@@ -115,11 +115,13 @@ public class TacJob {
 		HashMap<String, String> docIdToPath = new HashMap<>();
 		String line = null;
 		while ((line = reader.readLine()) != null) {
+			// get doc ID
 			int begPosLinux = line.lastIndexOf('/');
 			int begPosWin = line.lastIndexOf('\\');
 			int begPos = begPosLinux > begPosWin ? begPosLinux + 1 : begPosWin + 1;
 			int endPos = line.indexOf('.');
 			String docId = line.substring(begPos, endPos);
+
 			docIdToPath.put(docId, line);
 //			System.out.println(String.format("%s -> %s", docId, line));
 		}

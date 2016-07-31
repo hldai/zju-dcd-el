@@ -7,7 +7,7 @@ stanford_corenlp=/media/dhl/Data/lib/stanford-nlp/stanford-corenlp-full-2015-12-
 
 classpath=$bin_dir:$stanford_corenlp
 
-java -cp $classpath edu.zju.dcd.edl.CandidatesStat \
+java -Xmx10g -cp $classpath edu.zju.dcd.edl.CandidatesStat \
      -res /media/dhl/Data/data/el/res/ \
      -gold /home/dhl/data/EDL/$dataset/data/gold-eng-nam-mentions.tab \
      -o /home/dhl/data/EDL/$dataset/output/candidates-error.txt

@@ -1,4 +1,4 @@
-// author: DHL brnpoem@gmail.com
+// author: DHL hldai@outlook.com
 
 package edu.zju.dcd.edl.obj;
 
@@ -10,7 +10,7 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 
 // string stored as a byte array
-// used to save memory
+// used to save memory usage
 public class ByteArrayString implements Comparable<ByteArrayString> {
 	public ByteArrayString() {
 

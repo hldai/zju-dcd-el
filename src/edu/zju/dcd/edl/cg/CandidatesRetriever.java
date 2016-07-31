@@ -13,7 +13,6 @@ import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.ByteArrayString;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
-import edu.zju.dcd.edl.utils.AdjGpeMapper;
 import edu.zju.dcd.edl.utils.CommonUtils;
 
 public class CandidatesRetriever {
@@ -57,14 +56,9 @@ public class CandidatesRetriever {
 		LinkedList<CandidateWithPse> candidatesWithPse = null;
 	}
 	
-	public static class CandidatesTemporary {
-		public LinkedList<ByteArrayString> mids = null;
-		public LinkedList<Float> pses = null;
-	}
-	
 	private static class MidPopularity {
 		public MidPopularity(String midPopularityFileName) {
-			System.out.println("loading mid_popularities...");
+			System.out.println("loading mid_popularities ...");
 			DataInputStream dis = IOUtils.getBufferedDataInputStream(midPopularityFileName);
 			try {
 				int numMids = dis.readInt();
@@ -105,9 +99,6 @@ public class CandidatesRetriever {
 		
 		if (personListFileName != null)
 			loadPersonList(personListFileName);
-		
-//		if (nameDictFile != null)
-//			adjGpeMapper = new AdjGpeMapper(nameDictFile);
 
 		if (nameDictFile != null)
 			loadNameDictFile(nameDictFile);
@@ -143,8 +134,6 @@ public class CandidatesRetriever {
 						flg = false;
 					}
 				}
-//				for (int i = 0; i < ix && flg; ++i) {
-//				}
 				
 				if (!flg)
 					continue;
@@ -178,14 +167,14 @@ public class CandidatesRetriever {
 			CandidatesWithPseOfMention curCandidatesWithPse = new CandidatesWithPseOfMention();
 			curCandidatesWithPse.candidatesWithPse = new LinkedList<CandidateWithPse>();
 			candidatesWithPseInDoc[i] = curCandidatesWithPse;
-			
-			if (doc.text != null && doc.mentions[i].beg >= FORUM_AUTHOR_TAG.length() 
-					&& doc.text.substring(doc.mentions[i].beg - FORUM_AUTHOR_TAG.length(), 
+
+			if (doc.text != null && doc.mentions[i].beg >= FORUM_AUTHOR_TAG.length()
+					&& doc.text.substring(doc.mentions[i].beg - FORUM_AUTHOR_TAG.length(),
 							doc.mentions[i].beg).equals(FORUM_AUTHOR_TAG)) {
 				isForumPosters[i] = true;
 				continue;
 			}
-			
+
 			String curNameString = doc.mentions[i].nameString;
 
 //			if (adjGpeMapper != null) {
@@ -224,7 +213,7 @@ public class CandidatesRetriever {
 		
 		return candidatesWithPseInDoc;
 	}
-	
+
 	private void getCandidatesWithPseOfMention(Document doc, String curNameString,
 			CandidatesWithPseOfMention[] candidatesWithPseInDoc, int curMentionsPos) {
 		CandidatesWithPseOfMention curCandidatesWithPse = candidatesWithPseInDoc[curMentionsPos];
@@ -276,11 +265,6 @@ public class CandidatesRetriever {
 //					if (mteMapper != null && mteMapper.getEid(mid) == null) {
 //						continue;
 //					}
-
-					// TODO debug
-//					if (curNameString.equals("Africa")) {
-//						System.out.println("in\t" + mid.toString().trim());
-//					}
 					
 					CandidateWithPse candidateWithPse = new CandidateWithPse();
 					candidateWithPse.mid = mid;
@@ -290,14 +274,6 @@ public class CandidatesRetriever {
 				}
 				
 				mergeCandidatesWithPseOfMention(curCandidatesWithPse, tmpCandidateWithPse, false);
-
-
-//				if (curNameString.equals("Africa")) {
-//					System.out.println("hit1");
-//					for (CandidateWithPse cwp : curCandidatesWithPse.candidatesWithPse) {
-//						System.out.println(String.format("%s\t%.6f", cwp.mid.toString().trim(), cwp.npse));
-//					}
-//				}
 			}
 		}
 	}
@@ -385,8 +361,8 @@ public class CandidatesRetriever {
 	AliasDict aliasDict = null;
 	IndexedAliasDictWithPse indexedAliasDictWithPse = null;
 	MidPopularity midPopularity = null;
-	// TODO remove
-//	AdjGpeMapper adjGpeMapper = null;
+
+	// adj gpe
 	HashMap<String, String> aliasToOrigin = null;
 	
 	String[] personMids = null;
