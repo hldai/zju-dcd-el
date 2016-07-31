@@ -123,17 +123,7 @@ public class LinkingBasisGen {
 				float[] wikiVec = getWikiVec(candidates[j].mid.toString().trim());
 				linkingBasisMention.wikiVecs[j] = wikiVec;
 				if (docVec != null && wikiVec != null) {
-					float norm0 = 0;
-					float norm1 = 0;
-					linkingBasisMention.docVecSimilarities[j] = 0;
-					for (int k = 0; k < docVec.length; ++k) {
-						linkingBasisMention.docVecSimilarities[j] += docVec[k] * wikiVec[k];
-						norm0 += docVec[k] * docVec[k];
-						norm1 += wikiVec[k] * wikiVec[k];
-					}
-					norm0 = (float)Math.sqrt(norm0);
-					norm1 = (float)Math.sqrt(norm1);
-					linkingBasisMention.docVecSimilarities[j] /= norm0 * norm1;
+					linkingBasisMention.docVecSimilarities[j] = getDocVecSimilarity(wikiVec, docVec);
 				}
 			}
 		}
@@ -142,6 +132,20 @@ public class LinkingBasisGen {
 	}
 	
 	private static final float KEY_WORD_IDF_THRES = 4.5f;
+
+	private float getDocVecSimilarity(float[] wikiVec, float[] docVec) {
+		float norm0 = 0, norm1 = 0;
+		float result = 0;
+
+		for (int k = 0; k < docVec.length; ++k) {
+			result += docVec[k] * wikiVec[k];
+			norm0 += docVec[k] * docVec[k];
+			norm1 += wikiVec[k] * wikiVec[k];
+		}
+		norm0 = (float)Math.sqrt(norm0);
+		norm1 = (float)Math.sqrt(norm1);
+		return result / norm0 * norm1;
+	}
 
 	private float getWordHitRateIdf(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {
 		float idfSum = 0, hitSum = 0;

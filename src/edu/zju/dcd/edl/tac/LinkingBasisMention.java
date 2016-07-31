@@ -22,13 +22,13 @@ public class LinkingBasisMention {
 			
 			for (int i = 0; i < numCandidates; ++i) {
 				mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
-				dos.writeFloat(aliasLikelihoods[i]);
-				dos.writeFloat(popularities[i]);
+//				dos.writeFloat(aliasLikelihoods[i]);
+//				dos.writeFloat(popularities[i]);
 				dos.writeFloat(npses[i]);
 				dos.writeDouble(tfidfSimilarities[i]);
 				dos.writeFloat(wordHitRates[i]);
-				dos.writeFloat(docVecSimilarities[i]);
-				dos.writeFloat(tmpVals[i]);
+//				dos.writeFloat(docVecSimilarities[i]);
+//				dos.writeFloat(tmpVals[i]);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -95,23 +95,23 @@ public class LinkingBasisMention {
 			numCandidates = dis.readInt();
 //			System.out.println(numCandidates);
 			mids = new ByteArrayString[numCandidates];
-			aliasLikelihoods = new float[numCandidates];
-			popularities = new float[numCandidates];
+//			aliasLikelihoods = new float[numCandidates];
+//			popularities = new float[numCandidates];
 			npses = new float[numCandidates];
 			tfidfSimilarities = new double[numCandidates];
 			wordHitRates = new float[numCandidates];
-			docVecSimilarities = new float[numCandidates];
-			tmpVals = new float[numCandidates];
+//			docVecSimilarities = new float[numCandidates];
+//			tmpVals = new float[numCandidates];
 			for (int i = 0; i < numCandidates; ++i) {
 				mids[i] = new ByteArrayString();
 				mids[i].fromFileWithFixedLen(dis, ELConsts.MID_BYTE_LEN);
-				aliasLikelihoods[i] = dis.readFloat();
-				popularities[i] = dis.readFloat();
+//				aliasLikelihoods[i] = dis.readFloat();
+//				popularities[i] = dis.readFloat();
 				npses[i] = dis.readFloat();
 				tfidfSimilarities[i] = dis.readDouble();
 				wordHitRates[i] = dis.readFloat();
-				docVecSimilarities[i] = dis.readFloat();
-				tmpVals[i] = dis.readFloat();
+//				docVecSimilarities[i] = dis.readFloat();
+//				tmpVals[i] = dis.readFloat();
 			}
 			return true;
 		} catch (IOException e) {

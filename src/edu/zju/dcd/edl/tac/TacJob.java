@@ -1,6 +1,7 @@
 package edu.zju.dcd.edl.tac;
 
 import edu.zju.dcd.edl.config.IniFile;
+import edu.zju.dcd.edl.feature.FeatureGen;
 import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.linker.SimpleLinker;
 import edu.zju.dcd.edl.obj.Document;
@@ -15,6 +16,36 @@ import java.util.LinkedList;
  * Created by dhl on 16-7-28.
  */
 public class TacJob {
+	public static void genLinkingFeaturesNew(FeatureGen featureGen, String mentionsFile,
+											 String docPathFile, String outputFile) throws Exception {
+		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
+
+		Document[] documents = Document.loadEdlFile(mentionsFile);
+
+		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
+
+		int mentionCnt = 0, docCnt = 0;
+		String docPath = null;
+
+		System.out.println(documents.length + " docs.");
+
+		for (Document doc : documents) {
+			++docCnt;
+			mentionCnt += doc.mentions.length;
+			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
+
+			docPath = docIdToPath.get(doc.docId);
+			doc.loadText(docPath);
+			LinkingBasisDoc linkingBasisDoc = featureGen.getLinkingBasisDoc(doc);
+			doc.text = null;
+			linkingBasisDoc.toFile(dos);
+		}
+		dos.close();
+
+		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
+	}
+
+	// TODO vectrainfile
 	public static void genLinkingFeatures(LinkingBasisGen linkingBasisGen, String mentionsFile,
 										  String docPathFile, String outputFile,
 										  String dstVecTrainFile) throws Exception {

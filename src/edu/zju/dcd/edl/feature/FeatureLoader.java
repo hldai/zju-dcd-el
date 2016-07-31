@@ -14,6 +14,7 @@ import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.ByteArrayString;
 
+// rename as AttributeLoader
 public class FeatureLoader {
 	private class FeaturePackSortEntry {
 		public long filePointer = -1;
@@ -131,6 +132,43 @@ public class FeatureLoader {
 		int notNullCnt = 0, cnt = 0;
 		for (int i = 0; i < numCandidates; ++i) {
 			int pos = Arrays.binarySearch(mids, candidates[i].mid);
+
+			if (pos < 0) {
+				featPacks[cnt] = null;
+			} else {
+				featPacks[cnt] = new FeaturePack();
+				sortEntries[notNullCnt] = new FeaturePackSortEntry();
+				sortEntries[notNullCnt].featPack = featPacks[cnt];
+				sortEntries[notNullCnt].filePointer = filePointers[pos];
+				++notNullCnt;
+			}
+			++cnt;
+		}
+
+		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
+
+		try {
+			for (int i = 0; i < notNullCnt; ++i) {
+				FeaturePackSortEntry sortEntry = sortEntries[i];
+				featFileRaf.seek(sortEntry.filePointer);
+				featFileRaf.readInt(); // ignore wid
+//				sortEntry.featPack.popularity.fromFile(featFileRaf);
+				sortEntry.featPack.tfidf.fromFile(featFileRaf);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return featPacks;
+	}
+	public FeaturePack[] loadFeaturePacks(ByteArrayString[] candidateMids) {
+		int numCandidates = candidateMids.length;
+		FeaturePack[] featPacks = new FeaturePack[numCandidates];
+		FeaturePackSortEntry[] sortEntries = new FeaturePackSortEntry[numCandidates];
+
+		int notNullCnt = 0, cnt = 0;
+		for (int i = 0; i < numCandidates; ++i) {
+			int pos = Arrays.binarySearch(mids, candidateMids[i]);
 
 			if (pos < 0) {
 				featPacks[cnt] = null;

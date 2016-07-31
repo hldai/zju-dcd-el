@@ -1,7 +1,10 @@
 package edu.zju.dcd.edl;
 
+import edu.zju.dcd.edl.cg.CandidatesDict;
+import edu.zju.dcd.edl.cg.CandidatesGen;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.cg.IndexedAliasDictWithPse;
+import edu.zju.dcd.edl.feature.FeatureGen;
 import edu.zju.dcd.edl.feature.FeatureLoader;
 import edu.zju.dcd.edl.feature.TfIdfExtractor;
 import edu.zju.dcd.edl.tac.LinkingBasisGen;
@@ -28,7 +31,27 @@ public class PrepareMain {
 
 		CommandLineParser cmParser = new DefaultParser();
 		CommandLine cmd = cmParser.parse(options, args);
-		prepare(cmd);
+//		prepare(cmd);
+		prepareNew(cmd);
+	}
+
+	private static void prepareNew(CommandLine cmd) throws Exception {
+		String mentionsFile = cmd.getOptionValue("mentions");
+		String docListFile = cmd.getOptionValue("dl");
+		String outputFile = cmd.getOptionValue("o");
+		String resourceDir = cmd.getOptionValue("res");
+
+		String idfFile = Paths.get(resourceDir, "prog-gen/enwiki-idf.bin").toString();
+		String tfidfFile = Paths.get(resourceDir, "prog-gen/enwiki-tfidf.bin").toString();
+		String tfidfIdxFile = Paths.get(resourceDir, "prog-gen/enwiki-tfidf-index.bin").toString();
+
+		FeatureLoader featureLoader = new FeatureLoader(tfidfFile, tfidfIdxFile);
+		TfIdfExtractor tfIdfExtractor = new TfIdfExtractor(idfFile);
+
+		CandidatesGen candidatesGen = getCandidatesGen(resourceDir);
+
+		FeatureGen featureGen = new FeatureGen(candidatesGen, featureLoader, tfIdfExtractor);
+		TacJob.genLinkingFeaturesNew(featureGen, mentionsFile, docListFile, outputFile);
 	}
 
 	private static void prepare(CommandLine cmd) throws Exception {
@@ -55,6 +78,15 @@ public class PrepareMain {
 		LinkingBasisGen linkingBasisGen = new LinkingBasisGen(candidatesRetriever, featureLoader, tfIdfExtractor,
 				midWidMapper, wikiVecsFile, widListFile, docVecsFile, docIdsFile);
 		TacJob.genLinkingFeatures(linkingBasisGen, mentionsFile, docListFile, outputFile, dstVecTrainFile);
+	}
+
+	private static CandidatesGen getCandidatesGen(String resourceDir) {
+		String candidatesDictFile = Paths.get(resourceDir, "prog-gen/candidates-dict.bin").toString();
+		CandidatesDict candidatesDict = new CandidatesDict(candidatesDictFile);
+
+		String personListFile = Paths.get(resourceDir, "freebase/person_list.txt").toString();
+		String nameDictFile = Paths.get(resourceDir, "names-dict.txt").toString();
+		return new CandidatesGen(candidatesDict, personListFile, nameDictFile);
 	}
 
 	private static CandidatesRetriever getCandidatesRetriever(String resourceDir) {
