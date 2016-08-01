@@ -9,6 +9,7 @@ import edu.zju.dcd.edl.tac.LinkingBasisMention;
 import edu.zju.dcd.edl.utils.CommonUtils;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 /**
  * Created by dhl on 16-7-31.
@@ -38,6 +39,7 @@ public class FeatureGen {
 		if (tfIdfExtractor != null)
 			tfidfDoc = tfIdfExtractor.getTfIdf(doc.text);
 
+		LinkedList<LinkingBasisMention> scoresToGet = new LinkedList<>();
 		result.isNested = getNestVals(doc);
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			LinkingBasisMention linkingBasisMention = new LinkingBasisMention();
@@ -68,24 +70,52 @@ public class FeatureGen {
 			linkingBasisMention.tfidfSimilarities = new double[numCandidates];
 			linkingBasisMention.wordHitRates = new float[numCandidates];
 
+			scoresToGet.add(linkingBasisMention);
 
-			FeaturePack[] featurePacks = null;
-			if (featureLoader != null)
-				featurePacks = featureLoader.loadFeaturePacks(candidatesEntry.mids);
-
-			for (int j = 0; j < numCandidates; ++j) {
-				if (featurePacks == null || featurePacks[j] == null || tfidfDoc == null) {
-					linkingBasisMention.tfidfSimilarities[j] = 1e-8f;
-					linkingBasisMention.wordHitRates[j] = 1e-8f;
-				} else {
-					linkingBasisMention.tfidfSimilarities[j] = TfIdfFeature.similarity(
-							tfidfDoc, featurePacks[j].tfidf);
-					linkingBasisMention.wordHitRates[j] = getWordHitRateIdf(tfidfDoc, featurePacks[j].tfidf);
-				}
-			}
+			// TODO previous implementation
+//			getBowFeatures(linkingBasisMention, tfidfDoc);
 		}
 
+		handleScoresToGet(scoresToGet, tfidfDoc);
+
 		return result;
+	}
+
+	private void handleScoresToGet(LinkedList<LinkingBasisMention> scoresToGet, TfIdfFeature tfidfDoc) {
+		FeaturePack[][] featurePacks = featureLoader.loadFeaturePacks(scoresToGet);
+		int i = 0;
+		for (LinkingBasisMention sm : scoresToGet) {
+			FeaturePack[] curFeaturePacks = featurePacks[i];
+
+			for (int j = 0; j < sm.mids.length; ++j) {
+				if (curFeaturePacks == null || curFeaturePacks[j] == null || tfidfDoc == null) {
+					sm.tfidfSimilarities[j] = 1e-8f;
+					sm.wordHitRates[j] = 1e-8f;
+				} else {
+					sm.tfidfSimilarities[j] = TfIdfFeature.similarity(
+							tfidfDoc, curFeaturePacks[j].tfidf);
+					sm.wordHitRates[j] = getWordHitRateIdf(tfidfDoc, curFeaturePacks[j].tfidf);
+				}
+			}
+			++i;
+		}
+	}
+
+	private void getBowFeatures(LinkingBasisMention linkingBasisMention, TfIdfFeature tfidfDoc) {
+		FeaturePack[] featurePacks = null;
+		if (featureLoader != null)
+			featurePacks = featureLoader.loadFeaturePacks(linkingBasisMention.mids);
+
+		for (int j = 0; j < linkingBasisMention.numCandidates; ++j) {
+			if (featurePacks == null || featurePacks[j] == null || tfidfDoc == null) {
+				linkingBasisMention.tfidfSimilarities[j] = 1e-8f;
+				linkingBasisMention.wordHitRates[j] = 1e-8f;
+			} else {
+				linkingBasisMention.tfidfSimilarities[j] = TfIdfFeature.similarity(
+						tfidfDoc, featurePacks[j].tfidf);
+				linkingBasisMention.wordHitRates[j] = getWordHitRateIdf(tfidfDoc, featurePacks[j].tfidf);
+			}
+		}
 	}
 
 	private float getWordHitRateIdf(TfIdfFeature docTfIdf, TfIdfFeature candidateTfIdf) {

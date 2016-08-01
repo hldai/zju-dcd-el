@@ -5,19 +5,17 @@ package edu.zju.dcd.edl.feature;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 import edu.zju.dcd.edl.ELConsts;
 import edu.zju.dcd.edl.cg.CandidatesRetriever;
 import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.ByteArrayString;
+import edu.zju.dcd.edl.tac.LinkingBasisMention;
 
 // rename as AttributeLoader
 public class FeatureLoader {
-	private static final int MAX_CACHE_SIZE = 100000;
+	private static final int MAX_CACHE_SIZE = 1000000;
 
 	private static class FeaturePackSortEntry {
 		public long filePointer = -1;
@@ -117,64 +115,64 @@ public class FeatureLoader {
 		}
 	}
 
-	public FeaturePack loadFeatures(String mid) {
-		int pos = Arrays.binarySearch(mids, mid);
-		if (pos < 0)
-			return null;
-
-		try {
-			featFileRaf.seek(filePointers[pos]);
-			FeaturePack feats = new FeaturePack();
-			featFileRaf.readInt(); // ignore wid
-//			feats.wid = featFileRaf.readInt();
-//			feats.popularity.fromFile(featFileRaf);
-			feats.tfidf.fromFile(featFileRaf);
-			return feats;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return null;
-	}
+//	public FeaturePack loadFeatures(String mid) {
+//		int pos = Arrays.binarySearch(mids, mid);
+//		if (pos < 0)
+//			return null;
+//
+//		try {
+//			featFileRaf.seek(filePointers[pos]);
+//			FeaturePack feats = new FeaturePack();
+//			featFileRaf.readInt(); // ignore wid
+////			feats.wid = featFileRaf.readInt();
+////			feats.popularity.fromFile(featFileRaf);
+//			feats.tfidf.fromFile(featFileRaf);
+//			return feats;
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return null;
+//	}
 	
 	// TODO for mids whose features are already loaded, reloading is not needed.
-	public FeaturePack[] loadFeaturePacks(LinkedList<ByteArrayString> candidateMids) {
-		FeaturePack[] featPacks = new FeaturePack[candidateMids.size()];
-		FeaturePackSortEntry[] sortEntries = new FeaturePackSortEntry[candidateMids
-				.size()];
-
-		int notNullCnt = 0, cnt = 0;
-		for (ByteArrayString mid : candidateMids) {
-			int pos = Arrays.binarySearch(mids, mid);
-
-			if (pos < 0) {
-				featPacks[cnt] = null;
-			} else {
-				featPacks[cnt] = new FeaturePack();
-				sortEntries[notNullCnt] = new FeaturePackSortEntry();
-				sortEntries[notNullCnt].featPack = featPacks[cnt];
-				sortEntries[notNullCnt].filePointer = filePointers[pos];
-				++notNullCnt;
-			}
-			++cnt;
-		}
-
-		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
-
-		try {
-			for (int i = 0; i < notNullCnt; ++i) {
-				FeaturePackSortEntry sortEntry = sortEntries[i];
-				featFileRaf.seek(sortEntry.filePointer);
-				featFileRaf.readInt(); // ignore wid
-//				sortEntry.featPack.popularity.fromFile(featFileRaf);
-				sortEntry.featPack.tfidf.fromFile(featFileRaf);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return featPacks;
-	}
+//	public FeaturePack[] loadFeaturePacks(LinkedList<ByteArrayString> candidateMids) {
+//		FeaturePack[] featPacks = new FeaturePack[candidateMids.size()];
+//		FeaturePackSortEntry[] sortEntries = new FeaturePackSortEntry[candidateMids
+//				.size()];
+//
+//		int notNullCnt = 0, cnt = 0;
+//		for (ByteArrayString mid : candidateMids) {
+//			int pos = Arrays.binarySearch(mids, mid);
+//
+//			if (pos < 0) {
+//				featPacks[cnt] = null;
+//			} else {
+//				featPacks[cnt] = new FeaturePack();
+//				sortEntries[notNullCnt] = new FeaturePackSortEntry();
+//				sortEntries[notNullCnt].featPack = featPacks[cnt];
+//				sortEntries[notNullCnt].filePointer = filePointers[pos];
+//				++notNullCnt;
+//			}
+//			++cnt;
+//		}
+//
+//		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
+//
+//		try {
+//			for (int i = 0; i < notNullCnt; ++i) {
+//				FeaturePackSortEntry sortEntry = sortEntries[i];
+//				featFileRaf.seek(sortEntry.filePointer);
+//				featFileRaf.readInt(); // ignore wid
+////				sortEntry.featPack.popularity.fromFile(featFileRaf);
+//				sortEntry.featPack.tfidf.fromFile(featFileRaf);
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//		return featPacks;
+//	}
 	
 	// TODO for mids whose features are already loaded, reloading is not needed.
 	public FeaturePack[] loadFeaturePacks(CandidatesRetriever.CandidateWithPopularity[] candidates,
@@ -200,22 +198,11 @@ public class FeatureLoader {
 			++cnt;
 		}
 
-		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
-
-		try {
-			for (int i = 0; i < notNullCnt; ++i) {
-				FeaturePackSortEntry sortEntry = sortEntries[i];
-				featFileRaf.seek(sortEntry.filePointer);
-				featFileRaf.readInt(); // ignore wid
-//				sortEntry.featPack.popularity.fromFile(featFileRaf);
-				sortEntry.featPack.tfidf.fromFile(featFileRaf);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		loadFeatures(sortEntries, notNullCnt);
 
 		return featPacks;
 	}
+
 	public FeaturePack[] loadFeaturePacks(ByteArrayString[] candidateMids) {
 		int numCandidates = candidateMids.length;
 		FeaturePack[] featPacks = new FeaturePack[numCandidates];
@@ -236,6 +223,7 @@ public class FeatureLoader {
 
 				CacheEntry cacheEntry = cacheMap.get(pos);
 				if (cacheEntry != null) {
+//					System.out.println("hit");
 					featPacks[cnt].tfidf = cacheEntry.tfidf;
 					cacheQueue.remove(cacheEntry);
 					cacheQueue.add(cacheEntry);
@@ -256,10 +244,77 @@ public class FeatureLoader {
 			++cnt;
 		}
 
-		Arrays.sort(sortEntries, 0, notNullCnt, fpComparator);
+		loadFeatures(sortEntries, notNullCnt);
+
+		return featPacks;
+	}
+
+	public FeaturePack[][] loadFeaturePacks(LinkedList<LinkingBasisMention> scoresToGet) {
+		FeaturePack[][] featurePacks = new FeaturePack[scoresToGet.size()][];
+		LinkedList<FeaturePackSortEntry> toLoadEntries = new LinkedList<>();
+		int i = 0;
+		for (LinkingBasisMention sm : scoresToGet) {
+			featurePacks[i] = new FeaturePack[sm.mids.length];
+
+			for (int j = 0; j < sm.mids.length; ++j) {
+				int midPos = Arrays.binarySearch(mids, sm.mids[j]);
+				if (midPos < 0) {
+					featurePacks[i][j] = null;
+				} else {
+					featurePacks[i][j] = new FeaturePack();
+					handleMid(midPos, featurePacks[i][j], toLoadEntries);
+				}
+			}
+			++i;
+		}
+
+		loadFeatures(toLoadEntries);
+
+		return featurePacks;
+	}
+
+	private void handleMid(int midPos, FeaturePack dstFeaturePack, LinkedList<FeaturePackSortEntry> toLoadEntries) {
+		CacheEntry cacheEntry = cacheMap.get(midPos);
+		if (cacheEntry != null) {
+//			System.out.println("hit");
+			dstFeaturePack.tfidf = cacheEntry.tfidf;
+			cacheQueue.remove(cacheEntry);
+			cacheQueue.add(cacheEntry);
+		} else {
+			FeaturePackSortEntry entry = new FeaturePackSortEntry();
+			entry.featPack = dstFeaturePack;
+			entry.filePointer = filePointers[midPos];
+			toLoadEntries.add(entry);
+
+			cacheEntry = cacheQueue.add(midPos, dstFeaturePack.tfidf);
+			cacheMap.put(midPos, cacheEntry);
+			if (cacheQueue.len > MAX_CACHE_SIZE) {
+				CacheEntry toRemove = cacheQueue.pop();
+				cacheMap.remove(toRemove.midPos);
+			}
+		}
+	}
+
+	private void loadFeatures(LinkedList<FeaturePackSortEntry> toLoadEntries) {
+		Collections.sort(toLoadEntries, fpComparator);
 
 		try {
-			for (int i = 0; i < notNullCnt; ++i) {
+			for (FeaturePackSortEntry entry : toLoadEntries) {
+				featFileRaf.seek(entry.filePointer);
+				featFileRaf.readInt(); // ignore wid
+//				sortEntry.featPack.popularity.fromFile(featFileRaf);
+				entry.featPack.tfidf.fromFile(featFileRaf);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void loadFeatures(FeaturePackSortEntry[] sortEntries, int numEntries) {
+		Arrays.sort(sortEntries, 0, numEntries, fpComparator);
+
+		try {
+			for (int i = 0; i < numEntries; ++i) {
 				FeaturePackSortEntry sortEntry = sortEntries[i];
 				featFileRaf.seek(sortEntry.filePointer);
 				featFileRaf.readInt(); // ignore wid
@@ -269,8 +324,6 @@ public class FeatureLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		return featPacks;
 	}
 
 	CacheQueue cacheQueue = new CacheQueue();
