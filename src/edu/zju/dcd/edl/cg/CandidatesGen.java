@@ -63,6 +63,8 @@ public class CandidatesGen {
 			for (int j = i - 1; !flg && j >= 0; --j) {
 				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)
 						&& isPerson(candidatesEntries[j])) {
+//				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)
+//						&& doc.mentions[j].entityType.equals("PER")) {
 					candidatesEntries[i] = candidatesEntries[j];
 //					System.out.println(String.format("%s -> %s", curNameString, doc.mentions[j].nameString));
 					flg = true;
@@ -75,7 +77,22 @@ public class CandidatesGen {
 			candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
 		}
 
+		fixNilCorefChain(candidatesEntries, doc.mentions, corefChain);
+
 		return candidatesEntries;
+	}
+
+	private void fixNilCorefChain(CandidatesDict.CandidatesEntry[] candidatesEntries, Mention[] mentions,
+								  int[] corefChain) {
+		for (int i = 0; i < candidatesEntries.length; ++i) {
+			if (candidatesEntries[i] == null && corefChain[i] < 0) {
+				for (int j = 0; j < i; ++j) {
+					if (mentions[i].nameString.equals(mentions[j].nameString)) {
+						corefChain[i] = j;
+					}
+				}
+			}
+		}
 	}
 
 	private void handleFullNames(Document doc, boolean[] isForumPosters,

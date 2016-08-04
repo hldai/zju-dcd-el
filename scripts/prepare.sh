@@ -5,7 +5,7 @@ dataset=LDC2015E103
 bin_dir=../out/production/zju-dcd-el
 stanford_corenlp=/media/dhl/Data/lib/stanford-nlp/stanford-corenlp-full-2015-12-09/stanford-corenlp-3.6.0.jar
 
-mentions_file=/home/dhl/data/EDL/$dataset/output/all-mentions-tac.txt
+mentions_file=/home/dhl/data/EDL/$dataset/output/all-mentions.tab
 #mentions_file=/home/dhl/data/EDL/$dataset/data/gold-eng-mentions.tab
 
 output_file=/home/dhl/data/EDL/$dataset/output/cmn-tfidf-sys.bin

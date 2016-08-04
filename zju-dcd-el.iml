@@ -8,5 +8,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="stanford-corenlp-3.6.0" level="project" />
+    <orderEntry type="library" name="stanford-postagger-3.6.0" level="project" />
+    <orderEntry type="library" name="slf4j-api" level="project" />
+    <orderEntry type="library" name="slf4j-simple" level="project" />
   </component>
 </module>

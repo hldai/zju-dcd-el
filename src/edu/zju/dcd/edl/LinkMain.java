@@ -28,23 +28,6 @@ public class LinkMain {
 		linking(cmd);
 	}
 
-	private static void runByConfig() {
-		String dataDir = "/home/dhl/data/EDL/";
-		String configFile = dataDir + "config/tac-link.ini";
-
-		IniFile config = new IniFile(configFile);
-
-		IniFile.Section mainSect = config.getSection("main");
-		String job = mainSect.getValue("job");
-		System.out.println("job: " + job);
-		if (job.startsWith("link") || job.startsWith("gen_linking_basis")) {
-//			LinkingJob.run(config);
-		}
-	}
-
-	private static void test() {
-	}
-
 	private static void linking(CommandLine cmd) {
 		System.out.println("linking ...");
 		SimpleNaiveLinker linker = getLinker(cmd);

@@ -6,7 +6,7 @@ dataset=LDC2015E103
 feat_file=/home/dhl/data/EDL/$dataset/output/cmn-tfidf-sys.bin
 
 #mentions_file=/home/dhl/data/EDL/$dataset/data/gold-eng-mentions.tab
-mentions_file=/home/dhl/data/EDL/$dataset/output/all-mentions-tac.txt
+mentions_file=/home/dhl/data/EDL/$dataset/output/all-mentions.tab
 
 #output_file=/home/dhl/data/EDL/$dataset/output/sys-link-gm.tab
 output_file=/home/dhl/data/EDL/$dataset/output/sys-link-sm.tab
