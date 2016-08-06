@@ -54,7 +54,7 @@ public class PrepareMain {
 		CandidatesGen candidatesGen = getCandidatesGen(resourceDir);
 
 		FeatureGen featureGen = new FeatureGen(candidatesGen, featureLoader, tfIdfExtractor);
-		TacJob.genLinkingFeaturesNew(featureGen, mentionsFile, docListFile, outputFile);
+		TacJob.genLinkingScores(featureGen, mentionsFile, docListFile, outputFile);
 	}
 
 	private static void prepare(CommandLine cmd) throws Exception {

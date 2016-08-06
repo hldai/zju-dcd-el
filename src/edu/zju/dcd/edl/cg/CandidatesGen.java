@@ -27,6 +27,171 @@ public class CandidatesGen {
 			loadNameDictFile(nameDictFile);
 	}
 
+	public CandidatesDict.CandidatesEntry[] getCandidates(Document doc, int[] coref) {
+		CandidatesDict.CandidatesEntry[] candidatesEntries = new CandidatesDict.CandidatesEntry[doc.mentions.length];
+		Arrays.fill(coref, -1);
+
+		Mention[] docMentions = doc.mentions;
+
+		resolvePostAuthorCoref(docMentions, coref);
+		resolveNomMentionCoref(docMentions, coref);
+		handleFullNamesNew(docMentions, candidatesEntries, coref);
+
+		for (int i = 0; i < docMentions.length; ++i) {
+			Mention m = docMentions[i];
+			if (m.isPostAuthor() || m.isNominal() || coref[i] > -1 || candidatesEntries[i] != null)
+				continue;
+
+			String curNameString = m.nameString;
+
+			boolean flg = false;
+			// TODO find closest?
+			for (int j = 0; !flg && j < doc.mentions.length; ++j) {
+				if (i != j && CommonUtils.isAbbr(docMentions[j].nameString, curNameString)
+						&& candidatesEntries[j] != null) {
+//					candidatesEntries[i] = candidatesEntries[j];
+					flg = true;
+					makeCoref(coref, i, j);
+				}
+			}
+			if (flg)
+				continue;
+
+			for (int j = i - 1; !flg && j >= 0; --j) {
+				if (CommonUtils.hasWord(docMentions[j].nameString, curNameString)
+						&& isPerson(candidatesEntries[j])) {
+//				if (CommonUtils.hasWord(doc.mentions[j].nameString, curNameString)
+//						&& doc.mentions[j].entityType.equals("PER")) {
+//					candidatesEntries[i] = candidatesEntries[j];
+//					System.out.println(String.format("%s -> %s", curNameString, doc.mentions[j].nameString));
+					makeCoref(coref, i, j);
+					flg = true;
+				}
+			}
+			if (flg)
+				continue;
+
+			candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+		}
+
+		handleNilCoref(candidatesEntries, doc.mentions, coref);
+
+		return candidatesEntries;
+	}
+
+	private void handleNilCoref(CandidatesDict.CandidatesEntry[] candidatesEntries,
+								Mention[] docMentions, int[] coref) {
+		for (int i = 0; i < candidatesEntries.length; ++i) {
+			if (candidatesEntries[i] == null && coref[i] < 0 && !docMentions[i].isNominal()
+					&& !docMentions[i].isPostAuthor()) {
+				for (int j = 0; j < i; ++j) {
+					if (docMentions[i].nameString.equals(docMentions[j].nameString)) {
+						coref[i] = j;
+					}
+				}
+			}
+		}
+
+		adjustCoref(coref);
+	}
+
+	private void adjustCoref(int[] coref) {
+		for (int i = 0; i < coref.length; ++i) {
+			while (coref[i] > -1 && coref[coref[i]] > -1)
+				coref[i] = coref[coref[i]];
+		}
+	}
+
+	private void handleFullNamesNew(Mention[] docMentions, CandidatesDict.CandidatesEntry[] candidatesEntries,
+									int[] coref) {
+		for (int i = 0; i < docMentions.length; ++i) {
+			Mention m = docMentions[i];
+			if (m.isPostAuthor() || m.isNominal())
+				continue;
+
+			String curNameString = m.nameString;
+
+			if (aliasToOrigin != null) {
+				String originName = aliasToOrigin.get(curNameString);
+				if (originName != null) {
+//					System.out.println(String.format("%s -> %s", curNameString, originName));
+					int prevMentionPos = findPrevMention(docMentions, i, curNameString);
+					if (prevMentionPos > -1) {
+//						candidatesEntries[i] = candidatesEntries[prevMentionPos];
+						makeCoref(coref, i, prevMentionPos);
+					} else {
+						curNameString = originName;
+						candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+					}
+					continue;
+				}
+			}
+
+			boolean isFullName = true;
+			for (int j = 0; j < docMentions.length && isFullName; ++j) {
+				if (j == i)
+					continue;
+				if (CommonUtils.hasWord(docMentions[j].nameString, curNameString)
+						|| CommonUtils.isAbbr(docMentions[j].nameString, curNameString)) {
+					isFullName = false;
+				}
+			}
+
+			if (isFullName) {
+				int prevMentionPos = findPrevMention(docMentions, i, curNameString);
+				if (prevMentionPos > -1) {
+					makeCoref(coref, i, prevMentionPos);
+//					candidatesEntries[i] = candidatesEntries[corefChain[i]];
+				} else {
+					candidatesEntries[i] = candidatesDict.getCandidates(curNameString);
+				}
+			}
+		}
+	}
+
+	private void resolvePostAuthorCoref(Mention[] mentions, int[] coref) {
+		for (int i = 0; i < mentions.length; ++i) {
+			Mention m = mentions[i];
+			if (!m.isPostAuthor())
+				continue;
+
+			for (int j = 0; j < i; ++j) {
+				if (mentions[j].isPostAuthor() && m.nameString.equals(mentions[j].nameString)) {
+					makeCoref(coref, i, j);
+				}
+			}
+		}
+	}
+
+	private void resolveNomMentionCoref(Mention[] mentions, int[] coref) {
+		for (int i = 0; i < mentions.length; ++i) {
+			Mention m = mentions[i];
+			if (!m.isNominal()) {
+				continue;
+			}
+
+			for (int j = i - 1; j > -1; --j) {
+				if (m.nameString.equals(mentions[j].nameString)) {
+					makeCoref(coref, i, j);
+				}
+			}
+
+			if (coref[i] == -1) {  // TODO
+				if (i < mentions.length - 1 && mentions[i + 1].entityType.equals("PER")
+						&& !mentions[i + 1].isNominal()) {
+					makeCoref(coref, i, i + 1);
+				} else if (i > 0 && mentions[i - 1].entityType.equals("PER")
+						&& !mentions[i - 1].isNominal()) {
+					makeCoref(coref, i, i - 1);
+				}
+			}
+		}
+	}
+
+	private void makeCoref(int[] coref, int f, int t) {
+		coref[f] = coref[t] > -1 ? coref[t] : t;
+	}
+
 	public CandidatesDict.CandidatesEntry[] getCandidatesOfMentionsInDoc(Document doc, int[] corefChain) {
 		CandidatesDict.CandidatesEntry[] candidatesEntries = new CandidatesDict.CandidatesEntry[doc.mentions.length];
 
@@ -101,6 +266,8 @@ public class CandidatesGen {
 		for (int i = 0; i < doc.mentions.length; ++i) {
 			if (isForumPosters[i])
 				continue;
+			if (doc.mentions[i].mentionType.equals("NOM"))
+				continue;
 
 			String curNameString = doc.mentions[i].nameString;
 
@@ -108,7 +275,7 @@ public class CandidatesGen {
 				String originName = aliasToOrigin.get(curNameString);
 				if (originName != null) {
 //					System.out.println(String.format("%s -> %s", curNameString, originName));
-					int prevMentionPos = findName(doc.mentions, i, curNameString);
+					int prevMentionPos = findPrevMention(doc.mentions, i, curNameString);
 					if (prevMentionPos > -1) {
 						candidatesEntries[i] = candidatesEntries[prevMentionPos];
 						corefChain[i] = prevMentionPos;
@@ -131,7 +298,7 @@ public class CandidatesGen {
 			}
 
 			if (isFullName) {
-				corefChain[i] = findName(doc.mentions, i, curNameString);
+				corefChain[i] = findPrevMention(doc.mentions, i, curNameString);
 				if (corefChain[i] > -1) {
 					candidatesEntries[i] = candidatesEntries[corefChain[i]];
 				} else {
@@ -141,8 +308,8 @@ public class CandidatesGen {
 		}
 	}
 
-	private int findName(Mention[] mentions, int endPos, String name) {
-		for (int i = 0; i < endPos; ++i) {
+	private int findPrevMention(Mention[] mentions, int curPos, String name) {
+		for (int i = curPos - 1; i > -1; --i) {
 			if (mentions[i].nameString.equals(name)) {
 				return i;
 			}

@@ -35,7 +35,8 @@ public class CommonUtils {
 		
 		return cnt;
 	}
-	
+
+	// TODO switch params
 	public static boolean isAbbr(String mainStr, String abbr) {
 		boolean isAllUpperCase = true;
 		for (int i = 0; isAllUpperCase && i < abbr.length(); ++i) {

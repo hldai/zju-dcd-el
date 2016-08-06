@@ -29,8 +29,9 @@ public class FeatureGen {
 		result.linkingBasisMentions = new LinkingBasisMention[doc.mentions.length];
 
 		result.corefChain = new int[doc.mentions.length];
-		CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidatesOfMentionsInDoc(doc,
-				result.corefChain);
+//		CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidatesOfMentionsInDoc(doc,
+//				result.corefChain);
+		CandidatesDict.CandidatesEntry[] candidatesEntries = candidatesGen.getCandidates(doc, result.corefChain);
 
 //		result.corefChain = getCorefChain(doc);
 		result.possibleCoref = getPossibleCoref(doc); // TODO remove
@@ -48,15 +49,15 @@ public class FeatureGen {
 			Mention mention = doc.mentions[i];
 			linkingBasisMention.queryId = mention.mentionId;
 
-			if (result.corefChain[i] > -1) {
-				LinkingBasisMention corefFeat = result.linkingBasisMentions[result.corefChain[i]];
-				linkingBasisMention.numCandidates = corefFeat.numCandidates;
-				linkingBasisMention.mids = corefFeat.mids;
-				linkingBasisMention.npses = corefFeat.npses;
-				linkingBasisMention.tfidfSimilarities = corefFeat.tfidfSimilarities;
-				linkingBasisMention.wordHitRates = corefFeat.wordHitRates;
-				continue;
-			}
+//			if (result.corefChain[i] > -1) {
+//				LinkingBasisMention corefFeat = result.linkingBasisMentions[result.corefChain[i]];
+//				linkingBasisMention.numCandidates = corefFeat.numCandidates;
+//				linkingBasisMention.mids = corefFeat.mids;
+//				linkingBasisMention.npses = corefFeat.npses;
+//				linkingBasisMention.tfidfSimilarities = corefFeat.tfidfSimilarities;
+//				linkingBasisMention.wordHitRates = corefFeat.wordHitRates;
+//				continue;
+//			}
 
 			CandidatesDict.CandidatesEntry candidatesEntry = candidatesEntries[i];
 			if (candidatesEntry == null) {

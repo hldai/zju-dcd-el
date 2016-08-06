@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -53,6 +54,9 @@ public class Document {
 			docs[i].docId = entry.getKey();
 			Mention[] tmpMentions = new Mention[entry.getValue().size()];
 			docs[i].mentions = entry.getValue().toArray(tmpMentions);
+
+			Arrays.sort(docs[i].mentions, new Mention.MentionPosComparator());
+
 			++i;
 		}
 

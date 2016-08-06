@@ -4,6 +4,7 @@ package edu.zju.dcd.edl;
 
 import edu.zju.dcd.edl.config.ConfigUtils;
 import edu.zju.dcd.edl.config.IniFile;
+import edu.zju.dcd.edl.linker.DCDLinker;
 import edu.zju.dcd.edl.linker.SimpleNaiveLinker;
 import edu.zju.dcd.edl.tac.*;
 import org.apache.commons.cli.CommandLine;
@@ -30,11 +31,25 @@ public class LinkMain {
 
 	private static void linking(CommandLine cmd) {
 		System.out.println("linking ...");
-		SimpleNaiveLinker linker = getLinker(cmd);
+//		SimpleNaiveLinker linker = getLinker(cmd);
+		DCDLinker linker = getDCDLinker(cmd);
 		String featureFile = cmd.getOptionValue("feat");
 		String mentionsFile = cmd.getOptionValue("mentions");
 		String outputFile = cmd.getOptionValue("o");
 		TacJob.linkWithFeatures(linker, featureFile, mentionsFile, outputFile);
+	}
+
+	private static DCDLinker getDCDLinker(CommandLine cmd) {
+		boolean useMid = cmd.hasOption("f");
+
+		String resourceDir = cmd.getOptionValue("res");
+
+		MidToEidMapper mteMapper = null;
+		if (!useMid) {
+			mteMapper = new MidToEidMapper(Paths.get(resourceDir, "prog-gen/mid-to-eid.bin").toString());
+		}
+
+		return new DCDLinker(mteMapper);
 	}
 
 	private static SimpleNaiveLinker getLinker(CommandLine cmd) {

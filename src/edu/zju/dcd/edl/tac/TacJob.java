@@ -16,8 +16,8 @@ import java.util.LinkedList;
  * Created by dhl on 16-7-28.
  */
 public class TacJob {
-	public static void genLinkingFeaturesNew(FeatureGen featureGen, String mentionsFile,
-											 String docPathFile, String outputFile) throws Exception {
+	public static void genLinkingScores(FeatureGen featureGen, String mentionsFile,
+										String docPathFile, String outputFile) throws Exception {
 		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
 
 		Document[] documents = Document.loadEdlFile(mentionsFile);

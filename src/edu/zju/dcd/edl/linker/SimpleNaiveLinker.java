@@ -1,4 +1,4 @@
-// author: DHL brnpoem@gmail.com
+// author: DHL hldai@outlook.com
 
 package edu.zju.dcd.edl.linker;
 
@@ -15,7 +15,7 @@ import edu.zju.dcd.edl.tac.LinkingBasisMention;
 import edu.zju.dcd.edl.tac.MidFilter;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
 
-public class SimpleNaiveLinker implements SimpleLinker {	
+public class SimpleNaiveLinker implements SimpleLinker {
 	public SimpleNaiveLinker(MidToEidMapper mteMapper, MidFilter midFilter,
 			String dstTrainingFileName) {
 		this.mteMapper = mteMapper;

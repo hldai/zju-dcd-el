@@ -12,7 +12,7 @@ import java.util.LinkedList;
 public class Mention {
 	public static LinkedList<Mention> loadEdlFile(String edlFile) {
 		BufferedReader reader = IOUtils.getUTF8BufReader(edlFile);
-		LinkedList<Mention> mentions = new LinkedList<Mention>();
+		LinkedList<Mention> mentions = new LinkedList<>();
 
 		String line = null;
 		try {
@@ -52,6 +52,10 @@ public class Mention {
 
 	public boolean isNominal() {
 		return mentionType.equals("NOM");
+	}
+
+	public boolean isPostAuthor() {
+		return entityType.equals("PER-PA");
 	}
 
 	public static class DocPosComparator implements Comparator<Mention> {
