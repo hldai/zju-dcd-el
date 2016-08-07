@@ -1,17 +1,10 @@
 package edu.zju.dcd.edl.linker;
 
 import edu.zju.dcd.edl.ELConsts;
-import edu.zju.dcd.edl.io.IOUtils;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.tac.LinkingBasisDoc;
 import edu.zju.dcd.edl.tac.LinkingBasisMention;
-import edu.zju.dcd.edl.tac.MidFilter;
 import edu.zju.dcd.edl.tac.MidToEidMapper;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
 
 /**
  * Created by dhl on 16-8-6.
@@ -88,25 +81,6 @@ public class DCDLinker implements SimpleLinker {
 		}
 
 		return results;
-	}
-
-	private void relink(LinkingResult[] results, LinkingBasisDoc linkingBasisDoc) {
-		for (int i = 0; i < results.length; ++i) {
-			int j = linkingBasisDoc.corefChain[i];
-			if (j < 0)
-				continue;
-
-//			System.out.println("coref " + j);
-
-			if (results[j].kbid.startsWith(ELConsts.NIL)) {
-				continue;
-			}
-
-			if (results[j].confidence > results[i].confidence) {
-				results[i].kbid = results[j].kbid;
-				results[i].confidence = results[j].confidence;
-			}
-		}
 	}
 
 	protected MidToEidMapper mteMapper = null;
