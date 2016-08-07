@@ -52,7 +52,7 @@ public class DCDLinker implements SimpleLinker {
 			}
 
 			if (result.kbid == ELConsts.NIL) {
-				result.kbid = ELConsts.NIL + String.format("%05d", ++curMaxNilId);
+				result.kbid = ELConsts.NIL + String.format("%07d", ++curMaxNilId);
 			}
 		}
 
@@ -73,7 +73,7 @@ public class DCDLinker implements SimpleLinker {
 				String eid = mteMapper.getEid(result.kbid);
 				if (eid == null) {
 //					result.kbid = ELConsts.NIL + result.kbid;
-					result.kbid = ELConsts.NIL + String.format("%05d", ++curMaxNilId);
+					result.kbid = ELConsts.NIL + String.format("%07d", ++curMaxNilId);
 				} else {
 					result.kbid = eid;
 				}
@@ -83,7 +83,7 @@ public class DCDLinker implements SimpleLinker {
 		return results;
 	}
 
-	protected MidToEidMapper mteMapper = null;
+	private MidToEidMapper mteMapper = null;
 
-	int curMaxNilId = 0;
+	private int curMaxNilId = 0;
 }

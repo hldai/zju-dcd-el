@@ -87,6 +87,7 @@ public class FeatureLoader {
 
 	public FeatureLoader(String featFileName, String featIndexFileName) {
 		try {
+			System.out.println(String.format("%s as tf-idf file", featFileName));
 			featFileRaf = new RandomAccessFile(featFileName, "r");
 
 			System.out.println("Loading index from " + featIndexFileName + " ...");

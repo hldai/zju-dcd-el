@@ -22,27 +22,30 @@ public class TacJob {
 
 		Document[] documents = Document.loadEdlFile(mentionsFile);
 
-		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
+		System.out.println(String.format("%d docs in doclist file, %d docs in edl file.",
+				docIdToPath.size(), documents.length));
 
-		int mentionCnt = 0, docCnt = 0;
-		String docPath = null;
-
-		System.out.println(documents.length + " docs.");
-
-		for (Document doc : documents) {
-			++docCnt;
-			mentionCnt += doc.mentions.length;
-			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
-
-			docPath = docIdToPath.get(doc.docId);
-			doc.loadText(docPath);
-			LinkingBasisDoc linkingBasisDoc = featureGen.getLinkingBasisDoc(doc);
-			doc.text = null;
-			linkingBasisDoc.toFile(dos);
-		}
-		dos.close();
-
-		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
+//		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
+//
+//		int mentionCnt = 0, docCnt = 0;
+//		String docPath = null;
+//
+//		System.out.println(documents.length + " docs.");
+//
+//		for (Document doc : documents) {
+//			++docCnt;
+//			mentionCnt += doc.mentions.length;
+//			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
+//
+//			docPath = docIdToPath.get(doc.docId);
+//			doc.loadText(docPath);
+//			LinkingBasisDoc linkingBasisDoc = featureGen.getLinkingBasisDoc(doc);
+//			doc.text = null;
+//			linkingBasisDoc.toFile(dos);
+//		}
+//		dos.close();
+//
+//		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
 	}
 
 	// TODO vectrainfile
@@ -127,7 +130,7 @@ public class TacJob {
 		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile);
 		try {
 			for (Mention m : mentions) {
-				String kbid = el.getOrDefault(m.mentionId, "NIL0001");
+				String kbid = el.getOrDefault(m.mentionId, "NIL000001");
 				if (!kbid.startsWith("NIL"))
 					kbid = "m." + kbid;
 //				System.out.println(String.format("%s\t%s", m.mentionId, kbid));
@@ -150,7 +153,13 @@ public class TacJob {
 			int begPosLinux = line.lastIndexOf('/');
 			int begPosWin = line.lastIndexOf('\\');
 			int begPos = begPosLinux > begPosWin ? begPosLinux + 1 : begPosWin + 1;
-			int endPos = line.indexOf('.');
+			int endPos = 0;
+			if (line.endsWith(".df.xml") || line.endsWith(".nw.xml"))
+				endPos = line.length() - 7;
+			else if (line.endsWith(".xml"))
+				endPos = line.length() - 4;
+			else
+				assert false;
 			String docId = line.substring(begPos, endPos);
 
 			docIdToPath.put(docId, line);

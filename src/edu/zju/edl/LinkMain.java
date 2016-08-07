@@ -1,9 +1,7 @@
 // author: DHL brnpoem@gmail.com
 
-package edu.zju.dcd.edl;
+package edu.zju.edl;
 
-import edu.zju.dcd.edl.config.ConfigUtils;
-import edu.zju.dcd.edl.config.IniFile;
 import edu.zju.dcd.edl.linker.DCDLinker;
 import edu.zju.dcd.edl.linker.SimpleNaiveLinker;
 import edu.zju.dcd.edl.tac.*;

@@ -11,7 +11,7 @@ mentions_file=/home/dhl/data/EDL/$dataset/output/all-mentions.tab
 #output_file=/home/dhl/data/EDL/$dataset/output/sys-link-gm.tab
 output_file=/home/dhl/data/EDL/$dataset/output/sys-link-sm.tab
 
-java -cp ../out/production/zju-dcd-el/ edu.zju.dcd.edl.LinkMain -f \
+java -cp ../out/production/zju-dcd-el/ edu.zju.edl.LinkMain -f \
      -res /media/dhl/Data/data/el/res/ \
      -feat $feat_file \
      -mentions $mentions_file \
