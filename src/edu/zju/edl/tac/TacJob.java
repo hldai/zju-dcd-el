@@ -1,23 +1,21 @@
-package edu.zju.dcd.edl.tac;
+package edu.zju.edl.tac;
 
-import edu.zju.dcd.edl.config.IniFile;
-import edu.zju.dcd.edl.feature.FeatureGen;
 import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.linker.SimpleLinker;
 import edu.zju.dcd.edl.obj.Document;
 import edu.zju.dcd.edl.obj.LinkingResult;
 import edu.zju.dcd.edl.obj.Mention;
+import edu.zju.edl.feature.LinkingInfoDoc;
+import edu.zju.edl.feature.LinkingInfoGen;
+import edu.zju.edl.link.LinkingInfoLinker;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-/**
- * Created by dhl on 16-7-28.
- */
+
 public class TacJob {
-	public static void genLinkingScores(FeatureGen featureGen, String mentionsFile,
-										String docPathFile, String outputFile) throws Exception {
+	public static void genLinkingInfo(LinkingInfoGen linkingInfoGen, String mentionsFile,
+									  String docPathFile, String outputFile) throws Exception {
 		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
 
 		Document[] documents = Document.loadEdlFile(mentionsFile);
@@ -25,53 +23,10 @@ public class TacJob {
 		System.out.println(String.format("%d docs in doclist file, %d docs in edl file.",
 				docIdToPath.size(), documents.length));
 
-//		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
-//
-//		int mentionCnt = 0, docCnt = 0;
-//		String docPath = null;
-//
-//		System.out.println(documents.length + " docs.");
-//
-//		for (Document doc : documents) {
-//			++docCnt;
-//			mentionCnt += doc.mentions.length;
-//			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
-//
-//			docPath = docIdToPath.get(doc.docId);
-//			doc.loadText(docPath);
-//			LinkingBasisDoc linkingBasisDoc = featureGen.getLinkingBasisDoc(doc);
-//			doc.text = null;
-//			linkingBasisDoc.toFile(dos);
-//		}
-//		dos.close();
-//
-//		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
-	}
-
-	// TODO vectrainfile
-	public static void genLinkingFeatures(LinkingBasisGen linkingBasisGen, String mentionsFile,
-										  String docPathFile, String outputFile,
-										  String dstVecTrainFile) throws Exception {
-		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
-
-		Document[] documents = Document.loadEdlFile(mentionsFile);
-//		if (mentionsFile.endsWith(".xml"))
-//			documents = QueryReader.toDocumentsXmlFile(mentionsFile);
-//		else
-//			documents = QueryReader.toDocumentsEdlFile(mentionsFile);
-
 		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
-
-		DataOutputStream dosTmp = null;
-		if (dstVecTrainFile != null)
-			dosTmp = IOUtils.getBufferedDataOutputStream(dstVecTrainFile);
 
 		int mentionCnt = 0, docCnt = 0;
 		String docPath = null;
-
-		System.out.println(documents.length + " docs.");
-		if (dosTmp != null)
-			dosTmp.writeInt(documents.length);
 
 		for (Document doc : documents) {
 			++docCnt;
@@ -80,40 +35,81 @@ public class TacJob {
 
 			docPath = docIdToPath.get(doc.docId);
 			doc.loadText(docPath);
-			LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 50); // TODO
+			LinkingInfoDoc linkingInfoDoc = linkingInfoGen.getLinkingInfoDoc(doc);
 			doc.text = null;
-			linkingBasisDoc.toFile(dos);
-
-			if (dosTmp != null)
-				linkingBasisDoc.toFileVecTrain(dosTmp);
-//			if (docCnt == 3)
-//					break;
+			linkingInfoDoc.toFile(dos);
 		}
 		dos.close();
-
-		if (dosTmp != null)
-			dosTmp.close();
 
 		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
 	}
 
-	public static void linkWithFeatures(SimpleLinker simpleLinker, String featureFile, String mentionsFile,
-										String outputFile) {
-		System.out.println(featureFile);
+	// TODO vectrainfile
+//	public static void genLinkingFeatures(LinkingBasisGen linkingBasisGen, String mentionsFile,
+//										  String docPathFile, String outputFile,
+//										  String dstVecTrainFile) throws Exception {
+//		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
+//
+//		Document[] documents = Document.loadEdlFile(mentionsFile);
+////		if (mentionsFile.endsWith(".xml"))
+////			documents = QueryReader.toDocumentsXmlFile(mentionsFile);
+////		else
+////			documents = QueryReader.toDocumentsEdlFile(mentionsFile);
+//
+//		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
+//
+//		DataOutputStream dosTmp = null;
+//		if (dstVecTrainFile != null)
+//			dosTmp = IOUtils.getBufferedDataOutputStream(dstVecTrainFile);
+//
+//		int mentionCnt = 0, docCnt = 0;
+//		String docPath = null;
+//
+//		System.out.println(documents.length + " docs.");
+//		if (dosTmp != null)
+//			dosTmp.writeInt(documents.length);
+//
+//		for (Document doc : documents) {
+//			++docCnt;
+//			mentionCnt += doc.mentions.length;
+//			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
+//
+//			docPath = docIdToPath.get(doc.docId);
+//			doc.loadText(docPath);
+//			LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 50); // TODO
+//			doc.text = null;
+//			linkingBasisDoc.toFile(dos);
+//
+//			if (dosTmp != null)
+//				linkingBasisDoc.toFileVecTrain(dosTmp);
+////			if (docCnt == 3)
+////					break;
+//		}
+//		dos.close();
+//
+//		if (dosTmp != null)
+//			dosTmp.close();
+//
+//		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
+//	}
+
+	public static void linkWithLinkingInfo(LinkingInfoLinker linker, String linkingInfoFile, String mentionsFile,
+										   String outputFile) {
+		System.out.println(linkingInfoFile);
 		System.out.println(mentionsFile);
 		System.out.println(outputFile);
 
 		boolean useMid = true; // TODO
 
-		DataInputStream dis = IOUtils.getBufferedDataInputStream(featureFile);
-		LinkingBasisDoc linkingBasisDoc = new LinkingBasisDoc();
+		DataInputStream dis = IOUtils.getBufferedDataInputStream(linkingInfoFile);
+		LinkingInfoDoc linkingInfoDoc = new LinkingInfoDoc();
 		HashMap<String, String> mentionIdToKbid = new HashMap<>();
-		while (linkingBasisDoc.fromFile(dis)) {
+		while (linkingInfoDoc.fromFile(dis)) {
 			LinkingResult[] results;
 			if (useMid) {
-				results = simpleLinker.link(linkingBasisDoc);
+				results = linker.link(linkingInfoDoc);
 			} else {
-				results = simpleLinker.link14(linkingBasisDoc);
+				results = linker.link14(linkingInfoDoc);
 			}
 
 			for (LinkingResult result : results) {

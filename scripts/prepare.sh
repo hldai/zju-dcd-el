@@ -13,7 +13,7 @@ output_file=/home/dhl/data/EDL/$dataset/output/cmn-tfidf-sys.bin
 
 classpath=$bin_dir:$stanford_corenlp
 
-java -Xmx10g -cp $classpath edu.zju.dcd.edl.PrepareMain \
+java -Xmx10g -cp $classpath edu.zju.edl.PrepareMain \
      -res /media/dhl/Data/data/el/res/ \
      -mentions $mentions_file \
      -dl /home/dhl/data/EDL/$dataset/data/eng-docs-list.txt \

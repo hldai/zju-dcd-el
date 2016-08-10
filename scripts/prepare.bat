@@ -1,6 +1,6 @@
-::set dataset=LDC2015E103
-:: set dataset=LDC2015E75
-set dataset=LDC2016E63
+set dataset=LDC2015E103
+::set dataset=LDC2015E75
+::set dataset=LDC2016E63
 
 set datadir=e:/data/edl
 
@@ -15,7 +15,7 @@ set stanford_corenlp=e:/lib/stanford-nlp/stanford-corenlp-full-2015-12-09/stanfo
 set apache_cli=e:/lib/commons-cli-1.3.1/commons-cli-1.3.1.jar
 set classpath=%bin_dir%;%stanford_corenlp%;%apache_cli%
 
-java -Xmx10g -cp %classpath% edu.zju.dcd.edl.PrepareMain ^
+java -Xmx10g -cp %classpath% edu.zju.edl.PrepareMain ^
      -res %datadir%/res/ ^
      -mentions %mentions_file% ^
      -dl %datadir%/%dataset%/data/eng-docs-list-win.txt ^

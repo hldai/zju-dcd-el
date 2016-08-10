@@ -1,31 +1,29 @@
-package edu.zju.dcd.edl.linker;
+package edu.zju.edl.link;
 
 import edu.zju.dcd.edl.ELConsts;
 import edu.zju.dcd.edl.obj.LinkingResult;
-import edu.zju.dcd.edl.tac.LinkingBasisDoc;
-import edu.zju.dcd.edl.tac.LinkingBasisMention;
-import edu.zju.dcd.edl.tac.MidToEidMapper;
+import edu.zju.edl.tac.MidToEidMapper;
+import edu.zju.edl.feature.LinkingInfoDoc;
+import edu.zju.edl.feature.LinkingInfoMention;
 
-/**
- * Created by dhl on 16-8-6.
- */
-public class DCDLinker implements SimpleLinker {
+
+public class DCDLinker implements LinkingInfoLinker {
 	public DCDLinker(MidToEidMapper mteMapper) {
 		this.mteMapper = mteMapper;
 	}
 
 	@Override
-	public LinkingResult[] link(LinkingBasisDoc linkingBasisDoc) {
-		LinkingResult[] results = new LinkingResult[linkingBasisDoc.linkingBasisMentions.length];
+	public LinkingResult[] link(LinkingInfoDoc linkingInfoDoc) {
+		LinkingResult[] results = new LinkingResult[linkingInfoDoc.linkingInfoMentions.length];
 		for (int i = 0; i < results.length; ++i) {
-			LinkingBasisMention lbMention = linkingBasisDoc.linkingBasisMentions[i];
+			LinkingInfoMention lbMention = linkingInfoDoc.linkingInfoMentions[i];
 
 			LinkingResult result = new LinkingResult();
 			results[i] = result;
 			result.kbid = ELConsts.NIL;
-			result.queryId = lbMention.queryId;
+			result.queryId = lbMention.mentionId;
 
-			if (linkingBasisDoc.corefChain[i] > -1)
+			if (linkingInfoDoc.corefChain[i] > -1)
 				continue;
 
 			if (lbMention.numCandidates > 0) {
@@ -34,13 +32,13 @@ public class DCDLinker implements SimpleLinker {
 //					System.out.println(result.queryId);
 					String curMid = lbMention.mids[j].toString().trim();
 
-					if (linkingBasisDoc.isNested[i] && curMid.equals(results[i - 1].kbid)) {
+					if (linkingInfoDoc.isNested[i] && curMid.equals(results[i - 1].kbid)) {
 						continue;
 					}
 
-					curScore = 1 * Math.log(lbMention.npses[j])
+					curScore = 1 * Math.log(lbMention.commonnesses[j])
 							+ 6 * Math.log(lbMention.tfidfSimilarities[j] + 1e-7)
-							+ 3 * Math.log(lbMention.wordHitRates[j] + 1e-7);
+							+ 3 * Math.log(lbMention.iwhrs[j] + 1e-7);
 
 					if (curScore > maxScore) {
 						result.kbid = lbMention.mids[j].toString().trim();
@@ -57,8 +55,8 @@ public class DCDLinker implements SimpleLinker {
 		}
 
 		for (int i = 0; i < results.length; ++i) {
-			if (linkingBasisDoc.corefChain[i] > -1) {
-				results[i].kbid = results[linkingBasisDoc.corefChain[i]].kbid;
+			if (linkingInfoDoc.corefChain[i] > -1) {
+				results[i].kbid = results[linkingInfoDoc.corefChain[i]].kbid;
 			}
 		}
 
@@ -66,8 +64,8 @@ public class DCDLinker implements SimpleLinker {
 	}
 
 	@Override
-	public LinkingResult[] link14(LinkingBasisDoc linkingBasisDoc) {
-		LinkingResult[] results = link(linkingBasisDoc);
+	public LinkingResult[] link14(LinkingInfoDoc linkingInfoDoc) {
+		LinkingResult[] results = link(linkingInfoDoc);
 		for (LinkingResult result : results) {
 			if (!result.kbid.startsWith(ELConsts.NIL)) {
 				String eid = mteMapper.getEid(result.kbid);

@@ -1,10 +1,10 @@
-::set dataset=LDC2015E103
-:: set dataset=LDC2015E75
-set dataset=LDC2016E63
+set dataset=LDC2015E103
+::set dataset=LDC2015E75
+::set dataset=LDC2016E63
 
 set datadir=e:/data/edl
 
-set feat_file=%datadir%/%dataset%/output/cmn-tfidf-sys.bin
+set info_file=%datadir%/%dataset%/output/cmn-tfidf-sys.bin
 set mentions_file=%datadir%/%dataset%/output/all-mentions.tab
 
 :: output_file=/home/dhl/data/EDL/$dataset/output/sys-link-gm.tab
@@ -16,6 +16,6 @@ set classpath=%bin_dir%;%apache_cli%
 
 java -cp %classpath% edu.zju.edl.LinkMain -f ^
      -res /media/dhl/Data/data/el/res/ ^
-     -feat %feat_file% ^
+     -info %info_file% ^
      -mentions %mentions_file% ^
      -o %output_file%

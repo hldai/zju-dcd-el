@@ -1,16 +1,15 @@
-// author: DHL brnpoem@gmail.com
+package edu.zju.edl.feature;
 
-package edu.zju.dcd.edl.feature;
+import edu.zju.dcd.edl.ELConsts;
+import edu.zju.dcd.edl.feature.FeaturePack;
+import edu.zju.dcd.edl.feature.TfIdfFeature;
+import edu.zju.dcd.edl.io.IOUtils;
+import edu.zju.dcd.edl.obj.ByteArrayString;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
-
-import edu.zju.dcd.edl.ELConsts;
-import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.obj.ByteArrayString;
-import edu.zju.dcd.edl.tac.LinkingBasisMention;
 
 public class FeatureLoader {
 	private static final int MAX_CACHE_SIZE = 1000000;
@@ -160,11 +159,11 @@ public class FeatureLoader {
 		return featPacks;
 	}
 
-	public FeaturePack[][] loadFeaturePacks(LinkedList<LinkingBasisMention> scoresToGet) {
+	public FeaturePack[][] loadFeaturePacks(LinkedList<LinkingInfoMention> scoresToGet) {
 		FeaturePack[][] featurePacks = new FeaturePack[scoresToGet.size()][];
 		LinkedList<FeaturePackSortEntry> toLoadEntries = new LinkedList<>();
 		int i = 0;
-		for (LinkingBasisMention sm : scoresToGet) {
+		for (LinkingInfoMention sm : scoresToGet) {
 			featurePacks[i] = new FeaturePack[sm.mids.length];
 
 			for (int j = 0; j < sm.mids.length; ++j) {
