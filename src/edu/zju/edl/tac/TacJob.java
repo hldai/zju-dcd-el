@@ -1,9 +1,9 @@
 package edu.zju.edl.tac;
 
-import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.obj.Document;
-import edu.zju.dcd.edl.obj.LinkingResult;
-import edu.zju.dcd.edl.obj.Mention;
+import edu.zju.edl.utils.IOUtils;
+import edu.zju.edl.obj.Document;
+import edu.zju.edl.obj.LinkingResult;
+import edu.zju.edl.obj.Mention;
 import edu.zju.edl.feature.LinkingInfoDoc;
 import edu.zju.edl.feature.LinkingInfoGen;
 import edu.zju.edl.link.LinkingInfoLinker;
@@ -44,55 +44,6 @@ public class TacJob {
 		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
 	}
 
-	// TODO vectrainfile
-//	public static void genLinkingFeatures(LinkingBasisGen linkingBasisGen, String mentionsFile,
-//										  String docPathFile, String outputFile,
-//										  String dstVecTrainFile) throws Exception {
-//		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
-//
-//		Document[] documents = Document.loadEdlFile(mentionsFile);
-////		if (mentionsFile.endsWith(".xml"))
-////			documents = QueryReader.toDocumentsXmlFile(mentionsFile);
-////		else
-////			documents = QueryReader.toDocumentsEdlFile(mentionsFile);
-//
-//		DataOutputStream dos = IOUtils.getBufferedDataOutputStream(outputFile);
-//
-//		DataOutputStream dosTmp = null;
-//		if (dstVecTrainFile != null)
-//			dosTmp = IOUtils.getBufferedDataOutputStream(dstVecTrainFile);
-//
-//		int mentionCnt = 0, docCnt = 0;
-//		String docPath = null;
-//
-//		System.out.println(documents.length + " docs.");
-//		if (dosTmp != null)
-//			dosTmp.writeInt(documents.length);
-//
-//		for (Document doc : documents) {
-//			++docCnt;
-//			mentionCnt += doc.mentions.length;
-//			System.out.println("processing " + docCnt + " " + doc.docId + " " + doc.mentions.length);
-//
-//			docPath = docIdToPath.get(doc.docId);
-//			doc.loadText(docPath);
-//			LinkingBasisDoc linkingBasisDoc = linkingBasisGen.getLinkingBasisDoc(doc, 50); // TODO
-//			doc.text = null;
-//			linkingBasisDoc.toFile(dos);
-//
-//			if (dosTmp != null)
-//				linkingBasisDoc.toFileVecTrain(dosTmp);
-////			if (docCnt == 3)
-////					break;
-//		}
-//		dos.close();
-//
-//		if (dosTmp != null)
-//			dosTmp.close();
-//
-//		System.out.println(mentionCnt + " mentions. " + docCnt + " documents.");
-//	}
-
 	public static void linkWithLinkingInfo(LinkingInfoLinker linker, String linkingInfoFile, String mentionsFile,
 										   String outputFile) {
 		System.out.println(linkingInfoFile);
@@ -113,11 +64,10 @@ public class TacJob {
 			}
 
 			for (LinkingResult result : results) {
-				mentionIdToKbid.put(result.queryId, result.kbid);
+				mentionIdToKbid.put(result.mentionId, result.kbid);
 			}
 		}
 
-//		CrossDocNilHandler.handle(mentionIdToKbid, mentionsFile);
 		saveLinkingResults(mentionIdToKbid, mentionsFile, outputFile);
 	}
 

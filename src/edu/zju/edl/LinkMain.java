@@ -35,7 +35,6 @@ public class LinkMain {
 		String mentionsFile = cmd.getOptionValue("mentions");
 		String outputFile = cmd.getOptionValue("o");
 		TacJob.linkWithLinkingInfo(linker, linkingInfoFile, mentionsFile, outputFile);
-//		TacJob.linkWithFeatures(linker, featureFile, mentionsFile, outputFile);
 	}
 
 	private static DCDLinker getDCDLinker(CommandLine cmd) {

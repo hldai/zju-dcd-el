@@ -1,8 +1,8 @@
 package edu.zju.edl;
 
-import edu.zju.dcd.edl.cg.CandidatesDict;
-import edu.zju.dcd.edl.cg.CandidatesGen;
-import edu.zju.dcd.edl.feature.TfIdfExtractor;
+import edu.zju.edl.cg.CandidatesDict;
+import edu.zju.edl.cg.CandidatesGen;
+import edu.zju.edl.feature.TfIdfExtractor;
 import edu.zju.edl.tac.TacJob;
 import edu.zju.edl.feature.FeatureLoader;
 import edu.zju.edl.feature.LinkingInfoGen;

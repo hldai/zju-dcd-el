@@ -1,6 +1,6 @@
 package edu.zju.edl.feature;
 
-import edu.zju.dcd.edl.io.IOUtils;
+import edu.zju.edl.utils.IOUtils;
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;

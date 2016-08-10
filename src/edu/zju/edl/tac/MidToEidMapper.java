@@ -6,9 +6,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import edu.zju.dcd.edl.ELConsts;
-import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.obj.ByteArrayString;
+import edu.zju.edl.ELConsts;
+import edu.zju.edl.utils.IOUtils;
+import edu.zju.edl.obj.ByteArrayString;
 
 // map mid to eid
 // mid: entity id of freebase

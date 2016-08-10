@@ -1,10 +1,8 @@
 package edu.zju.edl.feature;
 
-import edu.zju.dcd.edl.ELConsts;
-import edu.zju.dcd.edl.feature.FeaturePack;
-import edu.zju.dcd.edl.feature.TfIdfFeature;
-import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.obj.ByteArrayString;
+import edu.zju.edl.ELConsts;
+import edu.zju.edl.utils.IOUtils;
+import edu.zju.edl.obj.ByteArrayString;
 
 import java.io.DataInputStream;
 import java.io.IOException;

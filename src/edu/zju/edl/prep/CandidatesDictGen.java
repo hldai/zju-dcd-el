@@ -1,13 +1,12 @@
 package edu.zju.edl.prep;
 
-import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.obj.ByteArrayString;
+import edu.zju.edl.utils.IOUtils;
+import edu.zju.edl.obj.ByteArrayString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.io.BufferedReader;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;

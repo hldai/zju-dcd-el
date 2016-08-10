@@ -1,7 +1,7 @@
 package edu.zju.edl.link;
 
-import edu.zju.dcd.edl.ELConsts;
-import edu.zju.dcd.edl.obj.LinkingResult;
+import edu.zju.edl.ELConsts;
+import edu.zju.edl.obj.LinkingResult;
 import edu.zju.edl.tac.MidToEidMapper;
 import edu.zju.edl.feature.LinkingInfoDoc;
 import edu.zju.edl.feature.LinkingInfoMention;
@@ -21,7 +21,7 @@ public class DCDLinker implements LinkingInfoLinker {
 			LinkingResult result = new LinkingResult();
 			results[i] = result;
 			result.kbid = ELConsts.NIL;
-			result.queryId = lbMention.mentionId;
+			result.mentionId = lbMention.mentionId;
 
 			if (linkingInfoDoc.corefChain[i] > -1)
 				continue;

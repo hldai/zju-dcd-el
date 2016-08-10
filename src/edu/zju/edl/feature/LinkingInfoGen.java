@@ -1,13 +1,10 @@
 package edu.zju.edl.feature;
 
-import edu.zju.dcd.edl.cg.CandidatesDict;
-import edu.zju.dcd.edl.cg.CandidatesGen;
-import edu.zju.dcd.edl.feature.FeaturePack;
-import edu.zju.dcd.edl.feature.TfIdfExtractor;
-import edu.zju.dcd.edl.feature.TfIdfFeature;
-import edu.zju.dcd.edl.io.IOUtils;
-import edu.zju.dcd.edl.obj.Document;
-import edu.zju.dcd.edl.obj.Mention;
+import edu.zju.edl.cg.CandidatesDict;
+import edu.zju.edl.cg.CandidatesGen;
+import edu.zju.edl.utils.IOUtils;
+import edu.zju.edl.obj.Document;
+import edu.zju.edl.obj.Mention;
 
 import java.io.FileInputStream;
 import java.io.IOException;

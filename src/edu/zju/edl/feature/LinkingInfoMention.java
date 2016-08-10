@@ -1,7 +1,7 @@
 package edu.zju.edl.feature;
 
-import edu.zju.dcd.edl.ELConsts;
-import edu.zju.dcd.edl.obj.ByteArrayString;
+import edu.zju.edl.ELConsts;
+import edu.zju.edl.obj.ByteArrayString;
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
