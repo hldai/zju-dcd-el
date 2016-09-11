@@ -10,7 +10,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 
 public class Mention {
-	public static LinkedList<Mention> loadEdlFile(String edlFile) {
+	public static LinkedList<Mention> loadEdlFile(String edlFile, boolean correctHeadString) {
 		BufferedReader reader = IOUtils.getUTF8BufReader(edlFile);
 		LinkedList<Mention> mentions = new LinkedList<>();
 
@@ -21,6 +21,11 @@ public class Mention {
 				Mention m = new Mention();
 				m.mentionId = vals[1];
 				m.nameString = vals[2];
+
+				if (correctHeadString) {
+					m.nameString = m.nameString.replaceAll("_", " ");
+					m.nameString = m.nameString.replaceAll("\\s+", " ");
+				}
 
 				int colonPos = vals[3].indexOf(':'), dashPos = vals[3].indexOf('-');
 				m.docId = vals[3].substring(0, colonPos);

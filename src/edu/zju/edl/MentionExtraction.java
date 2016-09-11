@@ -17,9 +17,6 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.Triple;
 
 public class MentionExtraction {
-	public MentionExtraction(String serializedClassifier) {
-	}
-
 	public static void extractTest(String serializedClassifier) {
 		AbstractSequenceClassifier<CoreLabel> classifier = null;
 		try {
@@ -28,8 +25,7 @@ public class MentionExtraction {
 			e.printStackTrace();
 		}
 
-		String text = "Washington fears the group, which has successfully recruited members of the " +
-				"Somali diaspora in the United States, may strike on U.S. soil.";
+		String text = "University of Westminster";
 
 		List<Triple<String, Integer, Integer>> triples = classifier
 				.classifyToCharacterOffsets(text);
@@ -157,25 +153,6 @@ public class MentionExtraction {
 				writeNerResult(text, out, writer1);
 			}
 
-//			String[] vals = line.split("\t");
-//			int numLines = Integer.valueOf(vals[0]);
-//			StringBuilder textBuilder = new StringBuilder();
-//			for (int i = 0; i < numLines; ++i) {
-//				textBuilder.append(textFileReader.readLine());
-//				textBuilder.append("\n");
-//			}
-//
-//			String text = textBuilder.toString();
-//			text = text.replaceAll("al-", "Al-");
-//
-//			List<List<CoreLabel>> out = classifier.classify(text);
-//			writeNerResult(text, out, writer0);
-//
-//			text = text.replaceAll("https?:\\S*", " ");
-//			text = text.replaceAll("[/-]", " ");
-//			out = classifier.classify(text);
-//			writeNerResult(text, out, writer1);
-
 			++cnt;
 			if (cnt % 1000 == 0)
 				System.out.println(cnt);
@@ -190,18 +167,21 @@ public class MentionExtraction {
 
 	public static void main(String[] args) throws IOException {
 //		String dataset = "LDC2015E75";
-//		String dataset = "LDC2015E103";
-		String dataset = "LDC2016E63";
+		String dataset = "LDC2015E103";
+//		String dataset = "LDC2016E63";
 
-		String serializedClassifier = "/media/dhl/Data/lib/stanford-nlp/stanford-ner-2015-12-09" +
+//		String serializedClassifier = "/media/dhl/Data/lib/stanford-nlp/stanford-ner-2015-12-09" +
+//				"/classifiers/english.all.3class.distsim.crf.ser.gz";
+		String serializedClassifier = "e:/lib/stanford-nlp/stanford-ner-2015-12-09" +
 				"/classifiers/english.all.3class.distsim.crf.ser.gz";
 
-		String dataDir = "/home/dhl/data/EDL";
-		String tacTextFile = Paths.get(dataDir, dataset, "data/doc-text-clean.txt").toString();
+//		String dataDir = "/home/dhl/data/EDL";
+		String dataDir = "e:/data/edl";
+		String tacTextFile = Paths.get(dataDir, dataset, "data/doc-text-clean-new.txt").toString();
 		String dstFile0 = Paths.get(dataDir, dataset, "output/ner-result0.txt").toString();
 		String dstFile1 = Paths.get(dataDir, dataset, "output/ner-result1.txt").toString();
 
-//		extract(serializedClassifier, tacTextFile, dstFile0, dstFile1);
-		extractTB(serializedClassifier, tacTextFile, dstFile0, dstFile1);
+//		extractTB(serializedClassifier, tacTextFile, dstFile0, dstFile1);
+		extractTest(serializedClassifier);
 	}
 }

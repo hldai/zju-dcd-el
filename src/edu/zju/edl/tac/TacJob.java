@@ -18,7 +18,7 @@ public class TacJob {
 									  String docPathFile, String outputFile) throws Exception {
 		HashMap<String, String> docIdToPath = loadDocPaths(docPathFile);
 
-		Document[] documents = Document.loadEdlFile(mentionsFile);
+		Document[] documents = Document.loadEdlFile(mentionsFile, true);
 
 		System.out.println(String.format("%d docs in doclist file, %d docs in edl file.",
 				docIdToPath.size(), documents.length));
@@ -73,7 +73,7 @@ public class TacJob {
 
 	private static void saveLinkingResults(HashMap<String, String> el, String edlFile, String dstFile) {
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(dstFile, false);
-		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile);
+		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile, false);
 		try {
 			for (Mention m : mentions) {
 				String kbid = el.getOrDefault(m.mentionId, "NIL000001");

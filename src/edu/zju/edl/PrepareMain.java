@@ -37,8 +37,8 @@ public class PrepareMain {
 		String resourceDir = cmd.getOptionValue("res");
 
 		String idfFile = Paths.get(resourceDir, "prog-gen/enwiki-idf.bin").toString();
-		String tfidfFile = Paths.get(resourceDir, "prog-gen/enwiki-tfidf.bin").toString();
-//		String tfidfFile = "c:/data/enwiki-tfidf.bin";
+//		String tfidfFile = Paths.get(resourceDir, "prog-gen/enwiki-tfidf.bin").toString();
+		String tfidfFile = "c:/data/enwiki-tfidf.bin";
 		String tfidfIdxFile = Paths.get(resourceDir, "prog-gen/enwiki-tfidf-index.bin").toString();
 
 		FeatureLoader featureLoader = new FeatureLoader(tfidfFile, tfidfIdxFile);

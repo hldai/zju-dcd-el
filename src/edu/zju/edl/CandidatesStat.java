@@ -55,7 +55,7 @@ public class CandidatesStat {
 	private static void genStatCG(CandidatesGen candidatesGen, String goldEdlFile,
 								 String errorFileName) throws IOException {
 		BufferedWriter writer = IOUtils.getUTF8BufWriter(errorFileName, false);
-		Document[] documents = Document.loadEdlFile(goldEdlFile);
+		Document[] documents = Document.loadEdlFile(goldEdlFile, true);
 
 		int queryCnt = 0, hitCnt = 0, inKbCnt = 0, inKbHitCnt = 0;
 		int candidateCnt = 0;

@@ -14,8 +14,8 @@ import edu.zju.edl.utils.IOUtils;
 public class Document {
 	private static final String DOC_HEAD = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
 
-	public static Document[] loadEdlFile(String edlFile) {
-		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile);
+	public static Document[] loadEdlFile(String edlFile, boolean correctHeadString) {
+		LinkedList<Mention> mentions = Mention.loadEdlFile(edlFile, correctHeadString);
 		return mentionsToDocs(mentions);
 	}
 

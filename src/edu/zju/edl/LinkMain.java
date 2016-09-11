@@ -50,23 +50,6 @@ public class LinkMain {
 		return new DCDLinker(mteMapper);
 	}
 
-//	private static SimpleNaiveLinker getLinker(CommandLine cmd) {
-//		boolean useMid = cmd.hasOption("f");
-//
-//		String resourceDir = cmd.getOptionValue("res");
-//
-//		MidToEidMapper mteMapper = null;
-//		if (!useMid) {
-//			mteMapper = new MidToEidMapper(Paths.get(resourceDir, "prog-gen/mid-to-eid.bin").toString());
-//		}
-//
-//		String filterMidsFile = Paths.get(resourceDir, "freebase/filter_mids_10_8.bin").toString();
-//		MidFilter midFilter = null;
-////		MidFilter midFilter = new MidFilter(filterMidsFile);
-//
-//		return new SimpleNaiveLinker(mteMapper, midFilter, null);
-//	}
-
 	public static void main(String[] args) throws Exception {
 		long startTime = System.currentTimeMillis();
 
