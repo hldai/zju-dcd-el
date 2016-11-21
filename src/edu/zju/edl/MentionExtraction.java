@@ -181,7 +181,7 @@ public class MentionExtraction {
 		String dstFile0 = Paths.get(dataDir, dataset, "output/ner-result0.txt").toString();
 		String dstFile1 = Paths.get(dataDir, dataset, "output/ner-result1.txt").toString();
 
-//		extractTB(serializedClassifier, tacTextFile, dstFile0, dstFile1);
-		extractTest(serializedClassifier);
+		extractTB(serializedClassifier, tacTextFile, dstFile0, dstFile1);
+//		extractTest(serializedClassifier);
 	}
 }

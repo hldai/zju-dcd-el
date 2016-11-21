@@ -1,11 +1,12 @@
-::set dataset=LDC2015E103
+set dataset=LDC2015E103
 ::set dataset=LDC2015E75
-set dataset=LDC2016E63
+::set dataset=LDC2016E63
 set mentions_tag=0
 
 set datadir=e:/data/edl
 
-set mentions_file=%datadir%/%dataset%/output/all-mentions-%mentions_tag%.tab
+::set mentions_file=%datadir%/%dataset%/output/all-mentions-%mentions_tag%.tab
+set mentions_file=%datadir%/%dataset%/output/all-mentions-nnom-%mentions_tag%-exp.tab
 :: mentions_file=/home/dhl/data/EDL/$dataset/data/gold-eng-mentions.tab
 
 set output_file=%datadir%/%dataset%/output/cmn-tfidf-sys-%mentions_tag%.bin

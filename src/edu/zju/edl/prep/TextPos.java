@@ -32,66 +32,6 @@ public class TextPos {
 		return taggedSentences;
 	}
 
-	public static void parseTextFile() throws IOException {
-		boolean splitSentence = true;
-		String textFile = "e:/el/LDC2015E103/data/doc-text-p.txt";
-		String outputFile = "e:/el/LDC2015E103/data/doc-text-words-sen.txt";
-//		String modelPath = "edu/stanford/nlp/models/srparser/englishSR.ser.gz";
-		String taggerPath = "d:/projects/os/stanford-nlp/stanford-postagger-2015-12-09/models/english-left3words-distsim.tagger";
-
-		MaxentTagger tagger = new MaxentTagger(taggerPath);
-//		ShiftReduceParser model = ShiftReduceParser.loadModel(modelPath);
-
-		FileInputStream inStream = new FileInputStream(textFile);
-		InputStreamReader isr = new InputStreamReader(inStream, "UTF8");
-		BufferedReader textFileReader = new BufferedReader(isr);
-
-		FileOutputStream outStream = new FileOutputStream(outputFile);
-		OutputStreamWriter isw = new OutputStreamWriter(outStream, "UTF8");
-		BufferedWriter writer = new BufferedWriter(isw);
-
-		int textCnt = 0;
-		String line = null;
-		while ((line = textFileReader.readLine()) != null) {
-			// read next text block
-			String[] vals = line.split("\t");
-			int numLines = Integer.valueOf(vals[0]);
-			StringBuilder textBuilder = new StringBuilder();
-			for (int i = 0; i < numLines; ++i) {
-				textBuilder.append(textFileReader.readLine());
-				textBuilder.append("\n");
-			}
-
-//			System.out.println(textBuilder);
-			String text = textBuilder.toString();
-			// parse text
-			List<List<TaggedWord>> taggedSentences = tagText(text, tagger);
-
-			int wordCnt = 0;
-			for (List<TaggedWord> sentence : taggedSentences)
-				wordCnt += sentence.size();
-
-			writer.write(String.format("%d\t%s\n", wordCnt, vals[1]));
-
-			for (List<TaggedWord> sentence : taggedSentences) {
-				for (TaggedWord tw : sentence) {
-					writer.write(String.format("%s\t%s\n", text.substring(tw.beginPosition(), tw.endPosition()),
-							tw.tag()));
-				}
-			}
-
-			++textCnt;
-
-//			if (textCnt == 5)
-//				break;
-		}
-
-		textFileReader.close();
-		writer.close();
-
-		System.out.println(textCnt + " blocks.");
-	}
-
 	private static void handleNextTextBlock(MaxentTagger tagger, BufferedReader textFileReader,
 											BufferedWriter dstFileWriter) throws IOException {
 		String line = textFileReader.readLine();
@@ -144,6 +84,7 @@ public class TextPos {
 		int textCnt = 0, docCnt = 0;
 		String line = null;
 		while ((line = textFileReader.readLine()) != null) {
+			// Read docid and number of blocks
 			String[] vals = line.split("\t");
 			writer.write(line);
 			writer.write("\n");

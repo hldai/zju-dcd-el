@@ -9,7 +9,7 @@ import java.io.IOException;
 
 /**
  * Created by dhl on 8/10/2016.
- * Linking info for a document
+ * Linking info for a documentl
  */
 public class LinkingInfoDoc {
     public void toFile(DataOutputStream dos) {
