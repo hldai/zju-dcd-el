@@ -1,5 +1,6 @@
 package edu.zju.edl.feature;
 
+import edu.zju.edl.tac.MidToEidMapper;
 import edu.zju.edl.utils.IOUtils;
 
 import java.io.BufferedWriter;
@@ -35,7 +36,7 @@ public class LinkingInfoDoc {
         }
     }
 
-    public void toFileVecTrain(DataOutputStream dos) {
+    public void toFileVecTrain(DataOutputStream dos, MidToEidMapper midEidMapper) {
         IOUtils.writeStringVaryLen(dos, docId);
         try {
             for (float v : docVec) {
@@ -49,7 +50,7 @@ public class LinkingInfoDoc {
 
             dos.writeInt(linkingInfoMentions.length);
             for (LinkingInfoMention linkingBasisMention : linkingInfoMentions) {
-                linkingBasisMention.toFileVecTrain(dos);
+                linkingBasisMention.toFileVecTrain(dos, midEidMapper);
             }
         } catch (IOException e) {
             e.printStackTrace();

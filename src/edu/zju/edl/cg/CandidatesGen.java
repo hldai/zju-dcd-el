@@ -402,9 +402,9 @@ public class CandidatesGen {
 	}
 
 	// adj gpe
-	HashMap<String, String> aliasToOrigin = null;
+	private HashMap<String, String> aliasToOrigin = null;
 
-	String[] personMids = null;
+	private String[] personMids = null;
 
-	CandidatesDict candidatesDict = null;
+	private CandidatesDict candidatesDict = null;
 }

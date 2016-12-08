@@ -130,31 +130,6 @@ public class LinkingInfoGen {
 		return result / norm0 * norm1;
 	}
 
-	private void loadWikiIds(String wikiIdFile) {
-		if (wikiIdFile == null)
-			return;
-
-		try {
-			FileInputStream fs = new FileInputStream(wikiIdFile);
-			FileChannel fc = fs.getChannel();
-			int numWids = IOUtils.readLittleEndianInt(fc);
-			System.out.println(numWids + " wids");
-
-			wids = new int[numWids];
-
-			ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES * numWids);
-			buf.order(ByteOrder.LITTLE_ENDIAN);
-			fc.read(buf);
-			buf.rewind();
-
-			buf.asIntBuffer().get(wids);
-
-			fs.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	private static final float KEY_WORD_IDF_THRES = 4.5f;
 
 	private CandidatesGen candidatesGen = null;

@@ -79,7 +79,12 @@ public class ByteArrayString implements Comparable<ByteArrayString> {
 	}
 
 	public String toString() {
-		return new String(bytes);
+		try {
+			return new String(bytes, "UTF8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public void toFileWithByteLen(DataOutputStream dos) {

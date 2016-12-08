@@ -59,7 +59,12 @@ public class CandidatesDict {
 	}
 
 	public CandidatesEntry getCandidates(String name) {
-		return getCandidates(new ByteArrayString(name.toLowerCase()));
+		String lcname = name.toLowerCase();
+		CandidatesEntry candidatesEntry = getCandidates(new ByteArrayString(lcname));
+		if (candidatesEntry == null && lcname.startsWith("the ")) {
+			candidatesEntry = getCandidates(new ByteArrayString(lcname.substring(4).trim()));
+		}
+		return candidatesEntry;
 	}
 
 	public CandidatesEntry getCandidates(ByteArrayString name) {

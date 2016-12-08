@@ -39,15 +39,16 @@ public class LinkMain {
 
 	private static DCDLinker getDCDLinker(CommandLine cmd) {
 		boolean useMid = cmd.hasOption("f");
+		boolean eidOnly = true;
 
 		String resourceDir = cmd.getOptionValue("res");
 
 		MidToEidMapper mteMapper = null;
-		if (!useMid) {
+		if (!useMid || eidOnly) {
 			mteMapper = new MidToEidMapper(Paths.get(resourceDir, "prog-gen/mid-to-eid.bin").toString());
 		}
 
-		return new DCDLinker(mteMapper);
+		return new DCDLinker(mteMapper, !useMid, eidOnly);
 	}
 
 	public static void main(String[] args) throws Exception {

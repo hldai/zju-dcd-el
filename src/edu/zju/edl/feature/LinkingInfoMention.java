@@ -2,6 +2,7 @@ package edu.zju.edl.feature;
 
 import edu.zju.edl.ELConsts;
 import edu.zju.edl.obj.ByteArrayString;
+import edu.zju.edl.tac.MidToEidMapper;
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -31,7 +32,7 @@ public class LinkingInfoMention {
         }
     }
 
-    public void toFileVecTrain(DataOutputStream dos) {
+    public void toFileVecTrain(DataOutputStream dos, MidToEidMapper midEidMapper) {
         ByteArrayString queryIdBas = new ByteArrayString(mentionId);
         queryIdBas.toFileWithByteLen(dos);
         try {
@@ -44,13 +45,32 @@ public class LinkingInfoMention {
 
             for (int i = 0; i < numCandidates; ++i) {
                 if (wikiVecs[i] != null) {
-                    mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
-                    dos.writeFloat(commonnesses[i]);
-                    for (int j = 0; j < wikiVecs[i].length; ++j) {
-                        dos.writeFloat(wikiVecs[i][j]);
-                    }
+                    String eid = midEidMapper.getEid(mids[i]);
+                    if (eid == null)
+                        (new ByteArrayString("m." + mids[i].toString().trim())).toFileWithByteLen(dos);
+                    else
+                        (new ByteArrayString(eid)).toFileWithByteLen(dos);
                 }
             }
+
+            for (int i = 0; i < numCandidates; ++i)
+                if (wikiVecs[i] != null)
+                    dos.writeFloat(commonnesses[i]);
+
+            for (int i = 0; i < numCandidates; ++i)
+                if (wikiVecs[i] != null)
+                    for (int j = 0; j < wikiVecs[i].length; ++j)
+                        dos.writeFloat(wikiVecs[i][j]);
+
+//            for (int i = 0; i < numCandidates; ++i) {
+//                if (wikiVecs[i] != null) {
+//                    mids[i].toFileWithFixedLen(dos, ELConsts.MID_BYTE_LEN);
+//                    dos.writeFloat(commonnesses[i]);
+//                    for (int j = 0; j < wikiVecs[i].length; ++j) {
+//                        dos.writeFloat(wikiVecs[i][j]);
+//                    }
+//                }
+//            }
         } catch (IOException e) {
             e.printStackTrace();
         }

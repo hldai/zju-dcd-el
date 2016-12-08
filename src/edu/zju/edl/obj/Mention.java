@@ -27,7 +27,10 @@ public class Mention {
 					m.nameString = m.nameString.replaceAll("\\s+", " ");
 				}
 
-				int colonPos = vals[3].indexOf(':'), dashPos = vals[3].indexOf('-');
+				int colonPos = vals[3].lastIndexOf(':'), dashPos = vals[3].lastIndexOf('-');
+				if (colonPos < 0 || dashPos < 0)
+					System.err.println(vals[3]);
+//				System.out.println(vals[3]);
 				m.docId = vals[3].substring(0, colonPos);
 				m.beg = Integer.valueOf(vals[3].substring(colonPos + 1, dashPos));
 				m.end = Integer.valueOf(vals[3].substring(dashPos + 1));
